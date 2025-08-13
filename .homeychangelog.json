@@ -1,4 +1,7 @@
 {
+  "1.3.0": {
+    "en": "Fixed login for new API endpoints."
+  },
   "1.2.2": {
     "en": "Fixed detection of ccuCCS2 HEV. Added HP2016/2019 warning in readme. Fixed support link."
   },
