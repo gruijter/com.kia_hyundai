@@ -479,8 +479,10 @@ class CarDevice extends Homey.Device {
         this.lastRefresh = Date.now();
       }
 
-      // repair odometer status 0
-      if (!stsMapped.measure_odo) stsMapped.measure_odo = { ...this?.lastStatus?.measure_odo };
+      // repair odometer status 0: fall back to the last known reading instead
+      // of leaving it unset (spreading a number here produced an empty object,
+      // which Homey then rejected as an invalid measure_odo capability value)
+      if (!stsMapped.measure_odo) stsMapped.measure_odo = this?.lastStatus?.measure_odo;
 
       this.lastStatus = stsMapped;
       await this.setStoreValue('lastStatus', stsMapped).catch((error) => this.error(error));

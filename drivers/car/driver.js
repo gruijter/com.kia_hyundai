@@ -1,20 +1,20 @@
 /*
 Copyright 2025, RM de Gruijter (rmdegruijter@gmail.com)
 
-This file is part of com.hyundai
+This file is part of com.kia and com.hyundai
 
-com.hyundai is free software: you can redistribute it and/or modify
+com.kia is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-com.hyundai is distributed in the hope that it will be useful,
+com.kia is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with com.hyundai. If not, see <http://www.gnu.org/licenses/>.
+along with com.kia. If not, see <http://www.gnu.org/licenses/>.
 */
 
 'use strict';
@@ -123,9 +123,12 @@ module.exports = class MyDriver extends Homey.Driver {
           this.log(vehicle.vehicleConfig);
           const status = await vehicle.status({ refresh: false, parsed: false });
           // console.dir(status, { depth: null, colors: true });
-          const isPEV = !!status.evStatus || !!status?.Green?.ChargingInformation?.ConnectorFastening;
-          const isICE = !!status.dte || !!status.fuelLevel
-            || !!status?.evStatus?.drvDistance?.[0]?.rangeByFuel?.gasModeRange?.value
+          // legacy (non-ccuCCS2) vehicles nest evStatus/dte/fuelLevel one level
+          // deeper, under vehicleStatus — CCS2 vehicles are already flat here.
+          const legacyStatus = status?.vehicleStatus || status;
+          const isPEV = !!legacyStatus.evStatus || !!status?.Green?.ChargingInformation?.ConnectorFastening;
+          const isICE = !!legacyStatus.dte || !!legacyStatus.fuelLevel
+            || !!legacyStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.gasModeRange?.value
             || !!status?.Drivetrain?.InternalCombustionEngine;
           let engine = 'HEV/ICE';
           if (isPEV && isICE) engine = 'PHEV';
