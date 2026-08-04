@@ -636,10 +636,12 @@ class CarDevice extends Homey.Device {
         sts?.Cabin?.Window?.Row2?.Right,
       ].filter(Boolean);
       const allWindowsClosed = windows.every((w) => w.Open === 0);
-      // Check trunk, hood, sunroof
-      const trunkClosed = sts?.Body?.Trunk?.Open === 0;
-      const hoodClosed = sts?.Body?.Hood?.Open === 0;
-      const sunroofClosed = sts?.Body?.Sunroof?.Glass?.Open === 0;
+      // Check trunk, hood, sunroof — treat an absent field (car has no sunroof,
+      // or the field isn't reported) as closed rather than as open, otherwise
+      // closed_locked incorrectly stays false forever on cars without one.
+      const trunkClosed = [undefined, 0].includes(sts?.Body?.Trunk?.Open);
+      const hoodClosed = [undefined, 0].includes(sts?.Body?.Hood?.Open);
+      const sunroofClosed = [undefined, 0].includes(sts?.Body?.Sunroof?.Glass?.Open);
       map.locked = allDoorsLocked;
       map.closed_locked = allDoorsClosed && allDoorsLocked && allWindowsClosed && trunkClosed && hoodClosed && sunroofClosed;
       map.engine = !!sts.DrivingReady;
