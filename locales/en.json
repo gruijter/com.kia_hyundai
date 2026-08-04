@@ -23,5 +23,8 @@
   "error_engine_on": "Control not possible; engine is on.",
   "error_not_ev": "Control not possible; not an EV.",
   "error_climate_control_off": "Climate control is not on.",
-  "error_location_not_found": "Could not find that location."
+  "error_location_not_found": "Could not find that location.",
+  "error_queue_full": "Too many commands are already queued for this car. Please wait a moment and try again.",
+  "error_unknown_command": "Unknown command: __command__",
+  "error_invalid_window_state": "Invalid window state: __state__"
 }
