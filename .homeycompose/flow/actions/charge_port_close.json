@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Close charge port"
+    },
+    "titleFormatted": {
+        "en": "Close charge port"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "title": {
+        "en": "Set V2L discharge limit"
+    },
+    "titleFormatted": {
+        "en": "Set V2L discharge limit to [[limit]]%"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        },
+        {
+            "type": "range",
+            "name": "limit",
+            "title": {
+                "en": "Battery level (%)"
+            },
+            "min": 20,
+            "max": 100,
+            "value": 20,
+            "step": 5,
+            "label": "%",
+            "labelDecimals": 0
+        }
+    ]
+}

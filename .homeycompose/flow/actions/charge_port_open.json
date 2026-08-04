@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Open charge port"
+    },
+    "titleFormatted": {
+        "en": "Open charge port"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}
