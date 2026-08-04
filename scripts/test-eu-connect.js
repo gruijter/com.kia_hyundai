@@ -40,7 +40,7 @@ async function main() {
   }
 
   const manager = new VehicleManager({
-    username, password, pin, region: REGION_EUROPE, brand, language: 'en',
+    username, password, pin, region: REGION_EUROPE, brand, language: 'en', logger: console,
   });
 
   console.log(`Logging in as ${brandArg} EU...`);
