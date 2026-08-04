@@ -22,7 +22,7 @@ along with com.hyundai. If not, see <http://www.gnu.org/licenses/>.
 const Homey = require('homey');
 const GeoPoint = require('geopoint');
 const util = require('util');
-const { createClient } = require('../../lib/connect');
+const { createClient, exceptions } = require('../../lib/connect');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 
@@ -51,7 +51,7 @@ class CarDevice extends Homey.Device {
       await this.startPolling(this.settings.pollInterval);
     } catch (error) {
       this.error(error);
-      this.restartDevice(10 * 60 * 1000).catch((error) => this.error(error));
+      this.restartDevice(10 * 60 * 1000, error.userMessage).catch((error) => this.error(error));
     }
   }
 
@@ -252,6 +252,21 @@ class CarDevice extends Homey.Device {
         this.log('Command failed (duplicate request)');
         this.watchDogCounter -= 1;
       }
+      // Check the more specific OTP case before the general auth-failed case
+      // (AuthenticationOTPRequired extends AuthenticationError). Both give a
+      // plain-language reason instead of the generic "Device is restarting"
+      // fallback — non-technical users shouldn't see raw API error text.
+      if (error instanceof exceptions.AuthenticationOTPRequired) {
+        const message = this.homey.__('device_otp_required');
+        this.log(message);
+        this.setUnavailable(message).catch(this.error);
+        this.restartDevice(60 * 60 * 1000, message).catch((error) => this.error(error));
+      } else if (error instanceof exceptions.AuthenticationError) {
+        const message = this.homey.__('device_auth_failed');
+        this.log(message);
+        this.setUnavailable(message).catch(this.error);
+        this.restartDevice(15 * 60 * 1000, message).catch((error) => this.error(error));
+      }
       this.error(error);
       this.watchDogCounter -= 1;
       if (!this.vehicle) this.restartDevice(15 * 1000).catch((error) => this.error(error));
@@ -260,8 +275,17 @@ class CarDevice extends Homey.Device {
       // console.log(util.inspect(vehicles, true, 10, true));
       const [vehicle] = vehicles.filter((veh) => veh.vehicleConfig.vin === this.settings.vin);
       if (!vehicle) {
-        this.error(`No vehicle with VIN ${this.settings.vin} found in this account (${vehicles.length} vehicle(s) returned) — check if the car is still shared/registered to this account.`);
-        return;
+        const message = this.homey.__('device_no_vehicle', { vin: this.settings.vin });
+        this.error(`${message} (${vehicles.length} vehicle(s) returned for this account)`);
+        this.setUnavailable(message).catch(this.error);
+        // Propagates through client.login() below, so onInit()'s catch picks
+        // it up and retries every 10 minutes — recovers automatically if the
+        // car gets shared again, instead of silently polling with no vehicle.
+        // userMessage lets onInit()'s catch keep showing this specific reason
+        // (instead of the generic "Device is restarting") during the wait.
+        const error = Error(message);
+        error.userMessage = message;
+        throw error;
       }
       if (this.vehicle === null) this.log(JSON.stringify(vehicle.vehicleConfig));
       this.vehicle = vehicle;
@@ -302,14 +326,14 @@ class CarDevice extends Homey.Device {
     this.homey.clearInterval(this.intervalIdDevicePoll);
   }
 
-  async restartDevice(delay) {
+  async restartDevice(delay, reason) {
     if (this.restarting) return;
     this.restarting = true;
     this.stopPolling();
     this.flushQueue();
     const dly = delay || 1000 * 60 * 5;
     this.log(`Device will restart in ${dly / 1000} seconds`);
-    this.setUnavailable('Device is restarting. Wait a few minutes!').catch(this.error);
+    this.setUnavailable(reason || 'Device is restarting. Wait a few minutes!').catch(this.error);
     await setTimeoutPromise(dly);
     this.onInit().catch((error) => this.error(error));
   }

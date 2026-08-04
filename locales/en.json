@@ -14,5 +14,8 @@
     "pairing_failed": "Pairing failed: __error__"
 
   },
-  "migrating": "Migrating device, please wait..."
+  "migrating": "Migrating device, please wait...",
+  "device_no_vehicle": "This car is no longer available in this account (VIN __vin__). Check if it is still shared/registered to this account.",
+  "device_auth_failed": "Login failed. Check your username, password and PIN in the device settings.",
+  "device_otp_required": "This account requires an extra verification code (OTP) on login, which this app does not support yet."
 }
