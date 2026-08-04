@@ -20,8 +20,8 @@ along with com.hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const { BlueLinky } = require('bluelinky');
 const util = require('util');
+const { createClient } = require('../../lib/connect');
 
 const setTimeoutPromise = util.promisify(setTimeout);
 
@@ -77,7 +77,7 @@ module.exports = class MyDriver extends Homey.Driver {
           autoLogin: true,
         };
 
-        const client = new BlueLinky(options);
+        const client = createClient(options);
 
         const validated = await new Promise((resolve, reject) => {
           let cancelTimeout = false;
