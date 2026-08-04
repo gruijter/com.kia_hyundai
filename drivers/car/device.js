@@ -689,7 +689,13 @@ class CarDevice extends Homey.Device {
       map.locked = allDoorsLocked;
       map.closed_locked = allDoorsClosed && allDoorsLocked && allWindowsClosed && trunkClosed && hoodClosed && sunroofClosed;
       map.engine = !!sts.DrivingReady;
-      map['alarm_tire_pressure'] = !!sts?.battery?.Axle?.Tire?.PressureLow;
+      const tires = [
+        sts?.Chassis?.Axle?.Row1?.Left?.Tire,
+        sts?.Chassis?.Axle?.Row1?.Right?.Tire,
+        sts?.Chassis?.Axle?.Row2?.Left?.Tire,
+        sts?.Chassis?.Axle?.Row2?.Right?.Tire,
+      ].filter(Boolean);
+      map['alarm_tire_pressure'] = !!sts?.Chassis?.Axle?.Tire?.PressureLow || tires.some((tire) => tire.PressureLow);
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       map.measure_battery = sts?.Green?.BatteryManagement?.BatteryRemain.Ratio;
