@@ -139,6 +139,7 @@ class CarDevice extends Homey.Device {
     this.watchDogCounter = 6;
     this.busy = false;
     this.restarting = false;
+    this.moving = false; // read by the 'moving' flow condition card (app.js)
     // for [queue-timing] logging only, see runQueue() — real-world data on
     // whether ITEM_WAIT_SECONDS is actually long enough per command, since
     // those values (especially for commands added in 2026) are an unverified
@@ -157,10 +158,6 @@ class CarDevice extends Homey.Device {
     // auto-polls) should attach a no-op .catch() since a fast, definitive
     // failure (e.g. a full queue) does reject this promise.
     this.enQueue = (item) => {
-      if (this.disabled) {
-        this.log('ignoring command; Homey live link is disabled.');
-        return Promise.resolve(true);
-      }
       if (this.queue.length >= 10) {
         this.error('queue overflow');
         return Promise.reject(Error(this.homey.__('error_queue_full')));
@@ -259,10 +256,8 @@ class CarDevice extends Homey.Device {
           item = this.deQueue();
         }
         // queue drained: schedule a follow-up poll so capabilities reflect
-        // the just-applied command, unless the queue only ever held polls
-        // or we just fixed the charger state (that flow already re-polls).
-        const fixingChargerState = (this.lastCommand === 'stopCharge') || (Date.now() - this.fixChargerStateTime) < 30 * 1000;
-        if (this.lastCommand !== 'doPoll' && !fixingChargerState) {
+        // the just-applied command, unless the queue only ever held polls.
+        if (this.lastCommand !== 'doPoll') {
           this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
         }
       } catch (error) {
@@ -551,14 +546,6 @@ class CarDevice extends Homey.Device {
       await this.handleInfo(stsMapped).catch((error) => this.error(error));
       this.setCapability('refresh_status', false);
 
-      // fix charger state after refresh
-      // if (this.settings.chargeStateFix && this.isEV && refresh
-      //   && status && status.evStatus && status.evStatus.batteryPlugin && !status.evStatus.batteryCharge) {
-      //   await setTimeoutPromise(15 * 1000); // wait a bit for Homey to settle
-      //   await this.chargingOnOff(false, 'charger off state fix');
-      //   this.fixChargerStateTime = Date.now();
-      // }
-
       // variable polling interval based on active state
       if (this.settings.pollIntervalEngineOn && !this.pollMode && carJustActive) {
         this.pollMode = 1; // engineOn poll mode
@@ -580,6 +567,7 @@ class CarDevice extends Homey.Device {
     try {
 
       const moving = this.isMoving(info);
+      this.moving = moving; // read by the 'moving' flow condition card (app.js)
       const hasParked = this.isParking(info);
 
       // update capabilities
