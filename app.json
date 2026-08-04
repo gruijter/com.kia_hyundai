@@ -331,30 +331,6 @@
       },
       {
         "title": {
-          "en": "Distance changed"
-        },
-        "highlight": true,
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-          }
-        ],
-        "tokens": [
-          {
-            "name": "meter_distance",
-            "type": "number",
-            "title": {
-              "en": "Distance"
-            },
-            "example": 53
-          }
-        ],
-        "id": "measure_distance_changed"
-      },
-      {
-        "title": {
           "en": "Odometer changed"
         },
         "highlight": true,
@@ -400,6 +376,30 @@
           }
         ],
         "id": "measure_range_changed"
+      },
+      {
+        "title": {
+          "en": "Distance changed"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "meter_distance",
+            "type": "number",
+            "title": {
+              "en": "Distance"
+            },
+            "example": 53
+          }
+        ],
+        "id": "meter_distance_changed"
       },
       {
         "title": {
@@ -1067,7 +1067,7 @@
         "measure_speed",
         "measure_range",
         "ev_charging_state",
-        "measure_power.fuel_economy",
+        "meter_power.fuel_economy",
         "charge",
         "measure_odo",
         "alarm_tire_pressure",
