@@ -21,13 +21,21 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const util = require('util');
-const { createClient, exceptions } = require('../../lib/connect');
+const { createClient, exceptions, constants } = require('../../lib/connect');
 const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
 
+const { CHARGE_PORT_ACTION, VALET_MODE_ACTION, WINDOW_STATE } = constants;
+
 const setTimeoutPromise = util.promisify(setTimeout);
+
+// All four windows to the same state — matches the "all windows" flow
+// actions (open/close/vent); see device.js#runCommand.
+const allWindows = (state) => ({
+  frontLeft: state, frontRight: state, backLeft: state, backRight: state,
+});
 
 class CarDevice extends Homey.Device {
 
@@ -41,14 +49,6 @@ class CarDevice extends Homey.Device {
       this.setupQueue();
       await this.setupClient();
       this.startListeners();
-
-      // testing stuff
-      // const tripInfo = await this.vehicle.tripInfo({ year: 2025, month: 7, day: 2 });
-      // const monthlyReport = await this.vehicle.monthlyReport({ year: 2025, month: 6 });
-      // console.log(this.getName());
-      // console.log(util.inspect(tripInfo, true, 10, true));
-      // console.log(monthlyReport);
-
       await this.startPolling(this.settings.pollInterval);
     } catch (error) {
       this.error(error);
@@ -97,7 +97,7 @@ class CarDevice extends Homey.Device {
   initvalues() {
     this.capsChanged = false;
     this.settings = this.getSettings();
-    this.vehicle = null;
+    this.vehicleConfig = null;
     this.pollMode = 0; // 0: normal, 1: engineOn with refresh
     this.isEV = this.hasCapability('ev_charging_state');
     this.lastStatus = this.getStoreValue('lastStatus');
@@ -126,7 +126,6 @@ class CarDevice extends Homey.Device {
       this.queue[this.tail] = item;
       this.tail += 1;
       if (!this.queueRunning) {
-        // await this.client.login(); // not needed with autoLogin: true
         this.queueRunning = true;
         this.runQueue().catch((error) => this.error(error));
       }
@@ -157,7 +156,7 @@ class CarDevice extends Homey.Device {
         this.queueRunning = true;
         const item = this.deQueue();
         if (item) {
-          if (!this.vehicle || !this.vehicle.vehicleConfig) {
+          if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
             throw Error('Ignoring queued command; not logged in');
           }
@@ -184,12 +183,10 @@ class CarDevice extends Homey.Device {
             disableValetMode: 5,
           };
           this.lastCommand = item.command;
-          let methodClass = this.vehicle;
-          if (item.command === 'doPoll') {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            methodClass = this;
-          }
-          await methodClass[item.command](item.args)
+          const dispatch = () => (item.command === 'doPoll'
+            ? this.doPoll(item.args)
+            : this.runCommand(item.command, item.args));
+          await dispatch()
             .then(() => {
               this.watchDogCounter = 6;
               this.setAvailable().catch(this.error);
@@ -201,8 +198,12 @@ class CarDevice extends Homey.Device {
               if (msg && (msg.includes('"resCode":"4002"') || msg.includes('"resCode":"4004"'))) {
                 this.log(`${item.command} failed. Retrying in 60 seconds`);
                 await setTimeoutPromise(60 * 1000, 'waiting is done');
-                if (this.settings.loginOnRetry) await this.client.login();
-                retryWorked = await methodClass[item.command](item.args)
+                if (this.settings.loginOnRetry) {
+                  const vehicleConfigs = await this.client.login();
+                  const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
+                  if (vehicleConfig) this.vehicleConfig = vehicleConfig;
+                }
+                retryWorked = await dispatch()
                   .then(() => {
                     this.watchDogCounter = 6;
                     this.setAvailable().catch(this.error);
@@ -236,6 +237,34 @@ class CarDevice extends Homey.Device {
     };
   }
 
+  // dispatches a queued command straight to the VehicleManager (this.client)
+  // for the paired vehicle (this.vehicleConfig) — see ../../lib/connect/NAMING.md.
+  runCommand(command, args) {
+    const vc = this.vehicleConfig;
+    switch (command) {
+      case 'start': return this.client.startClimate(vc, args);
+      case 'stop': return this.client.stopClimate(vc);
+      case 'lock': return this.client.lock(vc);
+      case 'unlock': return this.client.unlock(vc);
+      case 'startCharge': return this.client.startCharge(vc);
+      case 'stopCharge': return this.client.stopCharge(vc);
+      case 'setChargeTargets': return this.client.setChargeLimits(vc, args.slow, args.fast);
+      case 'setNavigation': return this.client.setNavigation(vc, args);
+      case 'flashLights': return this.client.startHazardLights(vc);
+      case 'flashLightsAndHonk': return this.client.startHazardLightsAndHorn(vc);
+      case 'openChargePort': return this.client.chargePortAction(vc, CHARGE_PORT_ACTION.OPEN);
+      case 'closeChargePort': return this.client.chargePortAction(vc, CHARGE_PORT_ACTION.CLOSE);
+      case 'openWindows': return this.client.setWindowsState(vc, allWindows(WINDOW_STATE.OPEN));
+      case 'closeWindows': return this.client.setWindowsState(vc, allWindows(WINDOW_STATE.CLOSED));
+      case 'ventWindows': return this.client.setWindowsState(vc, allWindows(WINDOW_STATE.VENTILATION));
+      case 'setChargingCurrent': return this.client.setChargingCurrent(vc, args);
+      case 'setV2LDischargeLimit': return this.client.setVehicleToLoadDischargeLimit(vc, args);
+      case 'enableValetMode': return this.client.valetModeAction(vc, VALET_MODE_ACTION.ACTIVATE);
+      case 'disableValetMode': return this.client.valetModeAction(vc, VALET_MODE_ACTION.DEACTIVATE);
+      default: return Promise.reject(Error(`Unknown command: ${command}`));
+    }
+  }
+
   // setup the Kia/Hyundai connect client (lib/connect)
   async setupClient() {
     const options = {
@@ -244,21 +273,21 @@ class CarDevice extends Homey.Device {
       region: this.settings.region,
       language: this.settings.language || 'en', // ['cs', 'da', 'nl', 'en', 'fi', 'fr', 'de', 'it', 'pl', 'hu', 'no', 'sk', 'es', 'sv']
       pin: this.settings.pin,
-      // vin: this.settings.vin,
       brand: this.homey.manifest.id.replace('com.', ''), // 'kia' or 'hyundai'
-      stampMode: 'LOCAL', // 'LOCAL' or 'DISTANT'
-      deviceUuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15), // 'homey',
-      autoLogin: false,
       logger: { log: this.log.bind(this), error: this.error.bind(this) },
     };
     this.client = createClient(options);
-    this.client.on('error', (error) => {
+
+    let vehicleConfigs;
+    try {
+      vehicleConfigs = await this.client.login();
+    } catch (error) {
       // retCode: 'F', resCode: '5091', resMsg: 'Exceeds number of requests
       if (error.message && error.message.includes('"resCode":"5091"')) {
         this.log('Daily quotum reached! Pausing app for 60 minutes.');
         this.stopPolling();
         this.setUnavailable(this.homey.__('device_quota_reached')).catch(this.error);
-        this.restartDevice(60 * 60 * 1000).catch((error) => this.error(error));
+        this.restartDevice(60 * 60 * 1000).catch((e) => this.error(e));
       }
       if (error.message && error.message.includes('"resCode":"4004"')) {
         this.log('Command failed (duplicate request)');
@@ -272,39 +301,35 @@ class CarDevice extends Homey.Device {
         const message = this.homey.__('device_otp_required');
         this.log(message);
         this.setUnavailable(message).catch(this.error);
-        this.restartDevice(60 * 60 * 1000, message).catch((error) => this.error(error));
+        this.restartDevice(60 * 60 * 1000, message).catch((e) => this.error(e));
       } else if (error instanceof exceptions.AuthenticationError) {
         const message = this.homey.__('device_auth_failed');
         this.log(message);
         this.setUnavailable(message).catch(this.error);
-        this.restartDevice(15 * 60 * 1000, message).catch((error) => this.error(error));
+        this.restartDevice(15 * 60 * 1000, message).catch((e) => this.error(e));
       }
       this.error(error);
       this.watchDogCounter -= 1;
-      if (!this.vehicle) this.restartDevice(15 * 1000).catch((error) => this.error(error));
-    });
-    this.client.on('ready', (vehicles) => {
-      // console.log(util.inspect(vehicles, true, 10, true));
-      const [vehicle] = vehicles.filter((veh) => veh.vehicleConfig.vin === this.settings.vin);
-      if (!vehicle) {
-        const message = this.homey.__('device_no_vehicle', { vin: this.settings.vin });
-        this.error(`${message} (${vehicles.length} vehicle(s) returned for this account)`);
-        this.setUnavailable(message).catch(this.error);
-        // Propagates through client.login() below, so onInit()'s catch picks
-        // it up and retries every 10 minutes — recovers automatically if the
-        // car gets shared again, instead of silently polling with no vehicle.
-        // userMessage lets onInit()'s catch keep showing this specific reason
-        // (instead of the generic "Device is restarting") during the wait.
-        const error = Error(message);
-        error.userMessage = message;
-        throw error;
-      }
-      if (this.vehicle === null) this.log(JSON.stringify(vehicle.vehicleConfig));
-      this.vehicle = vehicle;
-    });
-    await this.client.login();
-    // await setTimeoutPromise(60 * 1000);
-    // if (!this.client.controller || !this.client.controller.session || !this.client.controller.session.tokenExpiresAt) throw Error('client startup failed');
+      if (!this.vehicleConfig) this.restartDevice(15 * 1000).catch((e) => this.error(e));
+      throw error;
+    }
+
+    const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
+    if (!vehicleConfig) {
+      const message = this.homey.__('device_no_vehicle', { vin: this.settings.vin });
+      this.error(`${message} (${vehicleConfigs.length} vehicle(s) returned for this account)`);
+      this.setUnavailable(message).catch(this.error);
+      // Propagates through this method, so onInit()'s catch picks it up and
+      // retries every 10 minutes — recovers automatically if the car gets
+      // shared again, instead of silently polling with no vehicle.
+      // userMessage lets onInit()'s catch keep showing this specific reason
+      // (instead of the generic "Device is restarting") during the wait.
+      const error = Error(message);
+      error.userMessage = message;
+      throw error;
+    }
+    if (this.vehicleConfig === null) this.log(JSON.stringify(vehicleConfig));
+    this.vehicleConfig = vehicleConfig;
   }
 
   async startPolling(interval) {
@@ -414,53 +439,16 @@ class CarDevice extends Homey.Device {
       const refresh = this.pollMode // 1 = engineOn with refresh
         || (batSoCGood && (forceOnce || forcePollInterval)); // || !status || !location || !odometer));
 
-      let fullStatus;
-      const ccuCCS2 = this.vehicle?.vehicleConfig?.ccuCCS2ProtocolSupport;
-      const advanced = !ccuCCS2 && (typeof this.vehicle.fullStatus === 'function'); // works for EU vehicles only
-      if (ccuCCS2) { // get status, location, odo meter
-        fullStatus = await this.vehicle.status({
-          refresh,
-          parsed: false,
-        });
-      }
-      if (advanced) { // get status, location, odo meter
-        fullStatus = await this.vehicle.fullStatus({
-          refresh,
-          parsed: false,
-        });
-        // check for location data
-        if (!fullStatus.vehicleLocation) {
-          await setTimeoutPromise(5000);
-          let location = await this.vehicle.location().catch((error) => this.error(error));
-          if (!location) location = {};
-          fullStatus.vehicleLocation = {
-            coord: { lat: location.latitude, lon: location.longitude },
-          };
-        }
-      }
-      if (!ccuCCS2 && !advanced) { // Non-advanced ; get status separately
-        const vehicleStatus = await this.vehicle.status({
-          refresh,
-          parsed: false,
-        });
-        fullStatus = {
-          vehicleStatus,
-          vehicleLocation: {
-            coord: { lat: this.getCapabilityValue('latitude'), lon: this.getCapabilityValue('longitude') },
-            speed: { value: this.getCapabilityValue('measure_speed') },
-          },
-          odometer: { value: this.getCapabilityValue('measure_odo') },
-        };
-        // check if location and odo need refresh
-        if (fullStatus.time !== this?.lastStatus?.Date) { // check if server state changed
-          // get location and odometer from car
-          const location = await this.vehicle.location().catch((error) => this.error(error));
-          fullStatus.vehicleLocation = {
-            coord: { lat: location.latitude, lon: location.longitude },
-          };
-          const odometer = await this.vehicle.odometer().catch((error) => this.error(error));
-          fullStatus.odometer = odometer;
-        }
+      const fullStatus = refresh
+        ? await this.client.forceRefreshVehicleState(this.vehicleConfig)
+        : await this.client.updateVehicleWithCachedState(this.vehicleConfig);
+
+      // CCS2 status always includes Location inline; legacy (non-ccuCCS2)
+      // vehicles sometimes don't — fetch it separately when missing.
+      if (!this.vehicleConfig.ccuCCS2ProtocolSupport && !fullStatus.vehicleLocation) {
+        await setTimeoutPromise(5000);
+        const gpsDetail = await this.client.getLocation(this.vehicleConfig).catch((error) => this.error(error));
+        fullStatus.vehicleLocation = { coord: gpsDetail?.coord || {} };
       }
 
       // log a redacted snapshot on the first poll after every app (re)start, so
@@ -472,8 +460,8 @@ class CarDevice extends Homey.Device {
         // meaningful for EV/PHEV); best-effort, must not break the regular
         // status dump if it's unsupported or fails for this vehicle.
         let drivingInfo;
-        if (this.isEV && typeof this.vehicle.drivingInfo === 'function') {
-          drivingInfo = await this.vehicle.drivingInfo().catch((error) => {
+        if (this.isEV) {
+          drivingInfo = await this.client.drivingInfo(this.vehicleConfig).catch((error) => {
             this.error('drivingInfo (debug dump only) failed', error);
             return undefined;
           });
@@ -484,7 +472,7 @@ class CarDevice extends Homey.Device {
           engine: this.settings.engine,
           generation: this.settings.generation,
           ccuCCS2ProtocolSupport: this.settings.ccuCCS2ProtocolSupport,
-          vehicleConfig: this.vehicle?.vehicleConfig,
+          vehicleConfig: this.vehicleConfig,
           status: fullStatus,
           odometer: fullStatus?.odometer,
           drivingInfo,
@@ -767,16 +755,10 @@ class CarDevice extends Homey.Device {
       if (acOn) {
         this.log(`A/C on via ${source}`); // app or flow
         command = 'start';
-        args = {
-          // igniOnDuration: 10,
-          temperature: this.getCapabilityValue('target_temperature') || 22,
-        };
+        args = { setTemp: this.getCapabilityValue('target_temperature') || 22 };
       } else {
         this.log(`A/C off via ${source}`); // app or flow
         command = 'stop';
-        args = {
-          // temperature: this.getCapabilityValue('target_temperature') || 22,
-        };
         this.setCapability('defrost', false); // set defrost state to off
       }
       this.enQueue({ command, args });
@@ -795,28 +777,15 @@ class CarDevice extends Homey.Device {
         this.log(`defrost on via ${source}`);
         command = 'start';
         args = {
-          // igniOnDuration: 10, // doesn't seem to do anything
           defrost: true,
-          windscreenHeating: true,
-          heatedFeatures: true, // for bluelinky >v8
-          // unknown if this does anything
-          heating1: 1,
-          steerWheelHeat: 1,
-          sideBackWindowHeat: 1,
-          temperature: this.getCapabilityValue('target_temperature') || 22,
+          heating: 1,
+          steeringWheel: 1,
+          setTemp: this.getCapabilityValue('target_temperature') || 22,
         };
       } else {
         this.log(`defrost off via ${source}`);
         command = 'stop';
-        args = {
-          defrost: false,
-          windscreenHeating: false,
-          heatedFeatures: false, // for bluelinky >v8
-          // unknown if this does anything
-          heating1: 0,
-          steerWheelHeat: 0,
-          sideBackWindowHeat: 0,
-        };
+        args = { defrost: false, heating: 0, steeringWheel: 0 };
         this.enQueue({ command, args }); // have to do it twice to get defrost reported as off
         this.setCapability('climate_control', false); // set AC state to off
       }
@@ -867,9 +836,7 @@ class CarDevice extends Homey.Device {
       if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
       if (!this.getCapabilityValue('climate_control')) throw Error(this.homey.__('error_climate_control_off'));
       this.log(`Temperature set by ${source} to ${temp}`);
-      const args = {
-        temperature: temp || 22,
-      };
+      const args = { setTemp: temp || 22 };
       const command = 'start';
       this.enQueue({ command, args });
       return true;

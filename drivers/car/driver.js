@@ -20,10 +20,13 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const util = require('util');
 const { createClient } = require('../../lib/connect');
 
-const setTimeoutPromise = util.promisify(setTimeout);
+const LOGIN_TIMEOUT_MS = 15 * 1000;
+
+const timeout = (ms) => new Promise((_, reject) => {
+  setTimeout(() => reject(Error('timeout')), ms);
+});
 
 module.exports = class MyDriver extends Homey.Driver {
 
@@ -56,12 +59,13 @@ module.exports = class MyDriver extends Homey.Driver {
       this.log('Pairing of car started');
 
       let settings;
-      let vehicles = [];
+      let manager;
+      let vehicleConfigs = [];
 
       session.setHandler('validate', async (data) => {
         this.log('validating credentials');
         settings = data;
-        vehicles = [];
+        vehicleConfigs = [];
 
         if (settings.pin.length !== 4) {
           throw Error(this.homey.__('pair.invalid_pin'));
@@ -73,55 +77,38 @@ module.exports = class MyDriver extends Homey.Driver {
           pin: settings.pin,
           brand: this.homey.manifest.id.replace('com.', ''), // 'kia' or 'hyundai'
           region: settings.region,
-          deviceUuid: 'HomeyPair',
-          autoLogin: true,
           logger: { log: this.log.bind(this), error: this.error.bind(this) },
         };
 
-        const client = createClient(options);
+        manager = createClient(options);
 
-        const validated = await new Promise((resolve, reject) => {
-          let cancelTimeout = false;
-          client.on('error', (error) => {
-            cancelTimeout = true;
-            this.error(error);
-            reject(Error(this.homey.__('pair.pairing_failed', { error: error.message || error })));
-          });
-          client.on('ready', (veh) => {
-            cancelTimeout = true;
-            if (!veh || !Array.isArray(veh) || veh.length < 1) {
-              this.error('No vehicles in this account!');
-              reject(Error(this.homey.__('pair.no_vehicles')));
-              return;
-            }
-            veh[0].odometer()
-              .then(() => {
-                this.log('CREDENTIALS OK!');
-                vehicles = veh;
-                resolve(true);
-              })
-              .catch(() => {
-                this.error('Incorrect PIN!');
-                reject(Error(this.homey.__('pair.invalid_pin')));
-              });
-          });
-          setTimeoutPromise(15 * 1000) // login timeout
-            .then(() => {
-              if (!cancelTimeout) {
-                this.error('Login timeout!');
-                reject(Error(this.homey.__('pair.pairing_failed', { error: 'timeout' })));
-              }
-            })
-            .catch((error) => this.error(error));
-        });
-        return validated;
+        let veh;
+        try {
+          veh = await Promise.race([manager.login(), timeout(LOGIN_TIMEOUT_MS)]);
+        } catch (error) {
+          this.error(error);
+          throw Error(this.homey.__('pair.pairing_failed', { error: error.message || error }));
+        }
+        if (!veh || !Array.isArray(veh) || veh.length < 1) {
+          this.error('No vehicles in this account!');
+          throw Error(this.homey.__('pair.no_vehicles'));
+        }
+        try {
+          await manager.odometer(veh[0]); // confirms the PIN is correct
+        } catch {
+          this.error('Incorrect PIN!');
+          throw Error(this.homey.__('pair.invalid_pin'));
+        }
+        this.log('CREDENTIALS OK!');
+        vehicleConfigs = veh;
+        return true;
       });
 
       session.setHandler('list_devices', async () => {
         this.log('listing of devices started');
-        const devices = vehicles.map(async (vehicle) => {
-          this.log(vehicle.vehicleConfig);
-          const status = await vehicle.status({ refresh: false, parsed: false });
+        const devices = vehicleConfigs.map(async (vehicleConfig) => {
+          this.log(vehicleConfig);
+          const status = await manager.updateVehicleWithCachedState(vehicleConfig);
           // console.dir(status, { depth: null, colors: true });
           // legacy (non-ccuCCS2) vehicles nest evStatus/dte/fuelLevel one level
           // deeper, under vehicleStatus — CCS2 vehicles are already flat here.
@@ -133,11 +120,11 @@ module.exports = class MyDriver extends Homey.Driver {
           let engine = 'HEV/ICE';
           if (isPEV && isICE) engine = 'PHEV';
           if (isPEV && !isICE) engine = 'Full EV';
-          if (isPEV && !isICE && vehicle?.vehicleConfig?.ccuCCS2ProtocolSupport) engine = 'Full EV ccuCCS2';
+          if (isPEV && !isICE && vehicleConfig?.ccuCCS2ProtocolSupport) engine = 'Full EV ccuCCS2';
           return {
-            name: vehicle.vehicleConfig.nickname,
+            name: vehicleConfig.nickname,
             data: {
-              id: vehicle.vehicleConfig.vin,
+              id: vehicleConfig.vin,
             },
             settings: {
               username: settings.username,
@@ -146,13 +133,13 @@ module.exports = class MyDriver extends Homey.Driver {
               region: settings.region,
               language: 'en',
               // pollInterval,
-              nameOrg: vehicle.vehicleConfig.name,
-              idOrg: vehicle.vehicleConfig.id,
-              vin: vehicle.vehicleConfig.vin,
-              regDate: vehicle.vehicleConfig.regDate.split(' ')[0],
-              brandIndicator: vehicle.vehicleConfig.brandIndicator,
-              generation: vehicle.vehicleConfig.generation,
-              ccuCCS2ProtocolSupport: vehicle.vehicleConfig.ccuCCS2ProtocolSupport,
+              nameOrg: vehicleConfig.name,
+              idOrg: vehicleConfig.id,
+              vin: vehicleConfig.vin,
+              regDate: vehicleConfig.regDate.split(' ')[0],
+              brandIndicator: vehicleConfig.brandIndicator,
+              generation: vehicleConfig.generation,
+              ccuCCS2ProtocolSupport: vehicleConfig.ccuCCS2ProtocolSupport,
               engine,
               lat: Math.round(this.homey.geolocation.getLatitude() * 100000000) / 100000000,
               lon: Math.round(this.homey.geolocation.getLongitude() * 100000000) / 100000000,
