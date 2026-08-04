@@ -24,7 +24,7 @@ having to understand the rest of this codebase.
 | `HyundaiBlueLinkApiUSA.py`      | `native/regions/HyundaiBlueLinkApiUSA.js`    |
 | `VehicleManager.py`             | `native/VehicleManager.js`                   |
 | `Token.py`                      | `native/Token.js`                            |
-| *(no upstream equivalent)*      | `native/Vehicle.js`, `index.js`              |
+| *(no upstream equivalent)*      | `index.js`                                   |
 
 When upstream adds/changes a region (e.g. `KiaUvoApiCA.py`), create or update
 the corresponding file in `native/regions/` following the same naming.
@@ -62,33 +62,47 @@ the raw JSON** instead of mutating an object. This is the only deliberate
 structural deviation — everything else (URLs, headers, stamp/device-id
 logic, error handling, retry behavior) is a direct port.
 
-Also deliberately not carried over (no Homey use case): `_update_vehicle_drive_info`
-(driving-info parsing), `update_month_trip_info`/`update_day_trip_info`,
-`schedule_charging_and_climate`. Port these once there's a concrete Homey
-feature that needs them.
+`_get_driving_info` (the `drvhistory` endpoint) was ported as
+`VehicleManager#drivingInfo(vehicleConfig)` — kept raw (not parsed into
+`DailyDrivingStats`), only used for the debug dump so far (see
+`zzz_responses/README.md`), not wired to any Homey capability yet.
 
-## Bluelinky compatibility layer
+Still not carried over (no Homey use case yet): `update_month_trip_info`/
+`update_day_trip_info` (`tripinfo` endpoint — distinct from `drvhistory`,
+per-trip records rather than daily energy totals), `schedule_charging_and_climate`.
+Port these once there's a concrete Homey feature that needs them.
 
-The `bluelinky` dependency itself has been fully removed (no fallback left —
-all regions from `driver.settings.compose.json` are natively ported). This
-layer exists purely so drivers/car/driver.js and device.js keep working
-unchanged: their code still calls the same methods as when bluelinky was
-still there.
+## No bluelinky-shaped layer — call VehicleManager directly
 
-`native/Vehicle.js` and `index.js#createClient()` translate the internal API
-to the same shape bluelinky used to have (`status()`, `fullStatus()`,
-`location()`, `odometer()`, `start()`, `stop()`, `lock()`, `unlock()`,
-`startCharge()`, `stopCharge()`, `setChargeTargets({fast, slow})`,
-`setNavigation(poiList)`, events `'ready'`/`'error'`). Note two name/shape
-translations that keep device.js working unchanged but aren't obvious when
-reading upstream:
+The `bluelinky` dependency has been fully removed (no fallback left — all
+regions from `driver.settings.compose.json` are natively ported), and so has
+the adapter layer that used to translate this API into bluelinky's shape
+(`native/Vehicle.js`, and `index.js#createClient()`'s `EventEmitter`/
+`'ready'`/`'error'` constructor). `drivers/car/driver.js` and `device.js` now
+call `VehicleManager` methods directly, the same way `VehicleManager.py` is
+used upstream and the same way `scripts/test-eu-connect.js` already did:
 
-- `setChargeTargets({fast, slow})` → upstream `set_charge_limits(ac, dc)`:
+- `index.js#createClient(options)` maps Homey-side option names (`region:
+  'EU'`, `brand: 'kia'`) to the Python project's region/brand enums and
+  returns a plain `VehicleManager` instance — no events, no wrapper.
+- `await manager.login()` returns a plain array of `vehicleConfig` objects
+  (not wrapped instances). Every other call takes `vehicleConfig` as an
+  explicit first argument, e.g. `manager.lock(vehicleConfig)`,
+  `manager.startClimate(vehicleConfig, options)`.
+- `device.js#runCommand(command, args)` is the one place that dispatches
+  Homey's internal queue-command names (`'start'`, `'lock'`,
+  `'flashLights'`, ...) to the matching `VehicleManager` call — this is
+  Homey-app-specific command routing, not an API-shape translation.
+
+Two name/shape differences survive from the old bluelinky-shaped device.js
+call sites and are worth knowing when reading `device.js`:
+
+- `setChargeTargets({fast, slow})` (device.js) → upstream `set_charge_limits(ac, dc)`:
   `fast` = DC (rapid charging), `slow` = AC (Type 2) → `setChargeLimits(vehicleConfig, slow, fast)`.
-- `start(args)` climate arguments (bluelinky shape, from device.js) →
-  upstream `ClimateRequestOptions`: `temperature`→`setTemp`,
-  `heating1`→`heating`, `steerWheelHeat`→`steeringWheel`,
-  `igniOnDuration`→`duration`.
+- `device.js`'s climate control methods (`acOnOff`, `defrostOnOff`,
+  `setTargetTemp`) build args directly in upstream's `ClimateRequestOptions`
+  shape (`setTemp`, `defrost`, `heating`, `steeringWheel`) — no translation
+  layer needed anymore, this *is* the shape passed to `startClimate()`.
 
 ## Logging (important for non-EU debugging)
 
