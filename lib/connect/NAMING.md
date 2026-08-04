@@ -17,6 +17,11 @@ zijn — zonder de rest van deze codebase te hoeven begrijpen.
 | `ApiImpl.py` (interface)        | `native/ApiImpl.js`                          |
 | `ApiImplType1.py`               | `native/ApiImplType1.js`                     |
 | `KiaUvoApiEU.py`                | `native/regions/KiaUvoApiEU.js`              |
+| `KiaUvoApiAU.py`                | `native/regions/KiaUvoApiAU.js`              |
+| `KiaUvoApiCN.py`                | `native/regions/KiaUvoApiCN.js`              |
+| `KiaUvoApiCA.py`                | `native/regions/KiaUvoApiCA.js`              |
+| `KiaUvoApiUSA.py`               | `native/regions/KiaUvoApiUSA.js`             |
+| `HyundaiBlueLinkApiUSA.py`      | `native/regions/HyundaiBlueLinkApiUSA.js`    |
 | `VehicleManager.py`             | `native/VehicleManager.js`                   |
 | `Token.py`                      | `native/Token.js`                            |
 | *(geen upstream equivalent)*    | `native/Vehicle.js`, `index.js`              |
@@ -78,11 +83,19 @@ upstream:
   `ClimateRequestOptions`: `temperature`→`setTemp`, `heating1`→`heating`,
   `steerWheelHeat`→`steeringWheel`, `igniOnDuration`→`duration`.
 
-## Bekend risicopunt (nog live te valideren)
+## Validatiestatus per regio
 
-`KiaUvoApiEU.js#_loginWithPassword` stap 1 (authorize-call) kan Set-Cookie
-headers op tussenliggende redirect-hops missen — Node's `fetch` met
-`redirect:'follow'` geeft alleen de headers van de uiteindelijke response
-terug, terwijl Python's `requests.Session` cookies over alle hops heen
-accumuleert. Zie de code-comment op die plek. Eerste checkpunt als login
-faalt tijdens de EU-validatie (Fase 2 van het plan).
+| Regio | Status | Bekende risico's |
+|-------|--------|-------------------|
+| EU (Kia + Hyundai) | **Live gevalideerd** (echte Kia Niro HEV/PHEV + Niro EV, 2026-08-04) | `KiaUvoApiEU.js#_loginWithPassword` stap 1 (authorize-call) kan Set-Cookie headers op tussenliggende redirect-hops missen — Node's `fetch` met `redirect:'follow'` geeft alleen de headers van de uiteindelijke response terug, Python's `requests.Session` accumuleert over alle hops. Nog niet fout gebleken in de live test, maar wel het eerste checkpunt bij een login-probleem. |
+| AU (Kia + Hyundai + Kia NZ) | Blind geport, niet getest | Simpelere login-flow dan EU (geen RSA), verder 1-op-1 met EU's Type1-basis. Raw statusvorm genormaliseerd van upstream's `status.*` naar `vehicleStatus.*`. |
+| CN (Kia + Hyundai) | Blind geport, niet getest | Login doet twee sequentiële OAuth-calls (zie code-comment); `refreshToken` wordt letterlijk als `"<type> <access_token>"` opgeslagen — geen typfout, zo doet upstream het ook. |
+| CA (Kia + Hyundai) | Blind geport, niet getest | **OTP niet aangesloten op een pairing-UI** — `sendOtp`/`verifyOtpAndCompleteLogin` bestaan op `VehicleManager`, maar `driver.js` heeft geen stap die ze aanroept. Bij een account dat OTP vereist, faalt pairing met een duidelijke `AuthenticationOTPRequired`-foutmelding i.p.v. een crash. Device-id gebruikt een handgeschreven UUID5 (Node heeft er geen ingebouwde). |
+| US — Kia | Blind geport, niet getest | Compleet andere backend (`api.owners.kia.com`, sessie-header-auth i.p.v. OAuth) met een sterk afwijkende raw statusvorm — hier vertaald naar de gangbare `vehicleStatus.*`-vorm, maar **alleen voor de velden die `mapStatus()` gebruikt**, niet 1-op-1 met upstream's volledige parsing. Vereist net als upstream een verlaagd TLS-securityniveau (`SECLEVEL=1`) — geport via Node's `https.Agent` (zie `native/http.js#httpsAgent`), zelf niet tegen een echte server geverifieerd. OTP bij een onbekend apparaat is niet aangesloten op een pairing-UI (zelfde beperking als CA). |
+| US — Hyundai | Blind geport, niet getest | Andere backend dan Kia USA (`api.telematics.hyundaiusa.com`), maar raw statusvorm is wél al vrijwel identiek aan de EU-conventie — nauwelijks normalisatie nodig. Zelfde TLS-cipher-vereiste en -aanpak als Kia USA. |
+
+Voor de niet-EU-regio's geldt: login/status/besturing is zo getrouw mogelijk
+geport uit de Python-bron, maar zonder testaccount is dit niet live
+geverifieerd. Behandel fouten hier als eerste aanwijzing dat een endpoint,
+header of veldnaam is gewijzigd of verkeerd overgezet — vergelijk met het
+bijbehorende Python-bestand voordat je een fix bedenkt.
