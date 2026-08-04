@@ -89,19 +89,65 @@ upstream:
   `ClimateRequestOptions`: `temperature`→`setTemp`, `heating1`→`heating`,
   `steerWheelHeat`→`steeringWheel`, `igniOnDuration`→`duration`.
 
+## Logging (belangrijk voor niet-EU-debugging)
+
+Voor AU/CN/CA/US zijn er geen testaccounts — valideren/debuggen moet dus via
+Homey's eigen logviewer en diagnostic reports (handmatig of automatisch
+ingestuurd door gebruikers). Daarom loggen twee lagen automatisch mee, altijd
+geredigeerd (nooit wachtwoorden/PINs/tokens/OTP-codes, zie `native/logger.js`):
+
+- **`native/http.js#ApiImplSession`**: elke HTTP-request/response, geprefixt
+  met de regioklasse (bv. `[KiaUvoApiCA] → POST /tods/api/v2/login` gevolgd
+  door `← 200 ... <geredigeerde, afgekapte body>`). Dit logt **altijd** de
+  body, niet alleen bij een HTTP-foutstatus — veel van deze API's coderen
+  fouten in een 200-OK JSON-body (`retCode`/`resCode`/`responseHeader.
+  responseCode`), niet via de HTTP-status.
+- **`native/VehicleManager.js`**: mijlpalen per device (`login: start/OK/
+  FAILED`, elk commando zoals `lockAction: start/OK/FAILED`), geprefixt met
+  `[VehicleManager:<regio>:<merk>]`.
+
+`createClient({ ..., logger })` geeft de logger door vanaf `driver.js`/
+`device.js` (`{ log: this.log.bind(this), error: this.error.bind(this) }`),
+zodat dit alles in Homey's normale devicelog terechtkomt. Nieuwe regio's
+hoeven hier niets extra voor te doen — geef gewoon `logger` door aan
+`ApiImplSession` (zie elk bestaand regiobestand als voorbeeld) en de HTTP-laag
+logt vanzelf mee.
+
 ## Validatiestatus per regio
+
+Naast de live EU-test hieronder zijn alle regio's ook getest met een
+mock-script (nep-credentials tegen de **echte** productieservers — veilig,
+want een verkeerd wachtwoord faalt gewoon met een auth-fout). Dat bevestigt
+dat de request-vorm (URL, headers, body, TLS, compressie, cookies) een geldige
+respons van de server uitlokt, ook al is er geen account om verder dan de
+login te komen.
 
 | Regio | Status | Bekende risico's |
 |-------|--------|-------------------|
 | EU (Kia + Hyundai) | **Live gevalideerd** (echte Kia Niro HEV/PHEV + Niro EV, 2026-08-04) | `KiaUvoApiEU.js#_loginWithPassword` stap 1 (authorize-call) kan Set-Cookie headers op tussenliggende redirect-hops missen — Node's `fetch` met `redirect:'follow'` geeft alleen de headers van de uiteindelijke response terug, Python's `requests.Session` accumuleert over alle hops. Nog niet fout gebleken in de live test, maar wel het eerste checkpunt bij een login-probleem. |
-| AU (Kia + Hyundai + Kia NZ) | Blind geport, niet getest | Simpelere login-flow dan EU (geen RSA), verder 1-op-1 met EU's Type1-basis. Raw statusvorm genormaliseerd van upstream's `status.*` naar `vehicleStatus.*`. |
-| CN (Kia + Hyundai) | Blind geport, niet getest | Login doet twee sequentiële OAuth-calls (zie code-comment); `refreshToken` wordt letterlijk als `"<type> <access_token>"` opgeslagen — geen typfout, zo doet upstream het ook. |
-| CA (Kia + Hyundai) | Blind geport, niet getest | **OTP niet aangesloten op een pairing-UI** — `sendOtp`/`verifyOtpAndCompleteLogin` bestaan op `VehicleManager`, maar `driver.js` heeft geen stap die ze aanroept. Bij een account dat OTP vereist, faalt pairing met een duidelijke `AuthenticationOTPRequired`-foutmelding i.p.v. een crash. Device-id gebruikt een handgeschreven UUID5 (Node heeft er geen ingebouwde). |
-| US — Kia | Blind geport, niet getest | Compleet andere backend (`api.owners.kia.com`, sessie-header-auth i.p.v. OAuth) met een sterk afwijkende raw statusvorm — hier vertaald naar de gangbare `vehicleStatus.*`-vorm, maar **alleen voor de velden die `mapStatus()` gebruikt**, niet 1-op-1 met upstream's volledige parsing. Vereist net als upstream een verlaagd TLS-securityniveau (`SECLEVEL=1`) — geport via Node's `https.Agent` (zie `native/http.js#httpsAgent`), zelf niet tegen een echte server geverifieerd. OTP bij een onbekend apparaat is niet aangesloten op een pairing-UI (zelfde beperking als CA). |
-| US — Hyundai | Blind geport, niet getest | Andere backend dan Kia USA (`api.telematics.hyundaiusa.com`), maar raw statusvorm is wél al vrijwel identiek aan de EU-conventie — nauwelijks normalisatie nodig. Zelfde TLS-cipher-vereiste en -aanpak als Kia USA. |
+| AU (Kia + Hyundai + Kia NZ) | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte `401 Require authentication` op fake credentials — request-vorm werkt | Simpelere login-flow dan EU (geen RSA), verder 1-op-1 met EU's Type1-basis. Raw statusvorm genormaliseerd van upstream's `status.*` naar `vehicleStatus.*`. Status/besturing na login niet getest. |
+| CN (Kia + Hyundai) | Mock-getest tegen live server (2026-08-04): **faalt al bij de allereerste call** (`notifications/register` → `4002 Invalid parameter`), vóór er zelfs credentials verstuurd worden | Payload/headers zijn 1-op-1 met de Python-bron gecontroleerd en kloppen — de oorzaak is onbekend (mogelijk een server-side wijziging of een al bestaand probleem in de Python-bron zelf, die op dit endpoint ook weinig getest wordt). **Eerste ding om te onderzoeken zodra een CN-account beschikbaar is.** Login doet daarnaast twee sequentiële OAuth-calls (zie code-comment); `refreshToken` wordt letterlijk als `"<type> <access_token>"` opgeslagen — geen typfout, zo doet upstream het ook. |
+| CA (Kia + Hyundai) | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte "incorrect login" fout op fake credentials — request-vorm werkt | **OTP niet aangesloten op een pairing-UI** — `sendOtp`/`verifyOtpAndCompleteLogin` bestaan op `VehicleManager`, maar `driver.js` heeft geen stap die ze aanroept. Bij een account dat OTP vereist, faalt pairing met een duidelijke `AuthenticationOTPRequired`-foutmelding i.p.v. een crash. Device-id gebruikt een handgeschreven UUID5 (Node heeft er geen ingebouwde). Status/besturing na login niet getest. |
+| US — Kia | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte "Invalid Email or Password" fout op fake credentials — request-vorm werkt (incl. de TLS-cipher-workaround en gzip-decompressie, zie hieronder) | Compleet andere backend (`api.owners.kia.com`, sessie-header-auth i.p.v. OAuth) met een sterk afwijkende raw statusvorm — hier vertaald naar de gangbare `vehicleStatus.*`-vorm, maar **alleen voor de velden die `mapStatus()` gebruikt**, niet 1-op-1 met upstream's volledige parsing (status/besturing na login dus nog niet getest). OTP bij een onbekend apparaat is niet aangesloten op een pairing-UI (zelfde beperking als CA). |
+| US — Hyundai | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte "Incorrect username or password" fout op fake credentials — request-vorm werkt | Andere backend dan Kia USA (`api.telematics.hyundaiusa.com`), maar raw statusvorm is wél al vrijwel identiek aan de EU-conventie — nauwelijks normalisatie nodig. Status/besturing na login niet getest. |
 
-Voor de niet-EU-regio's geldt: login/status/besturing is zo getrouw mogelijk
-geport uit de Python-bron, maar zonder testaccount is dit niet live
-geverifieerd. Behandel fouten hier als eerste aanwijzing dat een endpoint,
+Twee echte bugs zijn dankzij de mock-test tegen de live servers al gevonden en
+gefixt in `native/http.js` (troffen beide US-regio's, die als enige de
+`httpsAgent`-tak i.p.v. `fetch` gebruiken voor de TLS-cipher-workaround):
+1. **Set-Cookie werd niet goed verwerkt** — Node's `https`-module geeft
+   `set-cookie` altijd als array terug (ook bij 1 cookie), maar de cookie-jar
+   verwachtte een string. Opgelost door ook op het `https.Agent`-pad een
+   `getSetCookie()` te implementeren, net als fetch's `Headers`.
+2. **Gzip/br-responses werden niet gedecomprimeerd** — in tegenstelling tot
+   `fetch` decomprimeert Node's `https`-module de body niet automatisch. Kia
+   USA's server compreste zijn 200-OK-respons, wat zonder deze fix als
+   onleesbare bytes bij `JSON.parse()` terechtkwam. Opgelost met `zlib` op
+   basis van de `content-encoding`-header.
+
+Voor de niet-EU-regio's geldt verder: login/status/besturing is zo getrouw
+mogelijk geport uit de Python-bron, maar zonder testaccount is dit niet met
+een echt account geverifieerd (alleen de request-vorm, tot aan de
+inlogpoging). Behandel fouten hier als eerste aanwijzing dat een endpoint,
 header of veldnaam is gewijzigd of verkeerd overgezet — vergelijk met het
-bijbehorende Python-bestand voordat je een fix bedenkt.
+bijbehorende Python-bestand voordat je een fix bedenkt, en gebruik de
+hierboven beschreven logging om te zien waar het misgaat.
