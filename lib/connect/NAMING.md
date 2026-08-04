@@ -69,8 +69,14 @@ functie voor komt.
 
 ## Bluelinky-compatibiliteitslaag
 
+De `bluelinky`-dependency zelf is volledig verwijderd (geen fallback meer —
+alle regio's uit `driver.settings.compose.json` zijn native geport). Deze
+laag bestaat puur om drivers/car/driver.js en device.js ongewijzigd te laten
+werken: hun code roept nog steeds dezelfde methodes aan als toen bluelinky
+er nog was.
+
 `native/Vehicle.js` en `index.js#createClient()` vertalen de interne API naar
-dezelfde vorm als bluelinky (`status()`, `fullStatus()`, `location()`,
+dezelfde vorm als bluelinky vroeger (`status()`, `fullStatus()`, `location()`,
 `odometer()`, `start()`, `stop()`, `lock()`, `unlock()`, `startCharge()`,
 `stopCharge()`, `setChargeTargets({fast, slow})`, `setNavigation(poiList)`,
 events `'ready'`/`'error'`). Let op twee naam/vorm-vertalingen die device.js
