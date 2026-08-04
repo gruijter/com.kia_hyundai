@@ -75,6 +75,7 @@ module.exports = class MyDriver extends Homey.Driver {
           region: settings.region,
           deviceUuid: 'HomeyPair',
           autoLogin: true,
+          logger: { log: this.log.bind(this), error: this.error.bind(this) },
         };
 
         const client = createClient(options);

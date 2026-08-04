@@ -224,7 +224,7 @@ class CarDevice extends Homey.Device {
     };
   }
 
-  // setup Bluelinky client
+  // setup the Kia/Hyundai connect client (lib/connect)
   async setupClient() {
     const options = {
       username: this.settings.username,
@@ -237,6 +237,7 @@ class CarDevice extends Homey.Device {
       stampMode: 'LOCAL', // 'LOCAL' or 'DISTANT'
       deviceUuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15), // 'homey',
       autoLogin: false,
+      logger: { log: this.log.bind(this), error: this.error.bind(this) },
     };
     this.client = createClient(options);
     this.client.on('error', (error) => {
