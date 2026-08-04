@@ -23,6 +23,7 @@ const Homey = require('homey');
 const GeoPoint = require('geopoint');
 const util = require('util');
 const { createClient, exceptions } = require('../../lib/connect');
+const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 
@@ -451,8 +452,25 @@ class CarDevice extends Homey.Device {
         }
       }
 
-      // log data on app init
-      if (logPoll) this.log(JSON.stringify(fullStatus));
+      // log a redacted snapshot on the first poll after every app (re)start, so
+      // it ends up in a diagnostics report after a user is asked to restart the
+      // app and send one; see lib/connect/native/debugDump.js and
+      // zzz_responses/db/README.md for what to do with it afterwards.
+      if (logPoll) {
+        const dump = buildVehicleDebugDump({
+          brand: this.homey.manifest.id.replace('com.', ''),
+          region: this.settings.region,
+          engine: this.settings.engine,
+          generation: this.settings.generation,
+          ccuCCS2ProtocolSupport: this.settings.ccuCCS2ProtocolSupport,
+          vehicleConfig: this.vehicle?.vehicleConfig,
+          status: fullStatus,
+          odometer: fullStatus?.odometer,
+        });
+        this.log('===VEHICLE-DEBUG-DUMP-START===');
+        this.log(JSON.stringify(dump));
+        this.log('===VEHICLE-DEBUG-DUMP-END===');
+      }
       // console.dir(fullStatus, { depth: null, colors: true, showHidden: true });
       const stsMapped = await this.mapStatus(fullStatus);
       if (stsMapped.Date !== this?.lastStatus?.Date) {
