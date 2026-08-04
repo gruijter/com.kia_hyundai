@@ -20,9 +20,9 @@ along with com.kia. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const { BlueLinky } = require('bluelinky');
 const GeoPoint = require('geopoint');
 const util = require('util');
+const { createClient } = require('../../lib/connect');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 
@@ -238,7 +238,7 @@ class CarDevice extends Homey.Device {
       deviceUuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15), // 'homey',
       autoLogin: false,
     };
-    this.client = new BlueLinky(options);
+    this.client = createClient(options);
     this.client.on('error', (error) => {
       // retCode: 'F', resCode: '5091', resMsg: 'Exceeds number of requests
       if (error.message && error.message.includes('"resCode":"5091"')) {
@@ -258,6 +258,10 @@ class CarDevice extends Homey.Device {
     this.client.on('ready', (vehicles) => {
       // console.log(util.inspect(vehicles, true, 10, true));
       const [vehicle] = vehicles.filter((veh) => veh.vehicleConfig.vin === this.settings.vin);
+      if (!vehicle) {
+        this.error(`No vehicle with VIN ${this.settings.vin} found in this account (${vehicles.length} vehicle(s) returned) — check if the car is still shared/registered to this account.`);
+        return;
+      }
       if (this.vehicle === null) this.log(JSON.stringify(vehicle.vehicleConfig));
       this.vehicle = vehicle;
     });
