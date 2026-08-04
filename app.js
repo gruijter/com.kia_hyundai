@@ -65,6 +65,39 @@ module.exports = class MyApp extends Homey.App {
     const setDestination = this.homey.flow.getActionCard('set_destination');
     setDestination.registerRunListener((args) => args.device.setDestination(args.destination, 'flow'));
 
+    const flashLights = this.homey.flow.getActionCard('flash_lights');
+    flashLights.registerRunListener((args) => args.device.flashLights(false, 'flow'));
+
+    const flashLightsAndHonk = this.homey.flow.getActionCard('flash_lights_and_honk');
+    flashLightsAndHonk.registerRunListener((args) => args.device.flashLights(true, 'flow'));
+
+    const chargePortOpen = this.homey.flow.getActionCard('charge_port_open');
+    chargePortOpen.registerRunListener((args) => args.device.chargePortOpen(true, 'flow'));
+
+    const chargePortClose = this.homey.flow.getActionCard('charge_port_close');
+    chargePortClose.registerRunListener((args) => args.device.chargePortOpen(false, 'flow'));
+
+    const windowsOpen = this.homey.flow.getActionCard('windows_open');
+    windowsOpen.registerRunListener((args) => args.device.setWindows('open', 'flow'));
+
+    const windowsClose = this.homey.flow.getActionCard('windows_close');
+    windowsClose.registerRunListener((args) => args.device.setWindows('closed', 'flow'));
+
+    const windowsVent = this.homey.flow.getActionCard('windows_vent');
+    windowsVent.registerRunListener((args) => args.device.setWindows('vent', 'flow'));
+
+    const setChargingCurrent = this.homey.flow.getActionCard('set_charging_current');
+    setChargingCurrent.registerRunListener((args) => args.device.setChargingCurrent(args.level, 'flow'));
+
+    const setV2LDischargeLimit = this.homey.flow.getActionCard('set_v2l_discharge_limit');
+    setV2LDischargeLimit.registerRunListener((args) => args.device.setV2LDischargeLimit(args.limit, 'flow'));
+
+    const valetModeOn = this.homey.flow.getActionCard('valet_mode_on');
+    valetModeOn.registerRunListener((args) => args.device.setValetMode(true, 'flow'));
+
+    const valetModeOff = this.homey.flow.getActionCard('valet_mode_off');
+    valetModeOff.registerRunListener((args) => args.device.setValetMode(false, 'flow'));
+
     // condition cards
     const alarmBattery = this.homey.flow.getConditionCard('alarm_bat');
     alarmBattery.registerRunListener((args) => args.device.getCapabilityValue('alarm_bat'));

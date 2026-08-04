@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Vent all windows"
+    },
+    "titleFormatted": {
+        "en": "Vent all windows"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

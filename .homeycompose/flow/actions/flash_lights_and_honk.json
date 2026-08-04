@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Flash lights + honk (find my car)"
+    },
+    "titleFormatted": {
+        "en": "Flash lights + honk (find my car)"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

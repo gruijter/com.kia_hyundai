@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Disable valet mode"
+    },
+    "titleFormatted": {
+        "en": "Disable valet mode"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

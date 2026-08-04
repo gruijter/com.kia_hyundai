@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Close all windows"
+    },
+    "titleFormatted": {
+        "en": "Close all windows"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

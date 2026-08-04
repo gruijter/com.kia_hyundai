@@ -171,6 +171,17 @@ class CarDevice extends Homey.Device {
             startCharge: 25,
             stopCharge: 5,
             setNavigation: 65,
+            flashLights: 5,
+            flashLightsAndHonk: 5,
+            openChargePort: 15,
+            closeChargePort: 15,
+            openWindows: 15,
+            closeWindows: 15,
+            ventWindows: 15,
+            setChargingCurrent: 5,
+            setV2LDischargeLimit: 5,
+            enableValetMode: 5,
+            disableValetMode: 5,
           };
           this.lastCommand = item.command;
           let methodClass = this.vehicle;
@@ -457,6 +468,16 @@ class CarDevice extends Homey.Device {
       // app and send one; see lib/connect/native/debugDump.js and
       // zzz_responses/db/README.md for what to do with it afterwards.
       if (logPoll) {
+        // energy-consumption stats live on a separate endpoint (only
+        // meaningful for EV/PHEV); best-effort, must not break the regular
+        // status dump if it's unsupported or fails for this vehicle.
+        let drivingInfo;
+        if (this.isEV && typeof this.vehicle.drivingInfo === 'function') {
+          drivingInfo = await this.vehicle.drivingInfo().catch((error) => {
+            this.error('drivingInfo (debug dump only) failed', error);
+            return undefined;
+          });
+        }
         const dump = buildVehicleDebugDump({
           brand: this.homey.manifest.id.replace('com.', ''),
           region: this.settings.region,
@@ -466,6 +487,7 @@ class CarDevice extends Homey.Device {
           vehicleConfig: this.vehicle?.vehicleConfig,
           status: fullStatus,
           odometer: fullStatus?.odometer,
+          drivingInfo,
         });
         this.log('===VEHICLE-DEBUG-DUMP-START===');
         this.log(JSON.stringify(dump));
@@ -863,6 +885,74 @@ class CarDevice extends Homey.Device {
       const args = { fast: Number(targets.fast), slow: Number(targets.slow) };
       const command = 'setChargeTargets';
       this.enQueue({ command, args });
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  flashLights(honk, source) {
+    try {
+      this.log(`Flash lights${honk ? ' + horn' : ''} via ${source}`);
+      const command = honk ? 'flashLightsAndHonk' : 'flashLights';
+      this.enQueue({ command });
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  chargePortOpen(open, source) {
+    try {
+      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+      this.log(`Charge port ${open ? 'open' : 'close'} via ${source}`);
+      const command = open ? 'openChargePort' : 'closeChargePort';
+      this.enQueue({ command });
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  setWindows(state, source) { // state: 'open', 'closed' or 'vent'
+    try {
+      this.log(`Windows set to ${state} via ${source}`);
+      const command = { open: 'openWindows', closed: 'closeWindows', vent: 'ventWindows' }[state];
+      if (!command) throw Error(`Invalid window state: ${state}`);
+      this.enQueue({ command });
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  setChargingCurrent(level, source) {
+    try {
+      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+      this.log(`Charging current set by ${source} to ${level}`);
+      this.enQueue({ command: 'setChargingCurrent', args: Number(level) });
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  setV2LDischargeLimit(limit, source) {
+    try {
+      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+      this.log(`V2L discharge limit set by ${source} to ${limit}`);
+      this.enQueue({ command: 'setV2LDischargeLimit', args: Number(limit) });
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  setValetMode(enabled, source) {
+    try {
+      this.log(`Valet mode ${enabled ? 'enabled' : 'disabled'} via ${source}`);
+      const command = enabled ? 'enableValetMode' : 'disableValetMode';
+      this.enQueue({ command });
       return true;
     } catch (error) {
       return error;
