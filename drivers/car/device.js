@@ -310,7 +310,10 @@ class CarDevice extends Homey.Device {
       }
       this.error(error);
       this.watchDogCounter -= 1;
-      if (!this.vehicleConfig) this.restartDevice(15 * 1000).catch((e) => this.error(e));
+      // this.vehicleConfig is always still null here: initvalues() resets it
+      // on every onInit(), and it's only assigned below after a successful
+      // login + vehicle match, which by definition hasn't happened yet.
+      this.restartDevice(15 * 1000).catch((e) => this.error(e));
       throw error;
     }
 
@@ -435,7 +438,7 @@ class CarDevice extends Homey.Device {
         && (this.settings.pollIntervalForced * 60 * 1000) < (Date.now() - this.lastRefresh)
         && (Date.now() - this.lastRefresh) > 1000 * 60 * 24 * (this.settings.pollIntervalForced / 5) * ((batSoc || 50) / 100);
       // max. 24hrs forced poll @5 min & 100% charge
-      const batSoCGood = this?.lastStatus?.['measure_battery.12V'] > this.settings.batteryAlarmLevel;
+      const batSoCGood = this.lastStatus?.['measure_battery.12V'] > this.settings.batteryAlarmLevel;
       const refresh = this.pollMode // 1 = engineOn with refresh
         || (batSoCGood && (forceOnce || forcePollInterval)); // || !status || !location || !odometer));
 
@@ -483,8 +486,8 @@ class CarDevice extends Homey.Device {
       }
       // console.dir(fullStatus, { depth: null, colors: true, showHidden: true });
       const stsMapped = await this.mapStatus(fullStatus);
-      if (stsMapped.Date !== this?.lastStatus?.Date) {
-        this.log(`${this.getName()} Server info changed. ${this?.lastStatus?.Date} ${stsMapped.Date}`);
+      if (stsMapped.Date !== this.lastStatus?.Date) {
+        this.log(`${this.getName()} Server info changed. ${this.lastStatus?.Date} ${stsMapped.Date}`);
         // console.dir(fullStatus, { depth: null });
         this.lastRefresh = Date.now();
       }
@@ -492,7 +495,7 @@ class CarDevice extends Homey.Device {
       // repair odometer status 0: fall back to the last known reading instead
       // of leaving it unset (spreading a number here produced an empty object,
       // which Homey then rejected as an invalid measure_odo capability value)
-      if (!stsMapped.measure_odo) stsMapped.measure_odo = this?.lastStatus?.measure_odo;
+      if (!stsMapped.measure_odo) stsMapped.measure_odo = this.lastStatus?.measure_odo;
 
       this.lastStatus = stsMapped;
       await this.setStoreValue('lastStatus', stsMapped).catch((error) => this.error(error));
@@ -528,11 +531,11 @@ class CarDevice extends Homey.Device {
         this.startPolling(this.settings.pollInterval).catch((error) => this.error(error));
       }
 
-      return Promise.resolve(true);
+      return true;
     } catch (error) {
       this.error(error);
       this.setCapability('refresh_status', false);
-      return Promise.reject(error);
+      throw error;
     }
   }
 
@@ -587,7 +590,7 @@ class CarDevice extends Homey.Device {
   // helper functions
   async mapStatus(status) {
     const map = {};
-    if (!status) return Promise.resolve(map);
+    if (!status) return map;
     let sts = { ...status }; // clone status
     // is old type full status
     if (sts.vehicleStatus) {
@@ -716,7 +719,7 @@ class CarDevice extends Homey.Device {
       map['alarm_bat'] = (map['measure_battery.12V'] < this.settings.batteryAlarmLevel) || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.Date;
     }
-    return Promise.resolve(map);
+    return map;
   }
 
   isMoving(info) {
@@ -764,7 +767,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command, args });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -792,7 +795,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command, args });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -810,7 +813,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -827,7 +830,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -841,7 +844,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command, args });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -854,7 +857,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command, args });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -865,7 +868,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -877,7 +880,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -889,7 +892,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -900,7 +903,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command: 'setChargingCurrent', args: Number(level) });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -911,7 +914,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command: 'setV2LDischargeLimit', args: Number(limit) });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -922,7 +925,7 @@ class CarDevice extends Homey.Device {
       this.enQueue({ command });
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -952,7 +955,7 @@ class CarDevice extends Homey.Device {
     ];
     const command = 'setNavigation';
     this.enQueue({ command, args });
-    return Promise.resolve(true);
+    return true;
   }
 
   refreshStatus(refresh, source) {
@@ -965,7 +968,7 @@ class CarDevice extends Homey.Device {
       }
       return true;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
