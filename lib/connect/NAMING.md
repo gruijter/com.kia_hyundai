@@ -1,14 +1,14 @@
-# lib/connect — onderhoudsgids
+# lib/connect — maintenance guide
 
-Deze map is een JS-poort van de relevante delen van
+This folder is a JS port of the relevant parts of
 [hyundai_kia_connect_api](https://github.com/Hyundai-Kia-Connect/hyundai_kia_connect_api)
-(Python, actief onderhouden). Doel: als dat project een fix doorvoert voor een
-API-wijziging, moet die fix snel en met weinig risico hierheen over te zetten
-zijn — zonder de rest van deze codebase te hoeven begrijpen.
+(Python, actively maintained). Goal: when that project ships a fix for an API
+change, it should be quick and low-risk to port that fix over here — without
+having to understand the rest of this codebase.
 
-## Bestandsmapping
+## File mapping
 
-| Python (upstream)              | JS (hier)                                  |
+| Python (upstream)              | JS (here)                                  |
 |---------------------------------|---------------------------------------------|
 | `const.py`                      | `native/const.js`                            |
 | `utils.py`                      | `native/utils.js`                            |
@@ -24,16 +24,15 @@ zijn — zonder de rest van deze codebase te hoeven begrijpen.
 | `HyundaiBlueLinkApiUSA.py`      | `native/regions/HyundaiBlueLinkApiUSA.js`    |
 | `VehicleManager.py`             | `native/VehicleManager.js`                   |
 | `Token.py`                      | `native/Token.js`                            |
-| *(geen upstream equivalent)*    | `native/Vehicle.js`, `index.js`              |
+| *(no upstream equivalent)*      | `native/Vehicle.js`, `index.js`              |
 
-Wanneer upstream een regio toevoegt/wijzigt (bv. `KiaUvoApiCA.py`), maak of
-werk je het bijbehorende bestand in `native/regions/` bij volgens dezelfde
-naamgeving.
+When upstream adds/changes a region (e.g. `KiaUvoApiCA.py`), create or update
+the corresponding file in `native/regions/` following the same naming.
 
-## Naamgevingsconventie
+## Naming convention
 
-Elke Python `snake_case`-methode/veld heeft een `camelCase`-tegenhanger met
-dezelfde betekenis, zodat een upstream-diff direct te herkennen is:
+Every Python `snake_case` method/field has a `camelCase` counterpart with the
+same meaning, so an upstream diff is directly recognizable:
 
 | Python                          | JS                        |
 |-----------------------------------|----------------------------|
@@ -45,109 +44,113 @@ dezelfde betekenis, zodat een upstream-diff direct te herkennen is:
 | `start_climate(..., options)`     | `startClimate(..., options)`|
 | `set_charge_limits(..., ac, dc)`  | `setChargeLimits(..., ac, dc)` |
 | `_get_stamp` / `_get_device_id`   | `_getStamp` / `_getDeviceId` |
-| `@_retry_on_device_id_error`      | `retryOnDeviceIdError(fn)` wrapper, toegepast in de constructor |
+| `@_retry_on_device_id_error`      | `retryOnDeviceIdError(fn)` wrapper, applied in the constructor |
 
-`options`-objecten (bv. `ClimateRequestOptions`) zijn geen dataclass maar een
-gewoon object met dezelfde camelCase-velden (`setTemp`, `defrost`, `heating`,
+`options` objects (e.g. `ClimateRequestOptions`) aren't a dataclass but a
+plain object with the same camelCase fields (`setTemp`, `defrost`, `heating`,
 `steeringWheel`, ...).
 
-## Belangrijkste structurele afwijking van upstream
+## Main structural deviation from upstream
 
 Upstream's `update_vehicle_with_cached_state` / `_update_vehicle_properties(_ccs2)`
-muteren een `Vehicle`-dataclass met ~1000 regels veld-voor-veld parsing. Homey's
-`drivers/car/device.js#mapStatus()` leest de raw cloud-JSON al zelf (dezelfde
-paden als de Python-parsing gebruikt, bv. `Cabin.HVAC.Row1.Driver.Temperature.Value`).
-Daarom geven `updateVehicleWithCachedState` en `forceRefreshVehicleState` hier
-**de raw JSON terug** in plaats van een object te muteren. Dit is de enige
-bewuste structurele afwijking — de rest (URLs, headers, stamp/device-id-logica,
-foutafhandeling, retry-gedrag) is een directe poort.
+mutate a `Vehicle` dataclass with ~1000 lines of field-by-field parsing.
+Homey's `drivers/car/device.js#mapStatus()` already reads the raw cloud JSON
+itself (the same paths the Python parsing uses, e.g.
+`Cabin.HVAC.Row1.Driver.Temperature.Value`). That's why
+`updateVehicleWithCachedState` and `forceRefreshVehicleState` here **return
+the raw JSON** instead of mutating an object. This is the only deliberate
+structural deviation — everything else (URLs, headers, stamp/device-id
+logic, error handling, retry behavior) is a direct port.
 
-Ook bewust niet overgenomen (geen Homey-gebruik): `_update_vehicle_drive_info`
+Also deliberately not carried over (no Homey use case): `_update_vehicle_drive_info`
 (driving-info parsing), `update_month_trip_info`/`update_day_trip_info`,
-`schedule_charging_and_climate`. Poort deze pas als er een concrete Homey-
-functie voor komt.
+`schedule_charging_and_climate`. Port these once there's a concrete Homey
+feature that needs them.
 
-## Bluelinky-compatibiliteitslaag
+## Bluelinky compatibility layer
 
-De `bluelinky`-dependency zelf is volledig verwijderd (geen fallback meer —
-alle regio's uit `driver.settings.compose.json` zijn native geport). Deze
-laag bestaat puur om drivers/car/driver.js en device.js ongewijzigd te laten
-werken: hun code roept nog steeds dezelfde methodes aan als toen bluelinky
-er nog was.
+The `bluelinky` dependency itself has been fully removed (no fallback left —
+all regions from `driver.settings.compose.json` are natively ported). This
+layer exists purely so drivers/car/driver.js and device.js keep working
+unchanged: their code still calls the same methods as when bluelinky was
+still there.
 
-`native/Vehicle.js` en `index.js#createClient()` vertalen de interne API naar
-dezelfde vorm als bluelinky vroeger (`status()`, `fullStatus()`, `location()`,
-`odometer()`, `start()`, `stop()`, `lock()`, `unlock()`, `startCharge()`,
-`stopCharge()`, `setChargeTargets({fast, slow})`, `setNavigation(poiList)`,
-events `'ready'`/`'error'`). Let op twee naam/vorm-vertalingen die device.js
-ongewijzigd laten werken maar die niet vanzelfsprekend zijn bij het lezen van
-upstream:
+`native/Vehicle.js` and `index.js#createClient()` translate the internal API
+to the same shape bluelinky used to have (`status()`, `fullStatus()`,
+`location()`, `odometer()`, `start()`, `stop()`, `lock()`, `unlock()`,
+`startCharge()`, `stopCharge()`, `setChargeTargets({fast, slow})`,
+`setNavigation(poiList)`, events `'ready'`/`'error'`). Note two name/shape
+translations that keep device.js working unchanged but aren't obvious when
+reading upstream:
 
 - `setChargeTargets({fast, slow})` → upstream `set_charge_limits(ac, dc)`:
-  `fast` = DC (snelladen), `slow` = AC (Type 2) → `setChargeLimits(vehicleConfig, slow, fast)`.
-- `start(args)` climate-argumenten (bluelinky-vorm, uit device.js) → upstream
-  `ClimateRequestOptions`: `temperature`→`setTemp`, `heating1`→`heating`,
-  `steerWheelHeat`→`steeringWheel`, `igniOnDuration`→`duration`.
+  `fast` = DC (rapid charging), `slow` = AC (Type 2) → `setChargeLimits(vehicleConfig, slow, fast)`.
+- `start(args)` climate arguments (bluelinky shape, from device.js) →
+  upstream `ClimateRequestOptions`: `temperature`→`setTemp`,
+  `heating1`→`heating`, `steerWheelHeat`→`steeringWheel`,
+  `igniOnDuration`→`duration`.
 
-## Logging (belangrijk voor niet-EU-debugging)
+## Logging (important for non-EU debugging)
 
-Voor AU/CN/CA/US zijn er geen testaccounts — valideren/debuggen moet dus via
-Homey's eigen logviewer en diagnostic reports (handmatig of automatisch
-ingestuurd door gebruikers). Daarom loggen twee lagen automatisch mee, altijd
-geredigeerd (nooit wachtwoorden/PINs/tokens/OTP-codes, zie `native/logger.js`):
+There are no test accounts for AU/CN/CA/US — validating/debugging has to
+happen via Homey's own log viewer and diagnostic reports (sent manually or
+automatically by users). Because of this, two layers log automatically,
+always redacted (never passwords/PINs/tokens/OTP codes, see
+`native/logger.js`):
 
-- **`native/http.js#ApiImplSession`**: elke HTTP-request/response, geprefixt
-  met de regioklasse (bv. `[KiaUvoApiCA] → POST /tods/api/v2/login` gevolgd
-  door `← 200 ... <geredigeerde, afgekapte body>`). Dit logt **altijd** de
-  body, niet alleen bij een HTTP-foutstatus — veel van deze API's coderen
-  fouten in een 200-OK JSON-body (`retCode`/`resCode`/`responseHeader.
-  responseCode`), niet via de HTTP-status.
-- **`native/VehicleManager.js`**: mijlpalen per device (`login: start/OK/
-  FAILED`, elk commando zoals `lockAction: start/OK/FAILED`), geprefixt met
-  `[VehicleManager:<regio>:<merk>]`.
+- **`native/http.js#ApiImplSession`**: every HTTP request/response, prefixed
+  with the region class (e.g. `[KiaUvoApiCA] → POST /tods/api/v2/login`
+  followed by `← 200 ... <redacted, truncated body>`). This **always** logs
+  the body, not just on an HTTP error status — many of these APIs encode
+  errors in a 200-OK JSON body (`retCode`/`resCode`/`responseHeader.
+  responseCode`), not via the HTTP status.
+- **`native/VehicleManager.js`**: per-device milestones (`login: start/OK/
+  FAILED`, each command like `lockAction: start/OK/FAILED`), prefixed with
+  `[VehicleManager:<region>:<brand>]`.
 
-`createClient({ ..., logger })` geeft de logger door vanaf `driver.js`/
+`createClient({ ..., logger })` passes the logger down from `driver.js`/
 `device.js` (`{ log: this.log.bind(this), error: this.error.bind(this) }`),
-zodat dit alles in Homey's normale devicelog terechtkomt. Nieuwe regio's
-hoeven hier niets extra voor te doen — geef gewoon `logger` door aan
-`ApiImplSession` (zie elk bestaand regiobestand als voorbeeld) en de HTTP-laag
-logt vanzelf mee.
+so all of this ends up in Homey's normal device log. New regions don't need
+to do anything extra for this — just pass `logger` through to
+`ApiImplSession` (see any existing region file as an example) and the HTTP
+layer logs automatically.
 
-## Validatiestatus per regio
+## Validation status per region
 
-Naast de live EU-test hieronder zijn alle regio's ook getest met een
-mock-script (nep-credentials tegen de **echte** productieservers — veilig,
-want een verkeerd wachtwoord faalt gewoon met een auth-fout). Dat bevestigt
-dat de request-vorm (URL, headers, body, TLS, compressie, cookies) een geldige
-respons van de server uitlokt, ook al is er geen account om verder dan de
-login te komen.
+Besides the live EU test below, all regions have also been tested with a
+mock script (fake credentials against the **real** production servers —
+safe, since a wrong password just fails with an auth error). That confirms
+the request shape (URL, headers, body, TLS, compression, cookies) elicits a
+valid response from the server, even though there's no account to get
+further than login.
 
-| Regio | Status | Bekende risico's |
+| Region | Status | Known risks |
 |-------|--------|-------------------|
-| EU (Kia + Hyundai) | **Live gevalideerd** (echte Kia Niro HEV/PHEV + Niro EV, 2026-08-04) | `KiaUvoApiEU.js#_loginWithPassword` stap 1 (authorize-call) kan Set-Cookie headers op tussenliggende redirect-hops missen — Node's `fetch` met `redirect:'follow'` geeft alleen de headers van de uiteindelijke response terug, Python's `requests.Session` accumuleert over alle hops. Nog niet fout gebleken in de live test, maar wel het eerste checkpunt bij een login-probleem. |
-| AU (Kia + Hyundai + Kia NZ) | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte `401 Require authentication` op fake credentials — request-vorm werkt | Simpelere login-flow dan EU (geen RSA), verder 1-op-1 met EU's Type1-basis. Raw statusvorm genormaliseerd van upstream's `status.*` naar `vehicleStatus.*`. Status/besturing na login niet getest. |
-| CN (Kia + Hyundai) | Mock-getest tegen live server (2026-08-04): **faalt al bij de allereerste call** (`notifications/register` → `4002 Invalid parameter`), vóór er zelfs credentials verstuurd worden | Payload/headers zijn 1-op-1 met de Python-bron gecontroleerd en kloppen — de oorzaak is onbekend (mogelijk een server-side wijziging of een al bestaand probleem in de Python-bron zelf, die op dit endpoint ook weinig getest wordt). **Eerste ding om te onderzoeken zodra een CN-account beschikbaar is.** Login doet daarnaast twee sequentiële OAuth-calls (zie code-comment); `refreshToken` wordt letterlijk als `"<type> <access_token>"` opgeslagen — geen typfout, zo doet upstream het ook. |
-| CA (Kia + Hyundai) | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte "incorrect login" fout op fake credentials — request-vorm werkt | **OTP niet aangesloten op een pairing-UI** — `sendOtp`/`verifyOtpAndCompleteLogin` bestaan op `VehicleManager`, maar `driver.js` heeft geen stap die ze aanroept. Bij een account dat OTP vereist, faalt pairing met een duidelijke `AuthenticationOTPRequired`-foutmelding i.p.v. een crash. Device-id gebruikt een handgeschreven UUID5 (Node heeft er geen ingebouwde). Status/besturing na login niet getest. |
-| US — Kia | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte "Invalid Email or Password" fout op fake credentials — request-vorm werkt (incl. de TLS-cipher-workaround en gzip-decompressie, zie hieronder) | Compleet andere backend (`api.owners.kia.com`, sessie-header-auth i.p.v. OAuth) met een sterk afwijkende raw statusvorm — hier vertaald naar de gangbare `vehicleStatus.*`-vorm, maar **alleen voor de velden die `mapStatus()` gebruikt**, niet 1-op-1 met upstream's volledige parsing (status/besturing na login dus nog niet getest). OTP bij een onbekend apparaat is niet aangesloten op een pairing-UI (zelfde beperking als CA). |
-| US — Hyundai | Mock-getest tegen live server (2026-08-04): bereikt de server, krijgt een correcte "Incorrect username or password" fout op fake credentials — request-vorm werkt | Andere backend dan Kia USA (`api.telematics.hyundaiusa.com`), maar raw statusvorm is wél al vrijwel identiek aan de EU-conventie — nauwelijks normalisatie nodig. Status/besturing na login niet getest. |
+| EU (Kia + Hyundai) | **Live validated** (real Kia Niro HEV/PHEV + Niro EV, 2026-08-04) | `KiaUvoApiEU.js#_loginWithPassword` step 1 (authorize call) can miss Set-Cookie headers on intermediate redirect hops — Node's `fetch` with `redirect:'follow'` only returns the headers of the final response, Python's `requests.Session` accumulates across all hops. Hasn't proven to be a problem in the live test yet, but is the first checkpoint for a login issue. |
+| AU (Kia + Hyundai + Kia NZ) | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct `401 Require authentication` on fake credentials — request shape works | Simpler login flow than EU (no RSA), otherwise 1:1 with EU's Type1 base. Raw status shape normalized from upstream's `status.*` to `vehicleStatus.*`. Status/control after login untested. |
+| CN (Kia + Hyundai) | Mock-tested against the live server (2026-08-04): **fails already on the very first call** (`notifications/register` → `4002 Invalid parameter`), before credentials are even sent | Payload/headers were checked 1:1 against the Python source and are correct — the cause is unknown (possibly a server-side change, or a pre-existing issue in the Python source itself, which also gets little testing on this endpoint). **First thing to investigate once a CN account is available.** Login also does two sequential OAuth calls (see code comment); `refreshToken` is literally stored as `"<type> <access_token>"` — not a typo, upstream does it the same way. |
+| CA (Kia + Hyundai) | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "incorrect login" error on fake credentials — request shape works | **OTP not wired up to a pairing UI** — `sendOtp`/`verifyOtpAndCompleteLogin` exist on `VehicleManager`, but `driver.js` has no step that calls them. For an account that requires OTP, pairing fails with a clear `AuthenticationOTPRequired` error instead of a crash. Device id uses a hand-written UUID5 (Node has no built-in one). Status/control after login untested. |
+| US — Kia | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "Invalid Email or Password" error on fake credentials — request shape works (incl. the TLS cipher workaround and gzip decompression, see below) | Completely different backend (`api.owners.kia.com`, session-header auth instead of OAuth) with a very different raw status shape — translated here to the common `vehicleStatus.*` shape, but **only for the fields `mapStatus()` uses**, not 1:1 with upstream's full parsing (so status/control after login is untested). OTP on an unrecognized device isn't wired up to a pairing UI (same limitation as CA). |
+| US — Hyundai | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "Incorrect username or password" error on fake credentials — request shape works | Different backend than Kia USA (`api.telematics.hyundaiusa.com`), but the raw status shape is already nearly identical to the EU convention — barely any normalization needed. Status/control after login untested. |
 
-Twee echte bugs zijn dankzij de mock-test tegen de live servers al gevonden en
-gefixt in `native/http.js` (troffen beide US-regio's, die als enige de
-`httpsAgent`-tak i.p.v. `fetch` gebruiken voor de TLS-cipher-workaround):
-1. **Set-Cookie werd niet goed verwerkt** — Node's `https`-module geeft
-   `set-cookie` altijd als array terug (ook bij 1 cookie), maar de cookie-jar
-   verwachtte een string. Opgelost door ook op het `https.Agent`-pad een
-   `getSetCookie()` te implementeren, net als fetch's `Headers`.
-2. **Gzip/br-responses werden niet gedecomprimeerd** — in tegenstelling tot
-   `fetch` decomprimeert Node's `https`-module de body niet automatisch. Kia
-   USA's server compreste zijn 200-OK-respons, wat zonder deze fix als
-   onleesbare bytes bij `JSON.parse()` terechtkwam. Opgelost met `zlib` op
-   basis van de `content-encoding`-header.
+Two real bugs were already found and fixed in `native/http.js` thanks to the
+mock test against the live servers (both affected the US regions, the only
+ones that use the `httpsAgent` branch instead of `fetch` for the TLS cipher
+workaround):
+1. **Set-Cookie wasn't handled correctly** — Node's `https` module always
+   returns `set-cookie` as an array (even for 1 cookie), but the cookie jar
+   expected a string. Fixed by also implementing a `getSetCookie()` on the
+   `https.Agent` path, just like fetch's `Headers`.
+2. **Gzip/br responses weren't decompressed** — unlike `fetch`, Node's
+   `https` module doesn't decompress the body automatically. Kia USA's
+   server compressed its 200-OK response, which without this fix arrived as
+   unreadable bytes at `JSON.parse()`. Fixed with `zlib` based on the
+   `content-encoding` header.
 
-Voor de niet-EU-regio's geldt verder: login/status/besturing is zo getrouw
-mogelijk geport uit de Python-bron, maar zonder testaccount is dit niet met
-een echt account geverifieerd (alleen de request-vorm, tot aan de
-inlogpoging). Behandel fouten hier als eerste aanwijzing dat een endpoint,
-header of veldnaam is gewijzigd of verkeerd overgezet — vergelijk met het
-bijbehorende Python-bestand voordat je een fix bedenkt, en gebruik de
-hierboven beschreven logging om te zien waar het misgaat.
+For the non-EU regions in general: login/status/control was ported as
+faithfully as possible from the Python source, but without a test account
+this hasn't been verified with a real account (only the request shape, up to
+the login attempt). Treat errors here as a first sign that an endpoint,
+header, or field name changed or was ported incorrectly — compare against
+the corresponding Python file before devising a fix, and use the logging
+described above to see where it goes wrong.
