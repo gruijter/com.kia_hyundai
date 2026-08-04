@@ -245,7 +245,7 @@ class CarDevice extends Homey.Device {
       if (error.message && error.message.includes('"resCode":"5091"')) {
         this.log('Daily quotum reached! Pausing app for 60 minutes.');
         this.stopPolling();
-        this.setUnavailable('Daily quotum reached!. Waiting 60 minutes.').catch(this.error);
+        this.setUnavailable(this.homey.__('device_quota_reached')).catch(this.error);
         this.restartDevice(60 * 60 * 1000).catch((error) => this.error(error));
       }
       if (error.message && error.message.includes('"resCode":"4004"')) {
@@ -333,7 +333,7 @@ class CarDevice extends Homey.Device {
     this.flushQueue();
     const dly = delay || 1000 * 60 * 5;
     this.log(`Device will restart in ${dly / 1000} seconds`);
-    this.setUnavailable(reason || 'Device is restarting. Wait a few minutes!').catch(this.error);
+    this.setUnavailable(reason || this.homey.__('device_restarting')).catch(this.error);
     await setTimeoutPromise(dly);
     this.onInit().catch((error) => this.error(error));
   }
@@ -715,7 +715,7 @@ class CarDevice extends Homey.Device {
 
   acOnOff(acOn, source) {
     try {
-      if (this.getCapabilityValue('engine')) throw Error('Control not possible; engine is on');
+      if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
       let command;
       let args;
       if (acOn) {
@@ -742,7 +742,7 @@ class CarDevice extends Homey.Device {
 
   defrostOnOff(defrost, source) {
     try {
-      if (this.getCapabilityValue('engine')) throw Error('Control not possible; engine is on');
+      if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
       let command;
       let args;
       if (defrost) {
@@ -783,7 +783,7 @@ class CarDevice extends Homey.Device {
 
   chargingOnOff(charge, source) {
     try {
-      if (!this.isEV) throw Error('Control not possible; not an EV');
+      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
       let command;
       if (charge) {
         this.log(`charging on via ${source}`);
@@ -818,8 +818,8 @@ class CarDevice extends Homey.Device {
 
   setTargetTemp(temp, source) {
     try {
-      if (this.getCapabilityValue('engine')) throw Error('Control not possible; engine is on');
-      if (!this.getCapabilityValue('climate_control')) throw Error('Climate control not on');
+      if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
+      if (!this.getCapabilityValue('climate_control')) throw Error(this.homey.__('error_climate_control_off'));
       this.log(`Temperature set by ${source} to ${temp}`);
       const args = {
         temperature: temp || 22,
@@ -834,7 +834,7 @@ class CarDevice extends Homey.Device {
 
   setChargeTargets(targets = { fast: 100, slow: 80 }, source) {
     try {
-      if (!this.isEV) throw Error('Control not possible; not an EV');
+      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
       this.log(`Charge target is set by ${source} to slow:${targets.slow} fast:${targets.fast}`);
       const args = { fast: Number(targets.fast), slow: Number(targets.slow) };
       const command = 'setChargeTargets';
@@ -853,7 +853,7 @@ class CarDevice extends Homey.Device {
       searchParam = `${destination.latitude},${destination.longitude}`;
     }
     const dest = await geo.search(searchParam).catch((error) => this.error(error.messsage || error));
-    if (!dest) throw Error('failed to find location');
+    if (!dest) throw Error(this.homey.__('error_location_not_found'));
     const args = [
       {
         phone: dest.extratags.phone || '',
