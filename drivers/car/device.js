@@ -37,6 +37,40 @@ const allWindows = (state) => ({
   frontLeft: state, frontRight: state, backLeft: state, backRight: state,
 });
 
+// Seconds to wait after a command before the queue picks up the next item —
+// the car's cloud API rejects requests sent too close together.
+const ITEM_WAIT_SECONDS = {
+  doPoll: 5,
+  start: 65,
+  stop: 5,
+  lock: 5,
+  unlock: 5,
+  setChargeTargets: 25,
+  startCharge: 25,
+  stopCharge: 5,
+  setNavigation: 65,
+  flashLights: 5,
+  flashLightsAndHonk: 5,
+  openChargePort: 15,
+  closeChargePort: 15,
+  openWindows: 15,
+  closeWindows: 15,
+  ventWindows: 15,
+  setChargingCurrent: 5,
+  setV2LDischargeLimit: 5,
+  enableValetMode: 5,
+  disableValetMode: 5,
+};
+
+// enQueue()'s returned promise races the item's real result against this
+// timeout, falling back to an optimistic `true` if it fires first — Homey's
+// capability-listener/flow-action-listener GUI times out after ~10s, but
+// most commands stay queued (behind other items, or a 60s duplicate-request
+// retry backoff) far longer than that. Better to occasionally under-report
+// a slow failure than to routinely show a false "failed" for a command
+// that's still legitimately in progress.
+const ENQUEUE_RESULT_TIMEOUT_MS = 8 * 1000;
+
 class CarDevice extends Homey.Device {
 
   // this method is called when the Device is inited
@@ -109,87 +143,63 @@ class CarDevice extends Homey.Device {
 
   // stuff for queue handling here
   setupQueue() {
-    // queue properties
     this.queue = [];
-    this.head = 0;
-    this.tail = 0;
     this.queueRunning = false;
+    // Returns a promise for this specific item's result. It races the
+    // item's real outcome against ENQUEUE_RESULT_TIMEOUT_MS — see that
+    // constant's comment for why. Fire-and-forget callers (internal
+    // auto-polls) should attach a no-op .catch() since a fast, definitive
+    // failure (e.g. a full queue) does reject this promise.
     this.enQueue = (item) => {
       if (this.disabled) {
         this.log('ignoring command; Homey live link is disabled.');
-        return;
+        return Promise.resolve(true);
       }
-      if (this.tail >= 10) {
+      if (this.queue.length >= 10) {
         this.error('queue overflow');
-        return;
+        return Promise.reject(Error(this.homey.__('error_queue_full')));
       }
-      this.queue[this.tail] = item;
-      this.tail += 1;
+      const result = new Promise((resolve, reject) => {
+        item.resolve = resolve;
+        item.reject = reject;
+      });
+      result.catch(() => {}); // avoid an unhandled-rejection warning if the race below resolves via the timeout first
+      this.queue.push(item);
       if (!this.queueRunning) {
-        this.queueRunning = true;
         this.runQueue().catch((error) => this.error(error));
       }
+      return Promise.race([
+        result,
+        setTimeoutPromise(ENQUEUE_RESULT_TIMEOUT_MS).then(() => true),
+      ]);
     };
-    this.deQueue = () => {
-      const size = this.tail - this.head;
-      if (size <= 0) return undefined;
-      const item = this.queue[this.head];
-      delete this.queue[this.head];
-      this.head += 1;
-      // Reset the counter
-      if (this.head === this.tail) {
-        this.head = 0;
-        this.tail = 0;
-      }
-      return item;
-    };
+    this.deQueue = () => this.queue.shift();
     this.flushQueue = () => {
       this.queue = [];
-      this.head = 0;
-      this.tail = 0;
       this.queueRunning = false;
       this.log('Queue is flushed');
     };
     this.runQueue = async () => {
+      if (this.queueRunning) return; // already draining, e.g. called again from enQueue while busy
+      this.queueRunning = true;
+      this.busy = true;
       try {
-        this.busy = true;
-        this.queueRunning = true;
-        const item = this.deQueue();
-        if (item) {
+        let item = this.deQueue();
+        while (item) {
           if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
             throw Error('Ignoring queued command; not logged in');
           }
-          const itemWait = {
-            doPoll: 5,
-            start: 65,
-            stop: 5,
-            lock: 5,
-            unlock: 5,
-            setChargeTargets: 25,
-            startCharge: 25,
-            stopCharge: 5,
-            setNavigation: 65,
-            flashLights: 5,
-            flashLightsAndHonk: 5,
-            openChargePort: 15,
-            closeChargePort: 15,
-            openWindows: 15,
-            closeWindows: 15,
-            ventWindows: 15,
-            setChargingCurrent: 5,
-            setV2LDischargeLimit: 5,
-            enableValetMode: 5,
-            disableValetMode: 5,
-          };
           this.lastCommand = item.command;
           const dispatch = () => (item.command === 'doPoll'
             ? this.doPoll(item.args)
             : this.runCommand(item.command, item.args));
+          // eslint-disable-next-line no-await-in-loop
           await dispatch()
             .then(() => {
               this.watchDogCounter = 6;
               this.setAvailable().catch(this.error);
+              item.resolve(true);
             })
             .catch(async (error) => {
               const msg = error.body || error.message || error;
@@ -211,28 +221,30 @@ class CarDevice extends Homey.Device {
                   })
                   .catch(() => false);
               }
-              if (!retryWorked) {
+              if (retryWorked) {
+                item.resolve(true);
+              } else {
                 this.error(`${item.command} failed`, msg);
                 this.watchDogCounter -= 1;
+                item.reject(error);
               }
-              this.busy = false;
             });
-          await setTimeoutPromise((itemWait[item.command] || 5) * 1000, 'waiting is done');
-          this.runQueue().catch((error) => this.error(error));
-        } else {
-          // console.log('Finshed queue');
-          this.queueRunning = false;
-          this.busy = false;
-          const fixingChargerState = (this.lastCommand === 'stopCharge') || (Date.now() - this.fixChargerStateTime) < 30 * 1000;
-          if (this.lastCommand !== 'doPoll' && !fixingChargerState) {
-            // this.carLastActive = Date.now();
-            this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } });
-          }
+          // eslint-disable-next-line no-await-in-loop
+          await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
+          item = this.deQueue();
+        }
+        // queue drained: schedule a follow-up poll so capabilities reflect
+        // the just-applied command, unless the queue only ever held polls
+        // or we just fixed the charger state (that flow already re-polls).
+        const fixingChargerState = (this.lastCommand === 'stopCharge') || (Date.now() - this.fixChargerStateTime) < 30 * 1000;
+        if (this.lastCommand !== 'doPoll' && !fixingChargerState) {
+          this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
         }
       } catch (error) {
+        this.error(error.message);
+      } finally {
         this.queueRunning = false;
         this.busy = false;
-        this.error(error.message);
       }
     };
   }
@@ -261,7 +273,7 @@ class CarDevice extends Homey.Device {
       case 'setV2LDischargeLimit': return this.client.setVehicleToLoadDischargeLimit(vc, args);
       case 'enableValetMode': return this.client.valetModeAction(vc, VALET_MODE_ACTION.ACTIVATE);
       case 'disableValetMode': return this.client.valetModeAction(vc, VALET_MODE_ACTION.DEACTIVATE);
-      default: return Promise.reject(Error(`Unknown command: ${command}`));
+      default: return Promise.reject(Error(this.homey.__('error_unknown_command', { command })));
     }
   }
 
@@ -352,10 +364,10 @@ class CarDevice extends Homey.Device {
         this.log('skipping a poll');
         return;
       }
-      this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: false } });
+      this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: false } }).catch(() => {});
     }, 1000 * 60 * interval);
     // do first poll
-    this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: true } });
+    this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: true } }).catch(() => {});
     // await setTimeoutPromise(15 * 1000);
     // this.lastStatus = null; // reset lastStatus to force logging a full status poll
     // this.enQueue({ command: 'doPoll', args: true });
@@ -751,182 +763,122 @@ class CarDevice extends Homey.Device {
   }
 
   acOnOff(acOn, source) {
-    try {
-      if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
-      let command;
-      let args;
-      if (acOn) {
-        this.log(`A/C on via ${source}`); // app or flow
-        command = 'start';
-        args = { setTemp: this.getCapabilityValue('target_temperature') || 22 };
-      } else {
-        this.log(`A/C off via ${source}`); // app or flow
-        command = 'stop';
-        this.setCapability('defrost', false); // set defrost state to off
-      }
-      this.enQueue({ command, args });
-      return true;
-    } catch (error) {
-      throw error;
+    if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
+    let command;
+    let args;
+    if (acOn) {
+      this.log(`A/C on via ${source}`); // app or flow
+      command = 'start';
+      args = { setTemp: this.getCapabilityValue('target_temperature') || 22 };
+    } else {
+      this.log(`A/C off via ${source}`); // app or flow
+      command = 'stop';
+      this.setCapability('defrost', false); // set defrost state to off
     }
+    return this.enQueue({ command, args });
   }
 
   defrostOnOff(defrost, source) {
-    try {
-      if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
-      let command;
-      let args;
-      if (defrost) {
-        this.log(`defrost on via ${source}`);
-        command = 'start';
-        args = {
-          defrost: true,
-          heating: 1,
-          steeringWheel: 1,
-          setTemp: this.getCapabilityValue('target_temperature') || 22,
-        };
-      } else {
-        this.log(`defrost off via ${source}`);
-        command = 'stop';
-        args = { defrost: false, heating: 0, steeringWheel: 0 };
-        this.enQueue({ command, args }); // have to do it twice to get defrost reported as off
-        this.setCapability('climate_control', false); // set AC state to off
-      }
-      this.enQueue({ command, args });
-      return true;
-    } catch (error) {
-      throw error;
+    if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
+    const command = defrost ? 'start' : 'stop';
+    let args;
+    if (defrost) {
+      this.log(`defrost on via ${source}`);
+      args = {
+        defrost: true,
+        heating: 1,
+        steeringWheel: 1,
+        setTemp: this.getCapabilityValue('target_temperature') || 22,
+      };
+    } else {
+      this.log(`defrost off via ${source}`);
+      args = { defrost: false, heating: 0, steeringWheel: 0 };
+      // have to do it twice to get defrost reported as off; only the 2nd
+      // result (returned below) is what the caller waits for
+      this.enQueue({ command, args }).catch(() => {});
+      this.setCapability('climate_control', false); // set AC state to off
     }
+    return this.enQueue({ command, args });
   }
 
   chargingOnOff(charge, source) {
-    try {
-      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
-      let command;
-      if (charge) {
-        this.log(`charging on via ${source}`);
-        command = 'startCharge';
-      } else {
-        this.log(`charging off via ${source}`);
-        command = 'stopCharge';
-      }
-      this.enQueue({ command });
-      return true;
-    } catch (error) {
-      throw error;
+    if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+    let command;
+    if (charge) {
+      this.log(`charging on via ${source}`);
+      command = 'startCharge';
+    } else {
+      this.log(`charging off via ${source}`);
+      command = 'stopCharge';
     }
+    return this.enQueue({ command });
   }
 
   lock(locked, source) {
-    try {
-      let command;
-      if (locked) {
-        this.log(`locking doors via ${source}`);
-        command = 'lock';
-      } else {
-        this.log(`unlocking doors via ${source}`);
-        command = 'unlock';
-      }
-      this.enQueue({ command });
-      return true;
-    } catch (error) {
-      throw error;
+    let command;
+    if (locked) {
+      this.log(`locking doors via ${source}`);
+      command = 'lock';
+    } else {
+      this.log(`unlocking doors via ${source}`);
+      command = 'unlock';
     }
+    return this.enQueue({ command });
   }
 
   setTargetTemp(temp, source) {
-    try {
-      if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
-      if (!this.getCapabilityValue('climate_control')) throw Error(this.homey.__('error_climate_control_off'));
-      this.log(`Temperature set by ${source} to ${temp}`);
-      const args = { setTemp: temp || 22 };
-      const command = 'start';
-      this.enQueue({ command, args });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
+    if (!this.getCapabilityValue('climate_control')) throw Error(this.homey.__('error_climate_control_off'));
+    this.log(`Temperature set by ${source} to ${temp}`);
+    const args = { setTemp: temp || 22 };
+    const command = 'start';
+    return this.enQueue({ command, args });
   }
 
   setChargeTargets(targets = { fast: 100, slow: 80 }, source) {
-    try {
-      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
-      this.log(`Charge target is set by ${source} to slow:${targets.slow} fast:${targets.fast}`);
-      const args = { fast: Number(targets.fast), slow: Number(targets.slow) };
-      const command = 'setChargeTargets';
-      this.enQueue({ command, args });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+    this.log(`Charge target is set by ${source} to slow:${targets.slow} fast:${targets.fast}`);
+    const args = { fast: Number(targets.fast), slow: Number(targets.slow) };
+    const command = 'setChargeTargets';
+    return this.enQueue({ command, args });
   }
 
   flashLights(honk, source) {
-    try {
-      this.log(`Flash lights${honk ? ' + horn' : ''} via ${source}`);
-      const command = honk ? 'flashLightsAndHonk' : 'flashLights';
-      this.enQueue({ command });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    this.log(`Flash lights${honk ? ' + horn' : ''} via ${source}`);
+    const command = honk ? 'flashLightsAndHonk' : 'flashLights';
+    return this.enQueue({ command });
   }
 
   chargePortOpen(open, source) {
-    try {
-      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
-      this.log(`Charge port ${open ? 'open' : 'close'} via ${source}`);
-      const command = open ? 'openChargePort' : 'closeChargePort';
-      this.enQueue({ command });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+    this.log(`Charge port ${open ? 'open' : 'close'} via ${source}`);
+    const command = open ? 'openChargePort' : 'closeChargePort';
+    return this.enQueue({ command });
   }
 
   setWindows(state, source) { // state: 'open', 'closed' or 'vent'
-    try {
-      this.log(`Windows set to ${state} via ${source}`);
-      const command = { open: 'openWindows', closed: 'closeWindows', vent: 'ventWindows' }[state];
-      if (!command) throw Error(`Invalid window state: ${state}`);
-      this.enQueue({ command });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    this.log(`Windows set to ${state} via ${source}`);
+    const command = { open: 'openWindows', closed: 'closeWindows', vent: 'ventWindows' }[state];
+    if (!command) throw Error(this.homey.__('error_invalid_window_state', { state }));
+    return this.enQueue({ command });
   }
 
   setChargingCurrent(level, source) {
-    try {
-      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
-      this.log(`Charging current set by ${source} to ${level}`);
-      this.enQueue({ command: 'setChargingCurrent', args: Number(level) });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+    this.log(`Charging current set by ${source} to ${level}`);
+    return this.enQueue({ command: 'setChargingCurrent', args: Number(level) });
   }
 
   setV2LDischargeLimit(limit, source) {
-    try {
-      if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
-      this.log(`V2L discharge limit set by ${source} to ${limit}`);
-      this.enQueue({ command: 'setV2LDischargeLimit', args: Number(limit) });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+    this.log(`V2L discharge limit set by ${source} to ${limit}`);
+    return this.enQueue({ command: 'setV2LDischargeLimit', args: Number(limit) });
   }
 
   setValetMode(enabled, source) {
-    try {
-      this.log(`Valet mode ${enabled ? 'enabled' : 'disabled'} via ${source}`);
-      const command = enabled ? 'enableValetMode' : 'disableValetMode';
-      this.enQueue({ command });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    this.log(`Valet mode ${enabled ? 'enabled' : 'disabled'} via ${source}`);
+    const command = enabled ? 'enableValetMode' : 'disableValetMode';
+    return this.enQueue({ command });
   }
 
   async setDestination(destination, source) { // free text, latitude/longitude object or nomatim search object
@@ -954,22 +906,15 @@ class CarDevice extends Homey.Device {
       },
     ];
     const command = 'setNavigation';
-    this.enQueue({ command, args });
-    return true;
+    return this.enQueue({ command, args });
   }
 
   refreshStatus(refresh, source) {
-    try {
-      if (refresh) {
-        this.setCapability('refresh_status', true);
-        this.log(`Forcing status refresh via ${source}`);
-        if (source === 'app' || source === 'cloud') this.carLastActive = Date.now();
-        this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } });
-      }
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    if (!refresh) return true;
+    this.setCapability('refresh_status', true);
+    this.log(`Forcing status refresh via ${source}`);
+    if (source === 'app' || source === 'cloud') this.carLastActive = Date.now();
+    return this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } });
   }
 
   // register capability listeners
