@@ -25,7 +25,7 @@ module.exports = class MyApp extends Homey.App {
 
   async onInit() {
     if (process.version.includes('v16')) {
-      const excerpt = 'The Hyundai/Hyundai app does not work on older Homeys. Please use a Homey Pro 2024.';
+      const excerpt = 'The Kia/Hyundai app does not work on older Homeys. Please use a Homey Pro 2024.';
       await this.homey.notifications.createNotification({ excerpt });
       throw Error('This app only works with Node V18+');
     }
