@@ -2,6 +2,7 @@
 /node_modules/
 /.homeybuild/
 /.vscode/
+/.claude/
 tmp*
 zzz*
 roadmap.txt
