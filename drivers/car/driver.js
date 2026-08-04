@@ -123,9 +123,12 @@ module.exports = class MyDriver extends Homey.Driver {
           this.log(vehicle.vehicleConfig);
           const status = await vehicle.status({ refresh: false, parsed: false });
           // console.dir(status, { depth: null, colors: true });
-          const isPEV = !!status.evStatus || !!status?.Green?.ChargingInformation?.ConnectorFastening;
-          const isICE = !!status.dte || !!status.fuelLevel
-            || !!status?.evStatus?.drvDistance?.[0]?.rangeByFuel?.gasModeRange?.value
+          // legacy (non-ccuCCS2) vehicles nest evStatus/dte/fuelLevel one level
+          // deeper, under vehicleStatus — CCS2 vehicles are already flat here.
+          const legacyStatus = status?.vehicleStatus || status;
+          const isPEV = !!legacyStatus.evStatus || !!status?.Green?.ChargingInformation?.ConnectorFastening;
+          const isICE = !!legacyStatus.dte || !!legacyStatus.fuelLevel
+            || !!legacyStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.gasModeRange?.value
             || !!status?.Drivetrain?.InternalCombustionEngine;
           let engine = 'HEV/ICE';
           if (isPEV && isICE) engine = 'PHEV';
