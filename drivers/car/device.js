@@ -20,12 +20,12 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const GeoPoint = require('geopoint');
 const util = require('util');
 const { createClient, exceptions } = require('../../lib/connect');
 const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
+const { distanceKm } = require('../../lib/geo_distance');
 
 const setTimeoutPromise = util.promisify(setTimeout);
 
@@ -730,13 +730,11 @@ class CarDevice extends Homey.Device {
   }
 
   distance(location) {
-    const lat1 = location.latitude;
-    const lon1 = location.longitude;
-    const lat2 = this.settings.lat;
-    const lon2 = this.settings.lon;
-    const from = new GeoPoint(Number(lat1), Number(lon1));
-    const to = new GeoPoint(Number(lat2), Number(lon2));
-    return Math.round(from.distanceTo(to, true) * 100) / 100;
+    const lat1 = Number(location.latitude);
+    const lon1 = Number(location.longitude);
+    const lat2 = Number(this.settings.lat);
+    const lon2 = Number(this.settings.lon);
+    return Math.round(distanceKm(lat1, lon1, lat2, lon2) * 100) / 100;
   }
 
   acOnOff(acOn, source) {
