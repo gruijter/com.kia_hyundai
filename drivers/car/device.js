@@ -139,6 +139,12 @@ class CarDevice extends Homey.Device {
     this.watchDogCounter = 6;
     this.busy = false;
     this.restarting = false;
+    // for [queue-timing] logging only, see runQueue() — real-world data on
+    // whether ITEM_WAIT_SECONDS is actually long enough per command, since
+    // those values (especially for commands added in 2026) are an unverified
+    // guess, not something tested against the live API or documented anywhere.
+    this.lastCommandDispatched = null;
+    this.lastCommandDispatchedAt = null;
   }
 
   // stuff for queue handling here
@@ -194,6 +200,21 @@ class CarDevice extends Homey.Device {
           const dispatch = () => (item.command === 'doPoll'
             ? this.doPoll(item.args)
             : this.runCommand(item.command, item.args));
+          // [queue-timing] real-world data point for whether
+          // ITEM_WAIT_SECONDS is actually long enough — see initvalues().
+          // Only logged for non-doPoll (control) commands; doPoll's own
+          // spacing isn't in question here. previousCommand/sinceLastMs are
+          // captured into locals before being overwritten below, so the
+          // .catch() handler further down still refers to the *previous*
+          // command, not the one that just got rejected.
+          const previousCommand = this.lastCommandDispatched;
+          const sinceLastMs = this.lastCommandDispatchedAt ? Date.now() - this.lastCommandDispatchedAt : null;
+          if (item.command !== 'doPoll') {
+            this.log(`[queue-timing] ${item.command} dispatched ${sinceLastMs}ms after previous command `
+              + `(${previousCommand || 'none'}, configured wait ${ITEM_WAIT_SECONDS[previousCommand] ?? 'n/a'}s)`);
+          }
+          this.lastCommandDispatched = item.command;
+          this.lastCommandDispatchedAt = Date.now();
           // eslint-disable-next-line no-await-in-loop
           await dispatch()
             .then(() => {
@@ -206,7 +227,11 @@ class CarDevice extends Homey.Device {
               // retry once on retCode: 'F', resCode: '4004', resMsg: 'Duplicate request - Duplicate request'
               let retryWorked = false;
               if (msg && (msg.includes('"resCode":"4002"') || msg.includes('"resCode":"4004"'))) {
-                this.log(`${item.command} failed. Retrying in 60 seconds`);
+                // [queue-timing] this is the actually interesting case: a
+                // real rate-limit/duplicate rejection, with exactly how much
+                // time had elapsed since the previous command.
+                this.log(`[queue-timing] ${item.command} REJECTED as duplicate/rate-limited ${sinceLastMs}ms after `
+                  + `previous command (${previousCommand || 'none'}). Retrying in 60 seconds`);
                 await setTimeoutPromise(60 * 1000, 'waiting is done');
                 if (this.settings.loginOnRetry) {
                   const vehicleConfigs = await this.client.login();
