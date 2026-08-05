@@ -1,6 +1,6 @@
 {
   "2.0.0": {
-    "en": "Complete rewrite of the vehicle connection layer. Added flow cards for find-my-car, remote windows, charge port, charging current, V2L discharge limit and valet mode. Fixed engine-type detection for some EVs/PHEVs, an odometer crash, and the tire-pressure alarm not triggering."
+    "en": "Complete rewrite of the vehicle connection layer, now also supporting AU, CN, CA and US regions. Added flow cards for find-my-car, remote windows, charge port, charging current, V2L discharge limit and valet mode. Fixed engine-type detection for some EVs/PHEVs, an odometer crash, the tire-pressure alarm not triggering, a locked-status false negative on sunroof-less cars, and broken distance-changed/is-moving flow cards. Devices now show a clear reason when they become unavailable."
   },
   "1.3.0": {
     "en": "Fixed login for new API endpoints."
