@@ -25,5 +25,8 @@
   },
   "1.0.0": {
     "en": "First release"
+  },
+  "2.1.0": {
+    "en": "Fix for new API blocks"
   }
 }
