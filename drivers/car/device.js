@@ -94,8 +94,9 @@ class CarDevice extends Homey.Device {
     try {
       this.log(`checking device migration for ${this.getName()}`);
       // store the capability states before migration
-      const sym = Object.getOwnPropertySymbols(this).find((s) => String(s) === 'Symbol(state)');
-      const state = this[sym];
+      const existingCaps = this.getCapabilities();
+      const state = {};
+      existingCaps.forEach((cap) => { state[cap] = this.getCapabilityValue(cap); });
       // check and repair incorrect capability(order)
       const correctCaps = this.driver.capabilitiesMap[this.getSettings().engine];
       for (let index = 0; index <= correctCaps.length; index += 1) {
