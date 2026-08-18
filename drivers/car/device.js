@@ -222,9 +222,14 @@ class CarDevice extends Homey.Device {
             })
             .catch(async (error) => {
               const msg = error.body || error.message || error;
-              // retry once on retCode: 'F', resCode: '4004', resMsg: 'Duplicate request - Duplicate request'
+              // Retry once on a stale-device-id or duplicate-request rejection.
+              // These arrive as typed exceptions (DeviceIDError/DuplicateRequestError,
+              // see lib/connect/native/ApiImplType1.js#checkResponseForErrors), whose
+              // .message is just the bare resMsg text (e.g. 'Duplicate request -
+              // Duplicate request') — not a raw JSON blob — so check the type, not a
+              // '"resCode":"4004"' substring that never actually appears in it.
               let retryWorked = false;
-              if (msg && (msg.includes('"resCode":"4002"') || msg.includes('"resCode":"4004"'))) {
+              if (error instanceof exceptions.DeviceIDError || error instanceof exceptions.DuplicateRequestError) {
                 // [queue-timing] this is the actually interesting case: a
                 // real rate-limit/duplicate rejection, with exactly how much
                 // time had elapsed since the previous command.
@@ -315,14 +320,16 @@ class CarDevice extends Homey.Device {
     try {
       vehicleConfigs = await this.client.login();
     } catch (error) {
-      // retCode: 'F', resCode: '5091', resMsg: 'Exceeds number of requests
-      if (error.message && error.message.includes('"resCode":"5091"')) {
+      // Typed exceptions (see checkResponseForErrors) — .message is the bare
+      // resMsg text, not raw JSON, so check the type rather than a
+      // '"resCode":"..."' substring that never appears in it.
+      if (error instanceof exceptions.RateLimitingError) {
         this.log('Daily quotum reached! Pausing app for 60 minutes.');
         this.stopPolling();
         this.setUnavailable(this.homey.__('device_quota_reached')).catch(this.error);
         this.restartDevice(60 * 60 * 1000).catch((e) => this.error(e));
       }
-      if (error.message && error.message.includes('"resCode":"4004"')) {
+      if (error instanceof exceptions.DuplicateRequestError) {
         this.log('Command failed (duplicate request)');
         this.watchDogCounter -= 1;
       }
