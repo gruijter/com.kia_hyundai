@@ -31,5 +31,8 @@
   },
   "2.2.0": {
     "en": "Fix app crash. Fix location fetching for CCS2."
+  },
+  "2.3.0": {
+    "en": "Added capabilities and flows for SoH, Flash, Honk, Vent, Chargeport, Valet mode, Break fluid, Washer fluid and Key fob. Improved flows for LimitAC, A/C and Defrost. Fix speed for CCS2. Auto-remove unsupported flows and capabilities. Add all translations."
   }
 }
