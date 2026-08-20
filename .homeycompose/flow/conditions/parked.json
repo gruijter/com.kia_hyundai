@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The car !{{is|is not}} parked"
-    },
-    "titleFormatted": {
-        "en": "The car !{{is|is not}} parked"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The car !{{is|is not}} parked",
+    "nl": "De auto !{{staat|staat niet}} geparkeerd",
+    "de": "Das Fahrzeug !{{ist|ist nicht}} geparkt",
+    "fr": "La voiture !{{est|n'est pas}} garée",
+    "es": "El coche !{{está|no está}} aparcado",
+    "it": "L'auto !{{è|non è}} parcheggiata",
+    "da": "Bilen er !{{parkeret|ikke parkeret}}",
+    "sv": "Bilen är !{{parkerad|inte parkerad}}",
+    "no": "Bilen er !{{parkert|ikke parkert}}",
+    "pl": "Samochód !{{jest|nie jest}} zaparkowany",
+    "ru": "Автомобиль !{{припаркован|не припаркован}}",
+    "ar": "السيارة !{{متوقفة|غير متوقفة}}",
+    "ko": "차량이 !{{주차됨|주차되지 않음}}"
+  },
+  "titleFormatted": {
+    "en": "The car !{{is|is not}} parked",
+    "nl": "De auto !{{staat|staat niet}} geparkeerd",
+    "de": "Das Fahrzeug !{{ist|ist nicht}} geparkt",
+    "fr": "La voiture !{{est|n'est pas}} garée",
+    "es": "El coche !{{está|no está}} aparcado",
+    "it": "L'auto !{{è|non è}} parcheggiata",
+    "da": "Bilen er !{{parkeret|ikke parkeret}}",
+    "sv": "Bilen är !{{parkerad|inte parkerad}}",
+    "no": "Bilen er !{{parkert|ikke parkert}}",
+    "pl": "Samochód !{{jest|nie jest}} zaparkowany",
+    "ru": "Автомобиль !{{припаркован|не припаркован}}",
+    "ar": "السيارة !{{متوقفة|غير متوقفة}}",
+    "ko": "차량이 !{{주차됨|주차되지 않음}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

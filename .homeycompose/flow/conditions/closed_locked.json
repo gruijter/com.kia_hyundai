@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The car !{{is|is not}} closed and locked"
-    },
-    "titleFormatted": {
-        "en": "The car !{{is|is not}} closed and locked"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The car !{{is|is not}} closed and locked",
+    "nl": "De auto !{{is|is niet}} gesloten en vergrendeld",
+    "de": "Das Fahrzeug !{{ist|ist nicht}} geschlossen und verriegelt",
+    "fr": "La voiture !{{est|n'est pas}} fermée et verrouillée",
+    "es": "El coche !{{está|no está}} cerrado y bloqueado",
+    "it": "L'auto !{{è|non è}} chiusa e bloccata",
+    "da": "Bilen er !{{lukket og låst|ikke lukket og låst}}",
+    "sv": "Bilen är !{{stängd och låst|inte stängd och låst}}",
+    "no": "Bilen er !{{lukket og låst|ikke lukket og låst}}",
+    "pl": "Samochód !{{jest|nie jest}} zamknięty i zablokowany",
+    "ru": "Автомобиль !{{закрыт и заблокирован|не закрыт и не заблокирован}}",
+    "ar": "السيارة !{{مغلقة ومقفلة|غير مغلقة أو مقفلة}}",
+    "ko": "차량이 !{{닫히고 잠김|닫히거나 잠기지 않음}}"
+  },
+  "titleFormatted": {
+    "en": "The car !{{is|is not}} closed and locked",
+    "nl": "De auto !{{is|is niet}} gesloten en vergrendeld",
+    "de": "Das Fahrzeug !{{ist|ist nicht}} geschlossen und verriegelt",
+    "fr": "La voiture !{{est|n'est pas}} fermée et verrouillée",
+    "es": "El coche !{{está|no está}} cerrado y bloqueado",
+    "it": "L'auto !{{è|non è}} chiusa e bloccata",
+    "da": "Bilen er !{{lukket og låst|ikke lukket og låst}}",
+    "sv": "Bilen är !{{stängd och låst|inte stängd och låst}}",
+    "no": "Bilen er !{{lukket og låst|ikke lukket og låst}}",
+    "pl": "Samochód !{{jest|nie jest}} zamknięty i zablokowany",
+    "ru": "Автомобиль !{{закрыт и заблокирован|не закрыт и не заблокирован}}",
+    "ar": "السيارة !{{مغلقة ومقفلة|غير مغلقة أو مقفلة}}",
+    "ko": "차량이 !{{닫히고 잠김|닫히거나 잠기지 않음}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

@@ -1,0 +1,39 @@
+{
+  "title": {
+    "en": "The key fob battery alarm turned on",
+    "nl": "Het batterijalarm van de sleutelhanger is ingeschakeld",
+    "de": "Der Batteriealarm des Schlüsselanhängers wurde eingeschaltet",
+    "fr": "L'alarme de batterie de la clé a été activée",
+    "es": "La alarma de batería del mando se ha activado",
+    "it": "L'allarme della batteria del telecomando è stato attivato",
+    "da": "Batterialarmen for nøglebrikken blev tændt",
+    "sv": "Batterilarmet för nyckelbrickan slogs på",
+    "no": "Batterialarmen for nøkkelbrikken ble slått på",
+    "pl": "Alarm baterii breloka został włączony",
+    "ru": "Тревога батареи брелока включена",
+    "ar": "تم تشغيل إنذار بطارية جهاز التحكم عن بعد",
+    "ko": "키 포브 배터리 경보가 켜짐"
+  },
+  "titleFormatted": {
+    "en": "The key fob battery alarm turned on",
+    "nl": "Het batterijalarm van de sleutelhanger is ingeschakeld",
+    "de": "Der Batteriealarm des Schlüsselanhängers wurde eingeschaltet",
+    "fr": "L'alarme de batterie de la clé a été activée",
+    "es": "La alarma de batería del mando se ha activado",
+    "it": "L'allarme della batteria del telecomando è stato attivato",
+    "da": "Batterialarmen for nøglebrikken blev tændt",
+    "sv": "Batterilarmet för nyckelbrickan slogs på",
+    "no": "Batterialarmen for nøkkelbrikken ble slått på",
+    "pl": "Alarm baterii breloka został włączony",
+    "ru": "Тревога батареи брелока включена",
+    "ar": "تم تشغيل إنذار بطارية جهاز التحكم عن بعد",
+    "ko": "키 포브 배터리 경보가 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=alarm_generic.key_fob_battery"
+    }
+  ]
+}

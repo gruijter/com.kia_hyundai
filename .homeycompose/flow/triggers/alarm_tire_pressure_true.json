@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The tire pressure alarm turned on"
-    },
-    "titleFormatted": {
-        "en": "The tire pressure alarm turned on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The tire pressure alarm turned on",
+    "nl": "Het bandenspanningsalarm is ingeschakeld",
+    "de": "Der Reifendruckalarm wurde eingeschaltet",
+    "fr": "L'alarme de pression des pneus a été activée",
+    "es": "La alarma de presión de neumáticos se ha activado",
+    "it": "L'allarme della pressione degli pneumatici è stato attivato",
+    "da": "Dæktryksalarmen blev tændt",
+    "sv": "Däcktryckslarmet slogs på",
+    "no": "Dekktrykkalarmen ble slått på",
+    "pl": "Alarm ciśnienia opon został włączony",
+    "ru": "Тревога давления в шинах включена",
+    "ar": "تم تشغيل إنذار ضغط الإطارات",
+    "ko": "타이어 공기압 경보가 켜짐"
+  },
+  "titleFormatted": {
+    "en": "The tire pressure alarm turned on",
+    "nl": "Het bandenspanningsalarm is ingeschakeld",
+    "de": "Der Reifendruckalarm wurde eingeschaltet",
+    "fr": "L'alarme de pression des pneus a été activée",
+    "es": "La alarma de presión de neumáticos se ha activado",
+    "it": "L'allarme della pressione degli pneumatici è stato attivato",
+    "da": "Dæktryksalarmen blev tændt",
+    "sv": "Däcktryckslarmet slogs på",
+    "no": "Dekktrykkalarmen ble slått på",
+    "pl": "Alarm ciśnienia opon został włączony",
+    "ru": "Тревога давления в шинах включена",
+    "ar": "تم تشغيل إنذار ضغط الإطارات",
+    "ko": "타이어 공기압 경보가 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

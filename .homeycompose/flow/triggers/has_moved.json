@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The car has moved"
-    },
-    "titleFormatted": {
-        "en": "The car has moved"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The car has moved",
+    "nl": "De auto is gaan rijden",
+    "de": "Das Fahrzeug hat sich bewegt",
+    "fr": "La voiture s'est mise en mouvement",
+    "es": "El coche se ha puesto en movimiento",
+    "it": "L'auto si è mossa",
+    "da": "Bilen er begyndt at køre",
+    "sv": "Bilen har börjat röra sig",
+    "no": "Bilen har begynt å kjøre",
+    "pl": "Samochód zaczął jechać",
+    "ru": "Автомобиль начал движение",
+    "ar": "بدأت السيارة بالتحرك",
+    "ko": "차량이 움직이기 시작함"
+  },
+  "titleFormatted": {
+    "en": "The car has moved",
+    "nl": "De auto is gaan rijden",
+    "de": "Das Fahrzeug hat sich bewegt",
+    "fr": "La voiture s'est mise en mouvement",
+    "es": "El coche se ha puesto en movimiento",
+    "it": "L'auto si è mossa",
+    "da": "Bilen er begyndt at køre",
+    "sv": "Bilen har börjat röra sig",
+    "no": "Bilen har begynt å kjøre",
+    "pl": "Samochód zaczął jechać",
+    "ru": "Автомобиль начал движение",
+    "ar": "بدأت السيارة بالتحرك",
+    "ko": "차량이 움직이기 시작함"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

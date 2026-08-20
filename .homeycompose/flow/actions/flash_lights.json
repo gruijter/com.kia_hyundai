@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Flash lights (find my car)"
-    },
-    "titleFormatted": {
-        "en": "Flash lights (find my car)"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Flash lights (find my car)",
+    "nl": "Lichten laten knipperen (mijn auto zoeken)",
+    "de": "Lichter blinken lassen (Auto finden)",
+    "fr": "Faire clignoter les phares (retrouver ma voiture)",
+    "es": "Hacer parpadear las luces (encontrar mi coche)",
+    "it": "Lampeggiare i fari (trova la mia auto)",
+    "da": "Blink med lygterne (find min bil)",
+    "sv": "Blinka med lyktorna (hitta min bil)",
+    "no": "Blink med lysene (finn bilen min)",
+    "pl": "Mignij światłami (znajdź mój samochód)",
+    "ru": "Мигнуть фарами (найти мой автомобиль)",
+    "ar": "وميض الأضواء (العثور على سيارتي)",
+    "ko": "라이트 깜빡이기(내 차 찾기)"
+  },
+  "titleFormatted": {
+    "en": "Flash lights (find my car)",
+    "nl": "Lichten laten knipperen (mijn auto zoeken)",
+    "de": "Lichter blinken lassen (Auto finden)",
+    "fr": "Faire clignoter les phares (retrouver ma voiture)",
+    "es": "Hacer parpadear las luces (encontrar mi coche)",
+    "it": "Lampeggiare i fari (trova la mia auto)",
+    "da": "Blink med lygterne (find min bil)",
+    "sv": "Blinka med lyktorna (hitta min bil)",
+    "no": "Blink med lysene (finn bilen min)",
+    "pl": "Mignij światłami (znajdź mój samochód)",
+    "ru": "Мигнуть фарами (найти мой автомобиль)",
+    "ar": "وميض الأضواء (العثور على سيارتي)",
+    "ko": "라이트 깜빡이기(내 차 찾기)"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

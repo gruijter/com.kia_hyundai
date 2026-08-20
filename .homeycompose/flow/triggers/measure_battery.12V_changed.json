@@ -1,0 +1,47 @@
+{
+  "title": {
+    "en": "12V battery level changed",
+    "nl": "12V-accuniveau gewijzigd",
+    "de": "12V-Batteriestand geändert",
+    "fr": "Le niveau de la batterie 12V a changé",
+    "es": "El nivel de la batería de 12V ha cambiado",
+    "it": "Il livello della batteria 12V è cambiato",
+    "da": "12V-batteriniveau ændret",
+    "sv": "12V-batterinivån har ändrats",
+    "no": "12V-batterinivå endret",
+    "pl": "Poziom akumulatora 12V uległ zmianie",
+    "ru": "Уровень заряда аккумулятора 12В изменился",
+    "ar": "تغيّر مستوى بطارية 12 فولت",
+    "ko": "12V 배터리 수준 변경됨"
+  },
+  "highlight": true,
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "battery_12v",
+      "type": "number",
+      "title": {
+        "en": "12V battery level",
+        "nl": "12V-accuniveau",
+        "de": "12V-Batteriestand",
+        "fr": "Niveau de la batterie 12V",
+        "es": "Nivel de la batería de 12V",
+        "it": "Livello della batteria 12V",
+        "da": "12V-batteriniveau",
+        "sv": "12V-batterinivå",
+        "no": "12V-batterinivå",
+        "pl": "Poziom akumulatora 12V",
+        "ru": "Уровень заряда аккумулятора 12В",
+        "ar": "مستوى بطارية 12 فولت",
+        "ko": "12V 배터리 수준"
+      },
+      "example": 82
+    }
+  ]
+}

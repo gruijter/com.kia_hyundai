@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Open all windows"
-    },
-    "titleFormatted": {
-        "en": "Open all windows"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Open all windows",
+    "nl": "Alle ramen openen",
+    "de": "Alle Fenster öffnen",
+    "fr": "Ouvrir toutes les fenêtres",
+    "es": "Abrir todas las ventanas",
+    "it": "Apri tutti i finestrini",
+    "da": "Åbn alle ruder",
+    "sv": "Öppna alla fönster",
+    "no": "Åpne alle vinduer",
+    "pl": "Otwórz wszystkie szyby",
+    "ru": "Открыть все окна",
+    "ar": "فتح جميع النوافذ",
+    "ko": "모든 창문 열기"
+  },
+  "titleFormatted": {
+    "en": "Open all windows",
+    "nl": "Alle ramen openen",
+    "de": "Alle Fenster öffnen",
+    "fr": "Ouvrir toutes les fenêtres",
+    "es": "Abrir todas las ventanas",
+    "it": "Apri tutti i finestrini",
+    "da": "Åbn alle ruder",
+    "sv": "Öppna alla fönster",
+    "no": "Åpne alle vinduer",
+    "pl": "Otwórz wszystkie szyby",
+    "ru": "Открыть все окна",
+    "ar": "فتح جميع النوافذ",
+    "ko": "모든 창문 열기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=vent_windows"
+    }
+  ]
 }

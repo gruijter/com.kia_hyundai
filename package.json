@@ -1,6 +1,6 @@
 {
   "name": "com.hyundai",
-  "version": "1.0.0",
+  "version": "2.3.0",
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",

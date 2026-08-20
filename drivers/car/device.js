@@ -27,7 +27,9 @@ const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
 
-const { CHARGE_PORT_ACTION, VALET_MODE_ACTION, WINDOW_STATE } = constants;
+const {
+  CHARGE_PORT_ACTION, VALET_MODE_ACTION, WINDOW_STATE, SEAT_STATUS, HEAT_STATUS,
+} = constants;
 
 const setTimeoutPromise = util.promisify(setTimeout);
 
@@ -98,7 +100,19 @@ class CarDevice extends Homey.Device {
       const state = {};
       existingCaps.forEach((cap) => { state[cap] = this.getCapabilityValue(cap); });
       // check and repair incorrect capability(order)
-      const correctCaps = this.driver.capabilitiesMap[this.getSettings().engine];
+      // Drop capabilities the car has never actually reported data for (see
+      // driver.js#capabilitiesToCheck) — sourced from the device's own
+      // last-stored status rather than a live fetch, so migration doesn't
+      // add an extra vehicle-API call on every app restart. This reliably
+      // catches the confirmed legacy/non-CCS2 gap (see the comment above
+      // `alarm_generic.washer_fluid` in mapStatus() below); it can't catch a
+      // hypothetical CCS2-side version of the same gap, since those fields
+      // are coerced to a boolean before being stored.
+      const lastStatus = this.getStoreValue('lastStatus');
+      const correctCaps = this.driver.filterSupportedCapabilities(
+        this.driver.capabilitiesMap[this.getSettings().engine],
+        lastStatus,
+      );
       for (let index = 0; index <= correctCaps.length; index += 1) {
         const caps = this.getCapabilities();
         const newCap = correctCaps[index];
@@ -187,6 +201,7 @@ class CarDevice extends Homey.Device {
       if (this.queueRunning) return; // already draining, e.g. called again from enQueue while busy
       this.queueRunning = true;
       this.busy = true;
+      let needsFollowUpPoll = false;
       try {
         let item = this.deQueue();
         while (item) {
@@ -261,16 +276,20 @@ class CarDevice extends Homey.Device {
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
           item = this.deQueue();
         }
-        // queue drained: schedule a follow-up poll so capabilities reflect
-        // the just-applied command, unless the queue only ever held polls.
-        if (this.lastCommand !== 'doPoll') {
-          this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
-        }
+        needsFollowUpPoll = this.lastCommand !== 'doPoll';
       } catch (error) {
         this.error(error.message);
       } finally {
         this.queueRunning = false;
         this.busy = false;
+      }
+      // Enqueued here, after queueRunning is back to false — enqueuing it
+      // inside the try block above left it stranded: enQueue() only starts
+      // a fresh runQueue() when !queueRunning, which wasn't true yet there.
+      // A stranded poll would then sit until some unrelated later command
+      // triggered the queue again, jumping the queue ahead of it (FIFO).
+      if (needsFollowUpPoll) {
+        this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
       }
     };
   }
@@ -659,7 +678,14 @@ class CarDevice extends Homey.Device {
       map.engine = sts.engine;
       map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && Object.keys(sts.doorOpen).reduce((closedAccu, door) => closedAccu || !sts.doorOpen[door], true);
       map['alarm_tire_pressure'] = !!sts?.tirePressureLamp?.tirePressureLampAll;
+      // Legacy field names/casing (incl. Kia's own "break" typo for "brake")
+      // — only reported by some non-CCS2 models (e.g. Sorento PHEV), absent
+      // on others (e.g. Niro EV/HEV) where these just stay unset.
+      map['alarm_generic.washer_fluid'] = sts?.washerFluidStatus;
+      map['alarm_generic.brake_fluid'] = sts?.breakOilStatus;
+      map['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
       map['measure_battery.12V'] = sts?.battery?.batSoc;
+      map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       map.measure_range = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.value || sts?.dte?.value;
       if (map.measure_range === undefined || map.measure_range < 0) map.measure_range = null; // Sorento weird server response
       map.measure_battery = sts?.evStatus?.batteryStatus;
@@ -742,7 +768,11 @@ class CarDevice extends Homey.Device {
         sts?.Chassis?.Axle?.Row2?.Right?.Tire,
       ].filter(Boolean);
       map['alarm_tire_pressure'] = !!sts?.Chassis?.Axle?.Tire?.PressureLow || tires.some((tire) => tire.PressureLow);
+      map['alarm_generic.washer_fluid'] = !!sts?.Body?.Windshield?.Front?.WasherFluid?.LevelLow;
+      map['alarm_generic.brake_fluid'] = !!sts?.Chassis?.Brake?.Fluid?.Warning;
+      map['alarm_generic.key_fob_battery'] = !!sts?.Electronics?.FOB?.LowBattery;
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
+      map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       map.measure_battery = sts?.Green?.BatteryManagement?.BatteryRemain.Ratio;
       map.charge = charge;
@@ -783,14 +813,30 @@ class CarDevice extends Homey.Device {
     return Math.round(distanceKm(lat1, lon1, lat2, lon2) * 100) / 100;
   }
 
-  acOnOff(acOn, source) {
+  // flowArgs.duration (minutes, optional) from the "Turn A/C on" flow card —
+  // see ../../.homeycompose/flow/actions/ac_on.json. This is the plain
+  // cooling command (summer use case): all heat options are always off,
+  // both via the flow card and the "climate control" device-tile toggle
+  // (source: 'app') — see defrostOnOff() for the preheat/defrost variant
+  // that turns them on.
+  acOnOff(acOn, source, flowArgs = {}) {
     if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
     let command;
     let args;
     if (acOn) {
       this.log(`A/C on via ${source}`); // app or flow
       command = 'start';
-      args = { setTemp: this.getCapabilityValue('target_temperature') || 22 };
+      args = {
+        setTemp: this.getCapabilityValue('target_temperature') || 22,
+        duration: flowArgs.duration ?? 10,
+        defrost: false,
+        steeringWheel: 0,
+        heating: HEAT_STATUS.OFF,
+        frontLeftSeat: SEAT_STATUS.OFF,
+        frontRightSeat: SEAT_STATUS.OFF,
+        rearLeftSeat: SEAT_STATUS.OFF,
+        rearRightSeat: SEAT_STATUS.OFF,
+      };
     } else {
       this.log(`A/C off via ${source}`); // app or flow
       command = 'stop';
@@ -799,7 +845,13 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command, args });
   }
 
-  defrostOnOff(defrost, source) {
+  // flowArgs.duration (minutes, optional) from the "Turn defrost on" flow
+  // card — see ../../.homeycompose/flow/actions/defrost_on.json. This is
+  // the preheat/defrost command (winter use case): steering wheel and all
+  // 4 seats are always heated too, both via the flow card and the
+  // "defrost" device-tile toggle (source: 'app') — seat heat is CCS2-only,
+  // startClimate() silently ignores it on older, non-CCS2 cars.
+  defrostOnOff(defrost, source, flowArgs = {}) {
     if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
     const command = defrost ? 'start' : 'stop';
     let args;
@@ -807,13 +859,26 @@ class CarDevice extends Homey.Device {
       this.log(`defrost on via ${source}`);
       args = {
         defrost: true,
-        heating: 1,
+        heating: HEAT_STATUS.STEERING_WHEEL_AND_REAR_WINDOW,
         steeringWheel: 1,
+        frontLeftSeat: SEAT_STATUS.MEDIUM_HEAT,
+        frontRightSeat: SEAT_STATUS.MEDIUM_HEAT,
+        rearLeftSeat: SEAT_STATUS.MEDIUM_HEAT,
+        rearRightSeat: SEAT_STATUS.MEDIUM_HEAT,
+        duration: flowArgs.duration ?? 10,
         setTemp: this.getCapabilityValue('target_temperature') || 22,
       };
     } else {
       this.log(`defrost off via ${source}`);
-      args = { defrost: false, heating: 0, steeringWheel: 0 };
+      args = {
+        defrost: false,
+        heating: HEAT_STATUS.OFF,
+        steeringWheel: 0,
+        frontLeftSeat: SEAT_STATUS.OFF,
+        frontRightSeat: SEAT_STATUS.OFF,
+        rearLeftSeat: SEAT_STATUS.OFF,
+        rearRightSeat: SEAT_STATUS.OFF,
+      };
       // have to do it twice to get defrost reported as off; only the 2nd
       // result (returned below) is what the caller waits for
       this.enQueue({ command, args }).catch(() => {});
@@ -946,9 +1011,28 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('locked', (locked) => this.lock(locked, 'app'));
       this.registerCapabilityListener('defrost', (defrost) => this.defrostOnOff(defrost, 'app'));
       this.registerCapabilityListener('climate_control', (acOn) => this.acOnOff(acOn, 'app'));
+      // A real on/off state on the car (like climate_control/defrost above),
+      // not a momentary trigger — but unlike those, there's no status field
+      // to poll it back from (absent in every zzz_responses capture), so it
+      // can't self-correct if valet mode is toggled from the car itself.
+      this.registerCapabilityListener('valet_mode', (enabled) => this.setValetMode(enabled, 'app'));
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
+      // Momentary buttons — self-reset back to false after the command
+      // completes (or the enQueue timeout races it), matching refresh_status.
+      this.registerCapabilityListener('vent_windows', (pressed) => {
+        if (!pressed) return true;
+        return this.setWindows('vent', 'app').finally(() => this.setCapability('vent_windows', false));
+      });
+      this.registerCapabilityListener('flash_lights', (pressed) => {
+        if (!pressed) return true;
+        return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false));
+      });
+      this.registerCapabilityListener('flash_lights_and_honk', (pressed) => {
+        if (!pressed) return true;
+        return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false));
+      });
       this.registerMultipleCapabilityListener(['charge_target_slow', 'charge_target_fast'], async (values) => {
         const slow = Number(values.charge_target_slow) || Number(this.getCapabilityValue('charge_target_slow'));
         const fast = Number(values.charge_target_fast) || Number(this.getCapabilityValue('charge_target_fast'));

@@ -1,23 +1,47 @@
 {
-	"title": { 
-		"en": "Distance changed"
-	},
-	"highlight": true,
-	"args": [
-		{
-				"type": "device",
-				"name": "device",
-				"filter": "driver_id=car"
-		}
-	],
-	"tokens": [
-		{
-			"name": "meter_distance",
-			"type": "number",
-			"title": { 
-				"en": "Distance"
-			},
-			"example": 53
-		}
-	]
+  "title": {
+    "en": "Distance changed",
+    "nl": "Afstand gewijzigd",
+    "de": "Entfernung geändert",
+    "fr": "La distance a changé",
+    "es": "La distancia ha cambiado",
+    "it": "La distanza è cambiata",
+    "da": "Afstand ændret",
+    "sv": "Avståndet har ändrats",
+    "no": "Avstand endret",
+    "pl": "Odległość uległa zmianie",
+    "ru": "Расстояние изменилось",
+    "ar": "تغيّرت المسافة",
+    "ko": "거리 변경됨"
+  },
+  "highlight": true,
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "meter_distance",
+      "type": "number",
+      "title": {
+        "en": "Distance",
+        "nl": "Afstand",
+        "de": "Entfernung",
+        "fr": "Distance",
+        "es": "Distancia",
+        "it": "Distanza",
+        "da": "Afstand",
+        "sv": "Avstånd",
+        "no": "Avstand",
+        "pl": "Odległość",
+        "ru": "Расстояние",
+        "ar": "المسافة",
+        "ko": "거리"
+      },
+      "example": 53
+    }
+  ]
 }

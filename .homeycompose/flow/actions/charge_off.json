@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Turn charging off"
-    },
-    "titleFormatted": {
-        "en": "Turn charging off"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Turn charging off",
+    "nl": "Opladen uitschakelen",
+    "de": "Laden ausschalten",
+    "fr": "Désactiver la charge",
+    "es": "Apagar la carga",
+    "it": "Disattiva la ricarica",
+    "da": "Sluk for opladning",
+    "sv": "Stäng av laddning",
+    "no": "Slå av lading",
+    "pl": "Wyłącz ładowanie",
+    "ru": "Выключить зарядку",
+    "ar": "إيقاف الشحن",
+    "ko": "충전 끄기"
+  },
+  "titleFormatted": {
+    "en": "Turn charging off",
+    "nl": "Opladen uitschakelen",
+    "de": "Laden ausschalten",
+    "fr": "Désactiver la charge",
+    "es": "Apagar la carga",
+    "it": "Disattiva la ricarica",
+    "da": "Sluk for opladning",
+    "sv": "Stäng av laddning",
+    "no": "Slå av lading",
+    "pl": "Wyłącz ładowanie",
+    "ru": "Выключить зарядку",
+    "ar": "إيقاف الشحن",
+    "ko": "충전 끄기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=charge"
+    }
+  ]
 }

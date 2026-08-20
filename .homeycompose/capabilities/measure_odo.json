@@ -1,14 +1,38 @@
 {
-	"type": "number",
-	"title": {
-		"en": "Odometer"
-	},
-	"units": {
-		"en": "km"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"uiComponent": "sensor",
-	"icon": "./assets/odometer.svg"
+  "type": "number",
+  "title": {
+    "en": "Odometer",
+    "nl": "Kilometerstand",
+    "de": "Kilometerstand",
+    "fr": "Compteur kilométrique",
+    "es": "Cuentakilómetros",
+    "it": "Contachilometri",
+    "da": "Kilometertæller",
+    "sv": "Vägmätare",
+    "no": "Kilometerteller",
+    "pl": "Licznik przebiegu",
+    "ru": "Одометр",
+    "ar": "عداد المسافات",
+    "ko": "주행거리계"
+  },
+  "units": {
+    "en": "km",
+    "nl": "km",
+    "de": "km",
+    "fr": "km",
+    "es": "km",
+    "it": "km",
+    "da": "km",
+    "sv": "km",
+    "no": "km",
+    "pl": "km",
+    "ru": "км",
+    "ar": "كم",
+    "ko": "km"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "icon": "./assets/odometer.svg"
 }

@@ -1,28 +1,79 @@
 {
-    "title": {
-        "en": "Set V2L discharge limit"
+  "title": {
+    "en": "Set V2L discharge limit",
+    "nl": "V2L-ontlaadlimiet instellen",
+    "de": "V2L-Entladegrenze festlegen",
+    "fr": "Définir la limite de décharge V2L",
+    "es": "Establecer el límite de descarga V2L",
+    "it": "Imposta il limite di scarica V2L",
+    "da": "Indstil V2L-afladningsgrænse",
+    "sv": "Ställ in V2L-urladdningsgräns",
+    "no": "Angi V2L-utladningsgrense",
+    "pl": "Ustaw limit rozładowania V2L",
+    "ru": "Установить лимит разряда V2L",
+    "ar": "تعيين حد تفريغ V2L",
+    "ko": "V2L 방전 한계 설정"
+  },
+  "titleFormatted": {
+    "en": "Set V2L discharge limit to [[limit]]%",
+    "nl": "V2L-ontlaadlimiet instellen op [[limit]]%",
+    "de": "V2L-Entladegrenze auf [[limit]]% festlegen",
+    "fr": "Définir la limite de décharge V2L à [[limit]]%",
+    "es": "Establecer el límite de descarga V2L en [[limit]]%",
+    "it": "Imposta il limite di scarica V2L al [[limit]]%",
+    "da": "Indstil V2L-afladningsgrænse til [[limit]]%",
+    "sv": "Ställ in V2L-urladdningsgräns till [[limit]]%",
+    "no": "Angi V2L-utladningsgrense til [[limit]]%",
+    "pl": "Ustaw limit rozładowania V2L na [[limit]]%",
+    "ru": "Установить лимит разряда V2L на [[limit]]%",
+    "ar": "تعيين حد تفريغ V2L إلى [[limit]]%",
+    "ko": "V2L 방전 한계를 [[limit]]%로 설정"
+  },
+  "hint": {
+    "en": "Sets the battery level at which Vehicle-to-Load (powering external devices from the car) stops.",
+    "nl": "Stelt het batterijniveau in waarbij Vehicle-to-Load (externe apparaten voeden vanuit de auto) stopt.",
+    "de": "Legt den Batteriestand fest, bei dem Vehicle-to-Load (Versorgung externer Geräte über das Fahrzeug) stoppt.",
+    "fr": "Définit le niveau de batterie auquel la fonction Vehicle-to-Load (alimentation d'appareils externes depuis le véhicule) s'arrête.",
+    "es": "Establece el nivel de batería en el que se detiene la función Vehicle-to-Load (alimentar dispositivos externos desde el coche).",
+    "it": "Imposta il livello della batteria al quale la funzione Vehicle-to-Load (alimentazione di dispositivi esterni dall'auto) si arresta.",
+    "da": "Indstiller det batteriniveau, hvor Vehicle-to-Load (forsyning af eksterne enheder fra bilen) stopper.",
+    "sv": "Ställer in den batterinivå vid vilken Vehicle-to-Load (strömförsörjning av externa enheter från bilen) stoppar.",
+    "no": "Angir batterinivået der Vehicle-to-Load (strømforsyning av eksterne enheter fra bilen) stopper.",
+    "pl": "Ustawia poziom naładowania baterii, przy którym funkcja Vehicle-to-Load (zasilanie urządzeń zewnętrznych z samochodu) zatrzymuje się.",
+    "ru": "Устанавливает уровень заряда батареи, при котором функция Vehicle-to-Load (питание внешних устройств от автомобиля) останавливается.",
+    "ar": "يحدد مستوى شحن البطارية الذي تتوقف عنده وظيفة Vehicle-to-Load (تزويد الأجهزة الخارجية بالطاقة من السيارة).",
+    "ko": "차량에서 외부 기기로 전원을 공급하는 Vehicle-to-Load 기능이 멈추는 배터리 수준을 설정합니다."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=vent_windows"
     },
-    "titleFormatted": {
-        "en": "Set V2L discharge limit to [[limit]]%"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        },
-        {
-            "type": "range",
-            "name": "limit",
-            "title": {
-                "en": "Battery level (%)"
-            },
-            "min": 20,
-            "max": 100,
-            "value": 20,
-            "step": 5,
-            "label": "%",
-            "labelDecimals": 0
-        }
-    ]
+    {
+      "type": "range",
+      "name": "limit",
+      "title": {
+        "en": "Battery level (%)",
+        "nl": "Accuniveau (%)",
+        "de": "Batteriestand (%)",
+        "fr": "Niveau de batterie (%)",
+        "es": "Nivel de batería (%)",
+        "it": "Livello della batteria (%)",
+        "da": "Batteriniveau (%)",
+        "sv": "Batterinivå (%)",
+        "no": "Batterinivå (%)",
+        "pl": "Poziom akumulatora (%)",
+        "ru": "Уровень заряда батареи (%)",
+        "ar": "مستوى البطارية (%)",
+        "ko": "배터리 수준(%)"
+      },
+      "min": 20,
+      "max": 100,
+      "value": 20,
+      "step": 5,
+      "label": "%",
+      "labelDecimals": 0
+    }
+  ]
 }

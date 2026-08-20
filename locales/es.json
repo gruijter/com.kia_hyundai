@@ -1,0 +1,35 @@
+{
+  "pair": {
+    "title": "Vincula tu coche Kia",
+    "subtitle": "Usa tus credenciales de Kia Connect",
+    "region": "Selecciona tu región",
+    "region_eu": "Europa",
+    "region_us": "EE. UU.",
+    "region_ca": "Canadá",
+    "region_au": "Australia",
+    "region_cn": "China",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "pin": "PIN de 4 dígitos",
+    "validate": "Continuar",
+
+    "required": "Debes rellenar todos los campos.",
+    "invalid_pin": "PIN no válido, introduce tu PIN de 4 dígitos.",
+    "no_vehicles": "No se han encontrado vehículos para esta cuenta.",
+    "pairing_failed": "Error de vinculación: __error__"
+
+  },
+  "migrating": "Migrando dispositivo, espera un momento...",
+  "device_no_vehicle": "Este coche ya no está disponible en esta cuenta (VIN __vin__). Comprueba si sigue compartido/registrado en esta cuenta.",
+  "device_auth_failed": "Error al iniciar sesión. Comprueba tu nombre de usuario, contraseña y PIN en los ajustes del dispositivo.",
+  "device_otp_required": "Esta cuenta requiere un código de verificación adicional (OTP) al iniciar sesión, algo que esta aplicación aún no admite.",
+  "device_quota_reached": "¡Cuota diaria alcanzada! Esperando 60 minutos.",
+  "device_restarting": "El dispositivo se está reiniciando. ¡Espera unos minutos!",
+  "error_engine_on": "No es posible controlar; el motor está encendido.",
+  "error_not_ev": "No es posible controlar; no es un vehículo eléctrico.",
+  "error_climate_control_off": "La climatización no está activada.",
+  "error_location_not_found": "No se pudo encontrar esa ubicación.",
+  "error_queue_full": "Ya hay demasiados comandos en cola para este coche. Espera un momento y vuelve a intentarlo.",
+  "error_unknown_command": "Comando desconocido: __command__",
+  "error_invalid_window_state": "Estado de ventana no válido: __state__"
+}

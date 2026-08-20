@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Doors closed and locked"
-    },
-    "titleFormatted": {
-		"en": "Doors closed and locked"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Doors closed and locked",
+    "nl": "Deuren gesloten en vergrendeld",
+    "de": "Türen geschlossen und verriegelt",
+    "fr": "Portes fermées et verrouillées",
+    "es": "Puertas cerradas y bloqueadas",
+    "it": "Portiere chiuse e bloccate",
+    "da": "Døre lukket og låst",
+    "sv": "Dörrarna stängda och låsta",
+    "no": "Dører lukket og låst",
+    "pl": "Drzwi zamknięte i zablokowane",
+    "ru": "Двери закрыты и заблокированы",
+    "ar": "الأبواب مغلقة ومقفلة",
+    "ko": "문이 닫히고 잠김"
+  },
+  "titleFormatted": {
+    "en": "Doors closed and locked",
+    "nl": "Deuren gesloten en vergrendeld",
+    "de": "Türen geschlossen und verriegelt",
+    "fr": "Portes fermées et verrouillées",
+    "es": "Puertas cerradas y bloqueadas",
+    "it": "Portiere chiuse e bloccate",
+    "da": "Døre lukket og låst",
+    "sv": "Dörrarna stängda och låsta",
+    "no": "Dører lukket og låst",
+    "pl": "Drzwi zamknięte i zablokowane",
+    "ru": "Двери закрыты и заблокированы",
+    "ar": "الأبواب مغلقة ومقفلة",
+    "ko": "문이 닫히고 잠김"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

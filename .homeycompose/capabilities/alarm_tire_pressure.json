@@ -1,17 +1,53 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Tire pressure alarm"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Tire pressure alarm on"
-	},
-	"insightsTitleFalse": {
-		"en": "Tire pressure alarm off"
-	},
-	"uiComponent": "sensor",
-	"icon": "./assets/alarm_tire_pressure.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Tire pressure alarm",
+    "nl": "Bandenspanningsalarm",
+    "de": "Reifendruckalarm",
+    "fr": "Alarme de pression des pneus",
+    "es": "Alarma de presión de neumáticos",
+    "it": "Allarme pressione pneumatici",
+    "da": "Dæktryksalarm",
+    "sv": "Däcktryckslarm",
+    "no": "Dekktrykkalarm",
+    "pl": "Alarm ciśnienia opon",
+    "ru": "Тревога давления в шинах",
+    "ar": "إنذار ضغط الإطارات",
+    "ko": "타이어 공기압 경보"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Tire pressure alarm on",
+    "nl": "Bandenspanningsalarm aan",
+    "de": "Reifendruckalarm ein",
+    "fr": "Alarme de pression des pneus activée",
+    "es": "Alarma de presión de neumáticos activada",
+    "it": "Allarme pressione pneumatici attivato",
+    "da": "Dæktryksalarm til",
+    "sv": "Däcktryckslarm på",
+    "no": "Dekktrykkalarm på",
+    "pl": "Alarm ciśnienia opon włączony",
+    "ru": "Тревога давления в шинах включена",
+    "ar": "إنذار ضغط الإطارات نشط",
+    "ko": "타이어 공기압 경보 켜짐"
+  },
+  "insightsTitleFalse": {
+    "en": "Tire pressure alarm off",
+    "nl": "Bandenspanningsalarm uit",
+    "de": "Reifendruckalarm aus",
+    "fr": "Alarme de pression des pneus désactivée",
+    "es": "Alarma de presión de neumáticos desactivada",
+    "it": "Allarme pressione pneumatici disattivato",
+    "da": "Dæktryksalarm fra",
+    "sv": "Däcktryckslarm av",
+    "no": "Dekktrykkalarm av",
+    "pl": "Alarm ciśnienia opon wyłączony",
+    "ru": "Тревога давления в шинах выключена",
+    "ar": "إنذار ضغط الإطارات متوقف",
+    "ko": "타이어 공기압 경보 꺼짐"
+  },
+  "uiComponent": "sensor",
+  "icon": "./assets/alarm_tire_pressure.svg"
 }

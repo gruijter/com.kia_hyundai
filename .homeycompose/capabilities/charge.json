@@ -1,18 +1,54 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Charge"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Charging on"
-	},
-	"insightsTitleFalse": {
-		"en": "Charging off"
-	},
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/charging.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Charge",
+    "nl": "Opladen",
+    "de": "Laden",
+    "fr": "Charge",
+    "es": "Carga",
+    "it": "Ricarica",
+    "da": "Opladning",
+    "sv": "Laddning",
+    "no": "Lading",
+    "pl": "Ładowanie",
+    "ru": "Зарядка",
+    "ar": "الشحن",
+    "ko": "충전"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Charging on",
+    "nl": "Opladen aan",
+    "de": "Laden ein",
+    "fr": "Charge activée",
+    "es": "Carga activada",
+    "it": "Ricarica attivata",
+    "da": "Opladning til",
+    "sv": "Laddning på",
+    "no": "Lading på",
+    "pl": "Ładowanie włączone",
+    "ru": "Зарядка включена",
+    "ar": "الشحن نشط",
+    "ko": "충전 켜짐"
+  },
+  "insightsTitleFalse": {
+    "en": "Charging off",
+    "nl": "Opladen uit",
+    "de": "Laden aus",
+    "fr": "Charge désactivée",
+    "es": "Carga desactivada",
+    "it": "Ricarica disattivata",
+    "da": "Opladning fra",
+    "sv": "Laddning av",
+    "no": "Lading av",
+    "pl": "Ładowanie wyłączone",
+    "ru": "Зарядка выключена",
+    "ar": "الشحن متوقف",
+    "ko": "충전 꺼짐"
+  },
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/charging.svg"
 }

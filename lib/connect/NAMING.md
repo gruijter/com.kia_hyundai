@@ -67,10 +67,18 @@ logic, error handling, retry behavior) is a direct port.
 `DailyDrivingStats`), only used for the debug dump so far (see
 `zzz_responses/README.md`), not wired to any Homey capability yet.
 
-Still not carried over (no Homey use case yet): `update_month_trip_info`/
-`update_day_trip_info` (`tripinfo` endpoint — distinct from `drvhistory`,
-per-trip records rather than daily energy totals), `schedule_charging_and_climate`.
-Port these once there's a concrete Homey feature that needs them.
+`update_month_trip_info`/`update_day_trip_info` (`tripinfo` endpoint —
+distinct from `drvhistory`, per-trip records rather than daily energy
+totals) were ported as a single raw `VehicleManager#tripInfo(vehicleConfig,
+dateString, period)` (`period: 'month'|'day'`), same raw-JSON deviation as
+`drivingInfo`. `schedule_charging_and_climate` (incl. the ccNC/EV5-appMode
+`_schedule_ev5_flat` variant) was ported as
+`VehicleManager#scheduleChargingAndClimate(vehicleConfig, options)` in
+`ApiImplType1.js`, shared by EU/CN/AU like upstream. Both are EU-tested only
+by inheritance/reasoning from the live-validated status/control paths, not
+by an actual live call — **not wired into the Homey app** (no
+capability/flow card/device.js call anywhere yet). Port a UI for them once
+there's a concrete Homey feature that needs them.
 
 ## No bluelinky-shaped layer — call VehicleManager directly
 

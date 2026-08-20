@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Flash lights + honk (find my car)"
-    },
-    "titleFormatted": {
-        "en": "Flash lights + honk (find my car)"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Flash lights + honk (find my car)",
+    "nl": "Lichten laten knipperen + claxon (mijn auto zoeken)",
+    "de": "Lichter blinken lassen + hupen (Auto finden)",
+    "fr": "Faire clignoter les phares + klaxonner (retrouver ma voiture)",
+    "es": "Hacer parpadear las luces + tocar la bocina (encontrar mi coche)",
+    "it": "Lampeggiare i fari + clacson (trova la mia auto)",
+    "da": "Blink med lygterne + dyt i hornet (find min bil)",
+    "sv": "Blinka med lyktorna + tuta (hitta min bil)",
+    "no": "Blink med lysene + tut (finn bilen min)",
+    "pl": "Mignij światłami + klakson (znajdź mój samochód)",
+    "ru": "Мигнуть фарами + сигнал (найти мой автомобиль)",
+    "ar": "وميض الأضواء + التنبيه بالبوق (العثور على سيارتي)",
+    "ko": "라이트 깜빡이기 + 경적(내 차 찾기)"
+  },
+  "titleFormatted": {
+    "en": "Flash lights + honk (find my car)",
+    "nl": "Lichten laten knipperen + claxon (mijn auto zoeken)",
+    "de": "Lichter blinken lassen + hupen (Auto finden)",
+    "fr": "Faire clignoter les phares + klaxonner (retrouver ma voiture)",
+    "es": "Hacer parpadear las luces + tocar la bocina (encontrar mi coche)",
+    "it": "Lampeggiare i fari + clacson (trova la mia auto)",
+    "da": "Blink med lygterne + dyt i hornet (find min bil)",
+    "sv": "Blinka med lyktorna + tuta (hitta min bil)",
+    "no": "Blink med lysene + tut (finn bilen min)",
+    "pl": "Mignij światłami + klakson (znajdź mój samochód)",
+    "ru": "Мигнуть фарами + сигнал (найти мой автомобиль)",
+    "ar": "وميض الأضواء + التنبيه بالبوق (العثور على سيارتي)",
+    "ko": "라이트 깜빡이기 + 경적(내 차 찾기)"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

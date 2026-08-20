@@ -1,24 +1,60 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Closed and locked"
-	},
-	"icon": "./assets/closed_locked.svg",
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Doors closed and locked"
-	},
-	"insightsTitleFalse": {
-		"en": "Doors opened or unlocked"
-	},
-	"options": {
-		"greyout": {
-			"type": "boolean",
-			"default": false
-		}
-	},
-	"uiComponent": "sensor",
-	"uiQuickAction": false
+  "type": "boolean",
+  "title": {
+    "en": "Closed and locked",
+    "nl": "Gesloten en vergrendeld",
+    "de": "Geschlossen und verriegelt",
+    "fr": "Fermé et verrouillé",
+    "es": "Cerrado y bloqueado",
+    "it": "Chiuso e bloccato",
+    "da": "Lukket og låst",
+    "sv": "Stängd och låst",
+    "no": "Lukket og låst",
+    "pl": "Zamknięty i zablokowany",
+    "ru": "Закрыто и заблокировано",
+    "ar": "مغلقة ومقفلة",
+    "ko": "닫힘 및 잠김"
+  },
+  "icon": "./assets/closed_locked.svg",
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Doors closed and locked",
+    "nl": "Deuren gesloten en vergrendeld",
+    "de": "Türen geschlossen und verriegelt",
+    "fr": "Portes fermées et verrouillées",
+    "es": "Puertas cerradas y bloqueadas",
+    "it": "Portiere chiuse e bloccate",
+    "da": "Døre lukket og låst",
+    "sv": "Dörrarna stängda och låsta",
+    "no": "Dører lukket og låst",
+    "pl": "Drzwi zamknięte i zablokowane",
+    "ru": "Двери закрыты и заблокированы",
+    "ar": "الأبواب مغلقة ومقفلة",
+    "ko": "문이 닫히고 잠김"
+  },
+  "insightsTitleFalse": {
+    "en": "Doors opened or unlocked",
+    "nl": "Deuren geopend of ontgrendeld",
+    "de": "Türen geöffnet oder entriegelt",
+    "fr": "Portes ouvertes ou déverrouillées",
+    "es": "Puertas abiertas o desbloqueadas",
+    "it": "Portiere aperte o sbloccate",
+    "da": "Døre åbnet eller låst op",
+    "sv": "Dörrarna öppnade eller upplåsta",
+    "no": "Dører åpnet eller låst opp",
+    "pl": "Drzwi otwarte lub odblokowane",
+    "ru": "Двери открыты или разблокированы",
+    "ar": "الأبواب مفتوحة أو غير مقفلة",
+    "ko": "문이 열리거나 잠금 해제됨"
+  },
+  "options": {
+    "greyout": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false
 }

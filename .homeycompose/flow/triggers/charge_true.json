@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The charger turned on"
-    },
-    "titleFormatted": {
-        "en": "The charger turned on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The charger turned on",
+    "nl": "De lader is ingeschakeld",
+    "de": "Das Ladegerät wurde eingeschaltet",
+    "fr": "Le chargeur a été activé",
+    "es": "El cargador se ha encendido",
+    "it": "Il caricabatterie è stato acceso",
+    "da": "Opladeren blev tændt",
+    "sv": "Laddaren slogs på",
+    "no": "Laderen ble slått på",
+    "pl": "Ładowarka została włączona",
+    "ru": "Зарядное устройство включено",
+    "ar": "تم تشغيل الشاحن",
+    "ko": "충전기가 켜짐"
+  },
+  "titleFormatted": {
+    "en": "The charger turned on",
+    "nl": "De lader is ingeschakeld",
+    "de": "Das Ladegerät wurde eingeschaltet",
+    "fr": "Le chargeur a été activé",
+    "es": "El cargador se ha encendido",
+    "it": "Il caricabatterie è stato acceso",
+    "da": "Opladeren blev tændt",
+    "sv": "Laddaren slogs på",
+    "no": "Laderen ble slått på",
+    "pl": "Ładowarka została włączona",
+    "ru": "Зарядное устройство включено",
+    "ar": "تم تشغيل الشاحن",
+    "ko": "충전기가 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=charge"
+    }
+  ]
 }

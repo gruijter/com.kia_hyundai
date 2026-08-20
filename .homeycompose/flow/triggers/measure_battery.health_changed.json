@@ -1,0 +1,47 @@
+{
+  "title": {
+    "en": "Battery health (SoH) changed",
+    "nl": "Accuconditie (SoH) gewijzigd",
+    "de": "Batteriezustand (SoH) geändert",
+    "fr": "L'état de santé de la batterie (SoH) a changé",
+    "es": "El estado de salud de la batería (SoH) ha cambiado",
+    "it": "Lo stato di salute della batteria (SoH) è cambiato",
+    "da": "Batteritilstand (SoH) ændret",
+    "sv": "Batteriets hälsa (SoH) har ändrats",
+    "no": "Batteritilstand (SoH) endret",
+    "pl": "Stan zdrowia akumulatora (SoH) uległ zmianie",
+    "ru": "Состояние батареи (SoH) изменилось",
+    "ar": "تغيّرت حالة البطارية (SoH)",
+    "ko": "배터리 상태(SoH) 변경됨"
+  },
+  "highlight": true,
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=measure_battery.health"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "battery_health",
+      "type": "number",
+      "title": {
+        "en": "Battery health (SoH)",
+        "nl": "Accuconditie (SoH)",
+        "de": "Batteriezustand (SoH)",
+        "fr": "État de santé de la batterie (SoH)",
+        "es": "Estado de salud de la batería (SoH)",
+        "it": "Stato di salute della batteria (SoH)",
+        "da": "Batteritilstand (SoH)",
+        "sv": "Batteriets hälsa (SoH)",
+        "no": "Batteritilstand (SoH)",
+        "pl": "Stan zdrowia akumulatora (SoH)",
+        "ru": "Состояние батареи (SoH)",
+        "ar": "حالة البطارية (SoH)",
+        "ko": "배터리 상태(SoH)"
+      },
+      "example": 100
+    }
+  ]
+}

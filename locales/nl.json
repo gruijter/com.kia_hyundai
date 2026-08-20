@@ -1,0 +1,35 @@
+{
+  "pair": {
+    "title": "Koppel uw Kia-auto",
+    "subtitle": "Gebruik uw Kia Connect-gegevens",
+    "region": "Selecteer uw regio",
+    "region_eu": "Europa",
+    "region_us": "VS",
+    "region_ca": "Canada",
+    "region_au": "Australië",
+    "region_cn": "China",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "pin": "4-cijferige pincode",
+    "validate": "Doorgaan",
+
+    "required": "U moet alle velden invullen.",
+    "invalid_pin": "Ongeldige pincode, voer uw 4-cijferige pincode in.",
+    "no_vehicles": "Geen voertuigen gevonden voor dit account.",
+    "pairing_failed": "Koppelen mislukt: __error__"
+
+  },
+  "migrating": "Apparaat wordt gemigreerd, even geduld...",
+  "device_no_vehicle": "Deze auto is niet meer beschikbaar in dit account (VIN __vin__). Controleer of deze nog gedeeld/geregistreerd is bij dit account.",
+  "device_auth_failed": "Inloggen mislukt. Controleer uw gebruikersnaam, wachtwoord en pincode in de apparaatinstellingen.",
+  "device_otp_required": "Dit account vereist een extra verificatiecode (OTP) bij het inloggen, wat deze app nog niet ondersteunt.",
+  "device_quota_reached": "Dagelijkse limiet bereikt! 60 minuten wachten.",
+  "device_restarting": "Apparaat wordt opnieuw gestart. Wacht enkele minuten!",
+  "error_engine_on": "Bediening niet mogelijk; motor staat aan.",
+  "error_not_ev": "Bediening niet mogelijk; geen EV.",
+  "error_climate_control_off": "Klimaatregeling staat niet aan.",
+  "error_location_not_found": "Kon die locatie niet vinden.",
+  "error_queue_full": "Er staan al te veel commando's in de wachtrij voor deze auto. Wacht even en probeer het opnieuw.",
+  "error_unknown_command": "Onbekend commando: __command__",
+  "error_invalid_window_state": "Ongeldige raamstatus: __state__"
+}
