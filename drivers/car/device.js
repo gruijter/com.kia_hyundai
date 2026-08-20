@@ -660,6 +660,7 @@ class CarDevice extends Homey.Device {
       map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && Object.keys(sts.doorOpen).reduce((closedAccu, door) => closedAccu || !sts.doorOpen[door], true);
       map['alarm_tire_pressure'] = !!sts?.tirePressureLamp?.tirePressureLampAll;
       map['measure_battery.12V'] = sts?.battery?.batSoc;
+      map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       map.measure_range = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.value || sts?.dte?.value;
       if (map.measure_range === undefined || map.measure_range < 0) map.measure_range = null; // Sorento weird server response
       map.measure_battery = sts?.evStatus?.batteryStatus;
@@ -743,6 +744,7 @@ class CarDevice extends Homey.Device {
       ].filter(Boolean);
       map['alarm_tire_pressure'] = !!sts?.Chassis?.Axle?.Tire?.PressureLow || tires.some((tire) => tire.PressureLow);
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
+      map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       map.measure_battery = sts?.Green?.BatteryManagement?.BatteryRemain.Ratio;
       map.charge = charge;
