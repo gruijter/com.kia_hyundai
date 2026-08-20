@@ -100,6 +100,15 @@ module.exports = class MyApp extends Homey.App {
     const alarmTirePressure = this.homey.flow.getConditionCard('alarm_tire_pressure');
     alarmTirePressure.registerRunListener((args) => args.device.getCapabilityValue('alarm_tire_pressure'));
 
+    const alarmWasherFluid = this.homey.flow.getConditionCard('alarm_generic.washer_fluid');
+    alarmWasherFluid.registerRunListener((args) => args.device.getCapabilityValue('alarm_generic.washer_fluid'));
+
+    const alarmBrakeFluid = this.homey.flow.getConditionCard('alarm_generic.brake_fluid');
+    alarmBrakeFluid.registerRunListener((args) => args.device.getCapabilityValue('alarm_generic.brake_fluid'));
+
+    const alarmKeyFobBattery = this.homey.flow.getConditionCard('alarm_generic.key_fob_battery');
+    alarmKeyFobBattery.registerRunListener((args) => args.device.getCapabilityValue('alarm_generic.key_fob_battery'));
+
     const charging = this.homey.flow.getConditionCard('charge');
     charging.registerRunListener((args) => args.device.getCapabilityValue('charge'));
 

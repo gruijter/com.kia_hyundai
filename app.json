@@ -85,6 +85,102 @@
       },
       {
         "title": {
+          "en": "The brake fluid alarm turned off"
+        },
+        "titleFormatted": {
+          "en": "The brake fluid alarm turned off"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.brake_fluid_false"
+      },
+      {
+        "title": {
+          "en": "The brake fluid alarm turned on"
+        },
+        "titleFormatted": {
+          "en": "The brake fluid alarm turned on"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.brake_fluid_true"
+      },
+      {
+        "title": {
+          "en": "The key fob battery alarm turned off"
+        },
+        "titleFormatted": {
+          "en": "The key fob battery alarm turned off"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.key_fob_battery_false"
+      },
+      {
+        "title": {
+          "en": "The key fob battery alarm turned on"
+        },
+        "titleFormatted": {
+          "en": "The key fob battery alarm turned on"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.key_fob_battery_true"
+      },
+      {
+        "title": {
+          "en": "The washer fluid alarm turned off"
+        },
+        "titleFormatted": {
+          "en": "The washer fluid alarm turned off"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.washer_fluid_false"
+      },
+      {
+        "title": {
+          "en": "The washer fluid alarm turned on"
+        },
+        "titleFormatted": {
+          "en": "The washer fluid alarm turned on"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.washer_fluid_true"
+      },
+      {
+        "title": {
           "en": "The tire pressure alarm turned off"
         },
         "titleFormatted": {
@@ -331,6 +427,54 @@
       },
       {
         "title": {
+          "en": "12V battery level changed"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "battery_12v",
+            "type": "number",
+            "title": {
+              "en": "12V battery level"
+            },
+            "example": 82
+          }
+        ],
+        "id": "measure_battery.12V_changed"
+      },
+      {
+        "title": {
+          "en": "Battery health (SoH) changed"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car&capabilities=measure_battery.health"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "battery_health",
+            "type": "number",
+            "title": {
+              "en": "Battery health (SoH)"
+            },
+            "example": 100
+          }
+        ],
+        "id": "measure_battery.health_changed"
+      },
+      {
+        "title": {
           "en": "Odometer changed"
         },
         "highlight": true,
@@ -434,6 +578,54 @@
           }
         ],
         "id": "alarm_bat"
+      },
+      {
+        "title": {
+          "en": "The brake fluid alarm is !{{on|off}}"
+        },
+        "titleFormatted": {
+          "en": "The brake fluid alarm is !{{on|off}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.brake_fluid"
+      },
+      {
+        "title": {
+          "en": "The key fob battery alarm is !{{on|off}}"
+        },
+        "titleFormatted": {
+          "en": "The key fob battery alarm is !{{on|off}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.key_fob_battery"
+      },
+      {
+        "title": {
+          "en": "The washer fluid alarm is !{{on|off}}"
+        },
+        "titleFormatted": {
+          "en": "The washer fluid alarm is !{{on|off}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "id": "alarm_generic.washer_fluid"
       },
       {
         "title": {

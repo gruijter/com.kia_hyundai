@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "The brake fluid alarm turned on"
+    },
+    "titleFormatted": {
+        "en": "The brake fluid alarm turned on"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

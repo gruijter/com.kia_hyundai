@@ -1,0 +1,23 @@
+{
+	"title": {
+		"en": "12V battery level changed"
+	},
+	"highlight": true,
+	"args": [
+		{
+				"type": "device",
+				"name": "device",
+				"filter": "driver_id=car"
+		}
+	],
+	"tokens": [
+		{
+			"name": "battery_12v",
+			"type": "number",
+			"title": {
+				"en": "12V battery level"
+			},
+			"example": 82
+		}
+	]
+}

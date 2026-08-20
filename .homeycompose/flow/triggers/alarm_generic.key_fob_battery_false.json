@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "The key fob battery alarm turned off"
+    },
+    "titleFormatted": {
+        "en": "The key fob battery alarm turned off"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

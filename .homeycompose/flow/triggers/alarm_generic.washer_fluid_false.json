@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "The washer fluid alarm turned off"
+    },
+    "titleFormatted": {
+        "en": "The washer fluid alarm turned off"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}

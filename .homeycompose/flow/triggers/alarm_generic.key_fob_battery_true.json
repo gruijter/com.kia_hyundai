@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "The key fob battery alarm turned on"
+    },
+    "titleFormatted": {
+        "en": "The key fob battery alarm turned on"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+        }
+    ]
+}
