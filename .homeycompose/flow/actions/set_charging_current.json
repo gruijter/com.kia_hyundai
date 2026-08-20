@@ -3,7 +3,10 @@
         "en": "Set AC charging current"
     },
     "titleFormatted": {
-        "en": "Set AC charging current to level [[level]]"
+        "en": "Set AC charging current to [[level]]"
+    },
+    "hint": {
+        "en": "Limits how fast the car charges from a regular AC socket/wallbox (not DC fast charging). Lower it to avoid overloading a shared circuit or fuse. Only works on CCS2 vehicles."
     },
     "args": [
         {
@@ -12,17 +15,31 @@
             "filter": "driver_id=car"
         },
         {
-            "type": "range",
+            "type": "dropdown",
             "name": "level",
             "title": {
-                "en": "Level"
+                "en": "Charging current"
             },
-            "min": 1,
-            "max": 3,
-            "value": 3,
-            "step": 1,
-            "label": "level",
-            "labelDecimals": 0
+            "values": [
+                {
+                    "id": "1",
+                    "title": {
+                        "en": "100% (fastest)"
+                    }
+                },
+                {
+                    "id": "2",
+                    "title": {
+                        "en": "90%"
+                    }
+                },
+                {
+                    "id": "3",
+                    "title": {
+                        "en": "60% (slowest)"
+                    }
+                }
+            ]
         }
     ]
 }
