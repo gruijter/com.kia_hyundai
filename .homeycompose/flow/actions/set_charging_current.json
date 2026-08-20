@@ -1,18 +1,18 @@
 {
     "title": {
-        "en": "Set AC charging current"
+        "en": "Limit AC charging current"
     },
     "titleFormatted": {
-        "en": "Set AC charging current to [[level]]"
+        "en": "Limit AC charging current to [[level]]"
     },
     "hint": {
-        "en": "Limits how fast the car charges from a regular AC socket/wallbox (not DC fast charging). Lower it to avoid overloading a shared circuit or fuse. Only works on CCS2 vehicles."
+        "en": "Limits how fast the car charges from a regular AC socket/wallbox (not DC fast charging). Lower it to avoid overloading a shared circuit or fuse."
     },
     "args": [
         {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
         },
         {
             "type": "dropdown",

@@ -5,11 +5,14 @@
     "titleFormatted": {
         "en": "Set V2L discharge limit to [[limit]]%"
     },
+    "hint": {
+        "en": "Sets the battery level at which Vehicle-to-Load (powering external devices from the car) stops."
+    },
     "args": [
         {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
         },
         {
             "type": "range",
