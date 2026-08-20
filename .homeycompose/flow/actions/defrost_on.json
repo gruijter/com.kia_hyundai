@@ -3,13 +3,26 @@
         "en": "Turn defrost on"
     },
     "titleFormatted": {
-        "en": "Turn defrost on"
+        "en": "Turn defrost on for [[duration]]"
     },
     "args": [
         {
             "type": "device",
             "name": "device",
             "filter": "driver_id=car"
+        },
+        {
+            "type": "range",
+            "name": "duration",
+            "title": {
+                "en": "Duration (minutes)"
+            },
+            "min": 1,
+            "max": 10,
+            "value": 10,
+            "step": 1,
+            "label": "min",
+            "labelDecimals": 0
         }
     ]
 }

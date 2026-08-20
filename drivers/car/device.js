@@ -27,7 +27,9 @@ const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
 
-const { CHARGE_PORT_ACTION, VALET_MODE_ACTION, WINDOW_STATE } = constants;
+const {
+  CHARGE_PORT_ACTION, VALET_MODE_ACTION, WINDOW_STATE, SEAT_STATUS, HEAT_STATUS,
+} = constants;
 
 const setTimeoutPromise = util.promisify(setTimeout);
 
@@ -785,14 +787,30 @@ class CarDevice extends Homey.Device {
     return Math.round(distanceKm(lat1, lon1, lat2, lon2) * 100) / 100;
   }
 
-  acOnOff(acOn, source) {
+  // flowArgs.duration (minutes, optional) from the "Turn A/C on" flow card —
+  // see ../../.homeycompose/flow/actions/ac_on.json. This is the plain
+  // cooling command (summer use case): all heat options are always off,
+  // both via the flow card and the "climate control" device-tile toggle
+  // (source: 'app') — see defrostOnOff() for the preheat/defrost variant
+  // that turns them on.
+  acOnOff(acOn, source, flowArgs = {}) {
     if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
     let command;
     let args;
     if (acOn) {
       this.log(`A/C on via ${source}`); // app or flow
       command = 'start';
-      args = { setTemp: this.getCapabilityValue('target_temperature') || 22 };
+      args = {
+        setTemp: this.getCapabilityValue('target_temperature') || 22,
+        duration: flowArgs.duration ?? 10,
+        defrost: false,
+        steeringWheel: 0,
+        heating: HEAT_STATUS.OFF,
+        frontLeftSeat: SEAT_STATUS.OFF,
+        frontRightSeat: SEAT_STATUS.OFF,
+        rearLeftSeat: SEAT_STATUS.OFF,
+        rearRightSeat: SEAT_STATUS.OFF,
+      };
     } else {
       this.log(`A/C off via ${source}`); // app or flow
       command = 'stop';
@@ -801,7 +819,13 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command, args });
   }
 
-  defrostOnOff(defrost, source) {
+  // flowArgs.duration (minutes, optional) from the "Turn defrost on" flow
+  // card — see ../../.homeycompose/flow/actions/defrost_on.json. This is
+  // the preheat/defrost command (winter use case): steering wheel and all
+  // 4 seats are always heated too, both via the flow card and the
+  // "defrost" device-tile toggle (source: 'app') — seat heat is CCS2-only,
+  // startClimate() silently ignores it on older, non-CCS2 cars.
+  defrostOnOff(defrost, source, flowArgs = {}) {
     if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
     const command = defrost ? 'start' : 'stop';
     let args;
@@ -809,13 +833,26 @@ class CarDevice extends Homey.Device {
       this.log(`defrost on via ${source}`);
       args = {
         defrost: true,
-        heating: 1,
+        heating: HEAT_STATUS.STEERING_WHEEL_AND_REAR_WINDOW,
         steeringWheel: 1,
+        frontLeftSeat: SEAT_STATUS.MEDIUM_HEAT,
+        frontRightSeat: SEAT_STATUS.MEDIUM_HEAT,
+        rearLeftSeat: SEAT_STATUS.MEDIUM_HEAT,
+        rearRightSeat: SEAT_STATUS.MEDIUM_HEAT,
+        duration: flowArgs.duration ?? 10,
         setTemp: this.getCapabilityValue('target_temperature') || 22,
       };
     } else {
       this.log(`defrost off via ${source}`);
-      args = { defrost: false, heating: 0, steeringWheel: 0 };
+      args = {
+        defrost: false,
+        heating: HEAT_STATUS.OFF,
+        steeringWheel: 0,
+        frontLeftSeat: SEAT_STATUS.OFF,
+        frontRightSeat: SEAT_STATUS.OFF,
+        rearLeftSeat: SEAT_STATUS.OFF,
+        rearRightSeat: SEAT_STATUS.OFF,
+      };
       // have to do it twice to get defrost reported as off; only the 2nd
       // result (returned below) is what the caller waits for
       this.enQueue({ command, args }).catch(() => {});

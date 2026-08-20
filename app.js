@@ -43,13 +43,13 @@ module.exports = class MyApp extends Homey.App {
     acOff.registerRunListener((args) => args.device.acOnOff(false, 'flow'));
 
     const acOn = this.homey.flow.getActionCard('ac_on');
-    acOn.registerRunListener((args) => args.device.acOnOff(true, 'flow'));
+    acOn.registerRunListener((args) => args.device.acOnOff(true, 'flow', args));
 
     const defrostOff = this.homey.flow.getActionCard('defrost_off');
     defrostOff.registerRunListener((args) => args.device.defrostOnOff(false, 'flow'));
 
     const defrostOn = this.homey.flow.getActionCard('defrost_on');
-    defrostOn.registerRunListener((args) => args.device.defrostOnOff(true, 'flow'));
+    defrostOn.registerRunListener((args) => args.device.defrostOnOff(true, 'flow', args));
 
     const setTargetTemp = this.homey.flow.getActionCard('set_target_temp');
     setTargetTemp.registerRunListener((args) => args.device.setTargetTemp(args.temp, 'flow'));
