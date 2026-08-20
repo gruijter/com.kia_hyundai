@@ -1074,6 +1074,7 @@
         "alarm_bat",
         "measure_battery",
         "measure_battery.12V",
+        "measure_battery.health",
         "measure_power.charge",
         "latitude",
         "longitude"
@@ -1100,6 +1101,11 @@
         "measure_battery.12V": {
           "title": {
             "en": "12V Battery"
+          }
+        },
+        "measure_battery.health": {
+          "title": {
+            "en": "Battery health (SoH)"
           }
         }
       },

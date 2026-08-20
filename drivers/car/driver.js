@@ -40,11 +40,11 @@ module.exports = class MyDriver extends Homey.Driver {
       'Full EV': ['target_temperature', 'charge_target_slow', 'charge_target_fast', 'refresh_status', 'locked',
         'defrost', 'climate_control', 'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
         'measure_range', 'ev_charging_state', 'charge', 'measure_odo', 'alarm_tire_pressure', 'alarm_bat',
-        'measure_battery', 'measure_battery.12V', 'measure_battery.health', 'latitude', 'longitude'],
+        'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
       PHEV: ['target_temperature', 'refresh_status', 'locked', 'defrost', 'climate_control', 'last_refresh', 'engine', 'closed_locked',
         'location', 'meter_distance', 'measure_speed', 'measure_range', 'ev_charging_state', 'charge', 'measure_odo',
-        'alarm_tire_pressure', 'alarm_bat', 'measure_battery', 'measure_battery.12V', 'measure_battery.health', 'latitude', 'longitude'],
+        'alarm_tire_pressure', 'alarm_bat', 'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
       'HEV/ICE': ['target_temperature', 'refresh_status', 'locked', 'defrost', 'climate_control', 'last_refresh', 'engine',
         'closed_locked', 'location', 'meter_distance', 'measure_speed', 'measure_range', 'measure_odo', 'alarm_tire_pressure',
