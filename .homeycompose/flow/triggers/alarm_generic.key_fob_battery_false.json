@@ -33,7 +33,7 @@
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=car"
+      "filter": "driver_id=car&capabilities=alarm_generic.key_fob_battery"
     }
   ]
 }

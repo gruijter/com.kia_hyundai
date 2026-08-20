@@ -370,7 +370,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.brake_fluid"
           }
         ],
         "id": "alarm_generic.brake_fluid_false"
@@ -410,7 +410,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.brake_fluid"
           }
         ],
         "id": "alarm_generic.brake_fluid_true"
@@ -450,7 +450,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.key_fob_battery"
           }
         ],
         "id": "alarm_generic.key_fob_battery_false"
@@ -490,7 +490,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.key_fob_battery"
           }
         ],
         "id": "alarm_generic.key_fob_battery_true"
@@ -530,7 +530,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.washer_fluid"
           }
         ],
         "id": "alarm_generic.washer_fluid_false"
@@ -570,7 +570,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.washer_fluid"
           }
         ],
         "id": "alarm_generic.washer_fluid_true"
@@ -690,7 +690,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=charge"
           }
         ],
         "id": "charge_false"
@@ -730,7 +730,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=charge"
           }
         ],
         "id": "charge_true"
@@ -1562,7 +1562,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.brake_fluid"
           }
         ],
         "id": "alarm_generic.brake_fluid"
@@ -1602,7 +1602,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.key_fob_battery"
           }
         ],
         "id": "alarm_generic.key_fob_battery"
@@ -1642,7 +1642,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=alarm_generic.washer_fluid"
           }
         ],
         "id": "alarm_generic.washer_fluid"
@@ -1722,7 +1722,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=charge"
           }
         ],
         "id": "charge"
@@ -2109,7 +2109,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=charge"
           }
         ],
         "id": "charge_off"
@@ -2149,7 +2149,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=charge"
           }
         ],
         "id": "charge_on"
@@ -2189,7 +2189,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           }
         ],
         "id": "charge_port_close"
@@ -2229,7 +2229,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           }
         ],
         "id": "charge_port_open"
@@ -2494,7 +2494,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=charge_target_slow"
           },
           {
             "type": "dropdown",
@@ -2807,7 +2807,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           },
           {
             "type": "dropdown",
@@ -3076,7 +3076,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           },
           {
             "type": "range",
@@ -3221,7 +3221,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           }
         ],
         "id": "windows_close"
@@ -3261,7 +3261,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           }
         ],
         "id": "windows_open"
@@ -3301,7 +3301,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+            "filter": "driver_id=car&capabilities=vent_windows"
           }
         ],
         "id": "windows_vent"

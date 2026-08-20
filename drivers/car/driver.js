@@ -75,7 +75,14 @@ module.exports = class MyDriver extends Homey.Driver {
       'alarm_generic.brake_fluid',
       'alarm_generic.key_fob_battery',
       // Battery State-of-Health isn't reported by every EV/firmware
-      // generation, even within the 'Full EV ccuCCS2' bucket.
+      // generation, even within the 'Full EV ccuCCS2' bucket. NOTE: several
+      // ccuCCS2-only flow cards (windows/charge-port/charging-current/V2L
+      // actions) used to filter on `capabilities=measure_battery.health` as
+      // a stand-in for "is this vehicle CCS2" — that broke the moment this
+      // capability could be pruned for a genuinely-CCS2 car that just
+      // doesn't report SoH, so those filters now key on `vent_windows`
+      // instead (also ccuCCS2-only, but not derived from live telemetry).
+      // Do NOT add `vent_windows` to this array, or the same bug recurs.
       'measure_battery.health',
       // CCS2-only; when unsupported this currently computes as
       // `undefined * 1000` = NaN instead of staying unset, which throws in

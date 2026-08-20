@@ -48,7 +48,7 @@
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=car&capabilities=measure_battery.health"
+      "filter": "driver_id=car&capabilities=vent_windows"
     },
     {
       "type": "dropdown",
