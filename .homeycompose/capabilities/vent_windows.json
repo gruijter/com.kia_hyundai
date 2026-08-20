@@ -7,5 +7,6 @@
 	"setable": true,
 	"insights": false,
 	"uiComponent": "button",
-	"uiQuickAction": false
+	"uiQuickAction": false,
+	"icon": "./assets/vent_windows.svg"
 }

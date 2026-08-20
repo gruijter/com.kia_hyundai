@@ -1,0 +1,18 @@
+{
+	"type": "boolean",
+	"title": {
+		"en": "Valet mode"
+	},
+	"getable": true,
+	"setable": true,
+	"insights": true,
+	"insightsTitleTrue": {
+		"en": "Valet mode on"
+	},
+	"insightsTitleFalse": {
+		"en": "Valet mode off"
+	},
+	"uiComponent": "button",
+	"uiQuickAction": false,
+	"icon": "./assets/valet_mode.svg"
+}

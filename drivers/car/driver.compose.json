@@ -17,6 +17,7 @@
     "vent_windows",
     "flash_lights",
     "flash_lights_and_honk",
+    "valet_mode",
     "last_refresh",
     "engine",
     "closed_locked",

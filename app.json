@@ -1108,6 +1108,7 @@
         "vent_windows",
         "flash_lights",
         "flash_lights_and_honk",
+        "valet_mode",
         "last_refresh",
         "engine",
         "closed_locked",
@@ -1779,7 +1780,8 @@
       "setable": true,
       "insights": false,
       "uiComponent": "button",
-      "uiQuickAction": false
+      "uiQuickAction": false,
+      "icon": "./assets/flash_lights.svg"
     },
     "flash_lights_and_honk": {
       "type": "boolean",
@@ -1790,7 +1792,8 @@
       "setable": true,
       "insights": false,
       "uiComponent": "button",
-      "uiQuickAction": false
+      "uiQuickAction": false,
+      "icon": "./assets/flash_lights_and_honk.svg"
     },
     "last_refresh": {
       "type": "string",
@@ -1894,6 +1897,24 @@
       "uiQuickAction": false,
       "icon": "./assets/last_refresh.svg"
     },
+    "valet_mode": {
+      "type": "boolean",
+      "title": {
+        "en": "Valet mode"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Valet mode on"
+      },
+      "insightsTitleFalse": {
+        "en": "Valet mode off"
+      },
+      "uiComponent": "button",
+      "uiQuickAction": false,
+      "icon": "./assets/valet_mode.svg"
+    },
     "vent_windows": {
       "type": "boolean",
       "title": {
@@ -1903,7 +1924,8 @@
       "setable": true,
       "insights": false,
       "uiComponent": "button",
-      "uiQuickAction": false
+      "uiQuickAction": false,
+      "icon": "./assets/vent_windows.svg"
     }
   }
 }

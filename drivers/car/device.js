@@ -990,6 +990,11 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('locked', (locked) => this.lock(locked, 'app'));
       this.registerCapabilityListener('defrost', (defrost) => this.defrostOnOff(defrost, 'app'));
       this.registerCapabilityListener('climate_control', (acOn) => this.acOnOff(acOn, 'app'));
+      // A real on/off state on the car (like climate_control/defrost above),
+      // not a momentary trigger — but unlike those, there's no status field
+      // to poll it back from (absent in every zzz_responses capture), so it
+      // can't self-correct if valet mode is toggled from the car itself.
+      this.registerCapabilityListener('valet_mode', (enabled) => this.setValetMode(enabled, 'app'));
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
