@@ -189,6 +189,7 @@ class CarDevice extends Homey.Device {
       if (this.queueRunning) return; // already draining, e.g. called again from enQueue while busy
       this.queueRunning = true;
       this.busy = true;
+      let needsFollowUpPoll = false;
       try {
         let item = this.deQueue();
         while (item) {
@@ -263,16 +264,20 @@ class CarDevice extends Homey.Device {
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
           item = this.deQueue();
         }
-        // queue drained: schedule a follow-up poll so capabilities reflect
-        // the just-applied command, unless the queue only ever held polls.
-        if (this.lastCommand !== 'doPoll') {
-          this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
-        }
+        needsFollowUpPoll = this.lastCommand !== 'doPoll';
       } catch (error) {
         this.error(error.message);
       } finally {
         this.queueRunning = false;
         this.busy = false;
+      }
+      // Enqueued here, after queueRunning is back to false — enqueuing it
+      // inside the try block above left it stranded: enQueue() only starts
+      // a fresh runQueue() when !queueRunning, which wasn't true yet there.
+      // A stranded poll would then sit until some unrelated later command
+      // triggered the queue again, jumping the queue ahead of it (FIFO).
+      if (needsFollowUpPoll) {
+        this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
       }
     };
   }
@@ -988,6 +993,20 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
+      // Momentary buttons — self-reset back to false after the command
+      // completes (or the enQueue timeout races it), matching refresh_status.
+      this.registerCapabilityListener('vent_windows', (pressed) => {
+        if (!pressed) return true;
+        return this.setWindows('vent', 'app').finally(() => this.setCapability('vent_windows', false));
+      });
+      this.registerCapabilityListener('flash_lights', (pressed) => {
+        if (!pressed) return true;
+        return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false));
+      });
+      this.registerCapabilityListener('flash_lights_and_honk', (pressed) => {
+        if (!pressed) return true;
+        return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false));
+      });
       this.registerMultipleCapabilityListener(['charge_target_slow', 'charge_target_fast'], async (values) => {
         const slow = Number(values.charge_target_slow) || Number(this.getCapabilityValue('charge_target_slow'));
         const fast = Number(values.charge_target_fast) || Number(this.getCapabilityValue('charge_target_fast'));

@@ -1,0 +1,11 @@
+{
+	"type": "boolean",
+	"title": {
+		"en": "Vent windows"
+	},
+	"getable": true,
+	"setable": true,
+	"insights": false,
+	"uiComponent": "button",
+	"uiQuickAction": false
+}

@@ -1,0 +1,11 @@
+{
+	"type": "boolean",
+	"title": {
+		"en": "Flash lights + honk"
+	},
+	"getable": true,
+	"setable": true,
+	"insights": false,
+	"uiComponent": "button",
+	"uiQuickAction": false
+}

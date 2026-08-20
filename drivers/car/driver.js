@@ -33,20 +33,24 @@ module.exports = class MyDriver extends Homey.Driver {
   async onInit() {
     this.capabilitiesMap = {
       'Full EV ccuCCS2': ['target_temperature', 'charge_target_slow', 'charge_target_fast', 'refresh_status', 'locked',
-        'defrost', 'climate_control', 'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
+        'defrost', 'climate_control', 'vent_windows', 'flash_lights', 'flash_lights_and_honk',
+        'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
         'measure_range', 'ev_charging_state', 'measure_power.charge', 'meter_power.fuel_economy', 'charge', 'measure_odo',
         'alarm_tire_pressure', 'alarm_bat', 'measure_battery', 'measure_battery.12V', 'measure_battery.health', 'latitude', 'longitude'],
 
       'Full EV': ['target_temperature', 'charge_target_slow', 'charge_target_fast', 'refresh_status', 'locked',
-        'defrost', 'climate_control', 'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
+        'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk',
+        'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
         'measure_range', 'ev_charging_state', 'charge', 'measure_odo', 'alarm_tire_pressure', 'alarm_bat',
         'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
-      PHEV: ['target_temperature', 'refresh_status', 'locked', 'defrost', 'climate_control', 'last_refresh', 'engine', 'closed_locked',
+      PHEV: ['target_temperature', 'refresh_status', 'locked', 'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk',
+        'last_refresh', 'engine', 'closed_locked',
         'location', 'meter_distance', 'measure_speed', 'measure_range', 'ev_charging_state', 'charge', 'measure_odo',
         'alarm_tire_pressure', 'alarm_bat', 'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
-      'HEV/ICE': ['target_temperature', 'refresh_status', 'locked', 'defrost', 'climate_control', 'last_refresh', 'engine',
+      'HEV/ICE': ['target_temperature', 'refresh_status', 'locked', 'defrost', 'climate_control', 'flash_lights',
+        'flash_lights_and_honk', 'last_refresh', 'engine',
         'closed_locked', 'location', 'meter_distance', 'measure_speed', 'measure_range', 'measure_odo', 'alarm_tire_pressure',
         'alarm_bat', 'measure_battery.12V', 'latitude', 'longitude'],
     };

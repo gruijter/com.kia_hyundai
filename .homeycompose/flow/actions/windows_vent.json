@@ -9,7 +9,7 @@
         {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
         }
     ]
 }

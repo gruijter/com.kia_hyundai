@@ -653,7 +653,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
           }
         ],
         "id": "charge_port_close"
@@ -669,7 +669,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
           }
         ],
         "id": "charge_port_open"
@@ -1049,7 +1049,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
           }
         ],
         "id": "windows_close"
@@ -1065,7 +1065,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
           }
         ],
         "id": "windows_open"
@@ -1081,7 +1081,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=car"
+            "filter": "driver_id=car&capabilities=measure_battery.health"
           }
         ],
         "id": "windows_vent"
@@ -1105,6 +1105,9 @@
         "locked",
         "defrost",
         "climate_control",
+        "vent_windows",
+        "flash_lights",
+        "flash_lights_and_honk",
         "last_refresh",
         "engine",
         "closed_locked",
@@ -1767,6 +1770,28 @@
       "uiComponent": "sensor",
       "uiQuickAction": false
     },
+    "flash_lights": {
+      "type": "boolean",
+      "title": {
+        "en": "Flash lights"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": false,
+      "uiComponent": "button",
+      "uiQuickAction": false
+    },
+    "flash_lights_and_honk": {
+      "type": "boolean",
+      "title": {
+        "en": "Flash lights + honk"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": false,
+      "uiComponent": "button",
+      "uiQuickAction": false
+    },
     "last_refresh": {
       "type": "string",
       "title": {
@@ -1868,6 +1893,17 @@
       "uiComponent": "button",
       "uiQuickAction": false,
       "icon": "./assets/last_refresh.svg"
+    },
+    "vent_windows": {
+      "type": "boolean",
+      "title": {
+        "en": "Vent windows"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": false,
+      "uiComponent": "button",
+      "uiQuickAction": false
     }
   }
 }
