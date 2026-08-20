@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The key fob battery alarm is !{{on|off}}"
-    },
-    "titleFormatted": {
-        "en": "The key fob battery alarm is !{{on|off}}"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The key fob battery alarm is !{{on|off}}",
+    "nl": "Het batterijalarm van de sleutelhanger is !{{aan|uit}}",
+    "de": "Der Batteriealarm des Schlüsselanhängers ist !{{ein|aus}}",
+    "fr": "L'alarme de batterie de la clé est !{{activée|désactivée}}",
+    "es": "La alarma de batería del mando está !{{activada|desactivada}}",
+    "it": "L'allarme della batteria del telecomando è !{{attivo|disattivo}}",
+    "da": "Batterialarmen for nøglebrikken er !{{til|fra}}",
+    "sv": "Batterilarmet för nyckelbrickan är !{{på|av}}",
+    "no": "Batterialarmen for nøkkelbrikken er !{{på|av}}",
+    "pl": "Alarm baterii breloka jest !{{włączony|wyłączony}}",
+    "ru": "Тревога батареи брелока !{{включена|выключена}}",
+    "ar": "إنذار بطارية جهاز التحكم عن بعد !{{نشط|متوقف}}",
+    "ko": "키 포브 배터리 경보가 !{{켜짐|꺼짐}}"
+  },
+  "titleFormatted": {
+    "en": "The key fob battery alarm is !{{on|off}}",
+    "nl": "Het batterijalarm van de sleutelhanger is !{{aan|uit}}",
+    "de": "Der Batteriealarm des Schlüsselanhängers ist !{{ein|aus}}",
+    "fr": "L'alarme de batterie de la clé est !{{activée|désactivée}}",
+    "es": "La alarma de batería del mando está !{{activada|desactivada}}",
+    "it": "L'allarme della batteria del telecomando è !{{attivo|disattivo}}",
+    "da": "Batterialarmen for nøglebrikken er !{{til|fra}}",
+    "sv": "Batterilarmet för nyckelbrickan är !{{på|av}}",
+    "no": "Batterialarmen for nøkkelbrikken er !{{på|av}}",
+    "pl": "Alarm baterii breloka jest !{{włączony|wyłączony}}",
+    "ru": "Тревога батареи брелока !{{включена|выключена}}",
+    "ar": "إنذار بطارية جهاز التحكم عن بعد !{{نشط|متوقف}}",
+    "ko": "키 포브 배터리 경보가 !{{켜짐|꺼짐}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

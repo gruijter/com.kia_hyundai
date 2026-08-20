@@ -1,345 +1,997 @@
 [
-	{
-		"type": "group",
-		"label": {
-				"en": "Car information"
-		},
-		"children": [
-				{
-						"id": "nameOrg",
-						"type": "label",
-						"label": {
-								"en": "Name"
-						},
-						"value": "",
-						"hint": {
-								"en": "Car name as per manufacturer."
-						}
-				},
-				{
-						"id": "idOrg",
-						"type": "label",
-						"label": {
-								"en": "ID"
-						},
-						"value": "",
-						"hint": {
-								"en": "Car ID as per manufacturer."
-						}
-				},
-				{
-						"id": "vin",
-						"type": "label",
-						"label": {
-								"en": "VIN"
-						},
-						"value": "",
-						"hint": {
-								"en": "Car VIN as per manufacturer."
-						}
-				},
-				{
-						"id": "regDate",
-						"type": "label",
-						"label": {
-								"en": "Registration date"
-						},
-						"value": ""
-				},
-				{
-						"id": "generation",
-						"type": "label",
-						"label": {
-								"en": "Generation"
-						},
-						"value": ""
-				},
-				{
-					"id": "engine",
-					"type": "label",
-					"label": {
-							"en": "Engine"
-					},
-					"hint": {
-						"en": "Full EV (Electric Vehicle), PHEV (Plugin Hybrid Electric Vehicle), or HEV/ICE (Hybrid Electric Vehicle/Internal Combustion Engine)"
-					},
-					"value": ""
-				}
-		]
-	},
-	{
-		"type": "group",
-		"label": {
-				"en": "Connection settings"
-		},
-		"children": [
-			{
-					"id": "username",
-					"type": "text",
-					"label": {
-							"en": "Username"
-					},
-					"value": ""
-			},
-			{
-					"id": "password",
-					"type": "password",
-					"label": {
-							"en": "Password"
-					},
-					"value": ""
-			},
-			{
-					"id": "pin",
-					"type": "password",
-					"label": {
-							"en": "PIN"
-					},
-					"value": ""
-			},
-			{
-					"id": "region",
-					"type": "dropdown",
-					"value": "EU",
-					"label": {
-							"en": "Region"
-					},
-					"values": [
-							{
-									"id": "EU",
-									"label": {
-											"en": "EU"
-									}
-							},
-							{
-									"id": "US",
-									"label": {
-											"en": "US"
-									}
-							},
-							{
-									"id": "CA",
-									"label": {
-											"en": "CA"
-									}
-							},
-							{
-									"id": "AU",
-									"label": {
-											"en": "AU"
-									}
-							},
-							{
-									"id": "CN",
-									"label": {
-											"en": "CN"
-									}
-							}
-					]
-			},
-			{
-				"id": "language",
-				"type": "dropdown",
-				"value": "en",
-				"label": {
-						"en": "App language"
-				},
-				"hint": {
-					"en": "This setting will effect the language used in the official Kia Connect app. Works for EU region only at the moment." },
-				"values": [
-						{
-								"id": "cs",
-								"label": {
-										"en": "CS"
-								}
-						},
-						{
-							"id": "da",
-							"label": {
-									"en": "DA"
-							}
-						},
-						{
-							"id": "nl",
-							"label": {
-									"en": "NL"
-							}
-						},
-						{
-							"id": "en",
-							"label": {
-									"en": "EN"
-							}
-						},
-						{
-							"id": "fi",
-							"label": {
-									"en": "FI"
-							}
-						},
-						{
-							"id": "fr",
-							"label": {
-									"en": "FR"
-							}
-						},
-						{
-							"id": "de",
-							"label": {
-									"en": "DE"
-							}
-						},
-						{
-							"id": "it",
-							"label": {
-									"en": "IT"
-							}
-						},
-						{
-							"id": "pl",
-							"label": {
-									"en": "PL"
-							}
-						},
-						{
-							"id": "hu",
-							"label": {
-									"en": "HU"
-							}
-						},
-						{
-							"id": "no",
-							"label": {
-									"en": "NO"
-							}
-						},
-						{
-							"id": "sk",
-							"label": {
-									"en": "SK"
-							}
-						},
-						{
-							"id": "es",
-							"label": {
-									"en": "ES"
-							}
-						},
-						{
-							"id": "sv",
-							"label": {
-									"en": "SV"
-							}
-						}
-				]
-			}
-		]
-	},
-	{
-		"type": "group",
-		"label": {
-				"en": "Car status refresh settings"
-		},
-		"children": [
-			{
-				"id": "pollInterval",
-				"type": "number",
-				"label": {
-						"en": "Update interval (minutes)"
-				},
-				"hint": {
-					"en": "Interval for checking the server for a status change.\nAttention: Homey will only receive status updates from the car when you park the car, or by doing a manual refresh!\nWARNING: A low poll interval can get you locked out of the server!"	},
-				"min": 5,
-				"value": 15
-			},
-			{
-				"id": "pollIntervalEngineOn",
-				"type": "number",
-				"label": {
-					"en": "Update interval when engine is on (minutes)"
-				},
-				"hint": {
-					"en": "Interval for checking the car status while the engine is on.\nAttention: for Homey to know that the engine is on, a manual refresh or cloud refresh must be performed!\nWARNING: A low poll interval can get you locked out of the server!\nDisable this function by setting the time to 0."				},
-				"min": 0,
-				"value": 10,
-				"step": 1
-			},
-			{
-				"id": "pollIntervalForced",
-				"type": "number",
-				"label": {
-					"en": "24/7 Car update interval (minutes)"
-				},
-				"hint": {
-					"en": "Interval for checking the car status also when the engine is off.\nWARNING: This will drain your 12V battery fast!\nA low poll interval can get you locked out of the server\nDisable this function by setting the time to 0."				},
-				"min": 0,
-				"value": 0,
-				"step": 15
-			}
-		]
-	},
-	{
-		"type": "group",
-		"label": {
-            "en": "Home location settings"
-		},
-		"children": [
-				{
-						"id": "lat",
-						"type": "number",
-						"label": {
-							"en": "Home latitude"
-						},
-						"hint": {
-							"en": "Home location is used to calculate the car's distance."
-						},
-						"value": 0
-				},
-				{
-						"id": "lon",
-						"type": "number",
-						"label": {
-							"en": "Home longitude"
-						},
-						"hint": {
-							"en": "Home location is used to calculate the car's distance."
-						},
-						"value": 0
-				}
-		]
-	},
-	{
-		"type": "group",
-		"label": {
-            "en": "Various settings"
-		},
-		"children": [
-			{
-					"id": "batteryAlarmLevel",
-					"type": "number",
-					"label": {
-						"en": "12V battery alarm level (%)"
-					},
-					"hint": {
-						"en": "Homey will raise an alarm when the 12V battery charge is below this level."
-					},
-					"min": 0,
-					"max": 100,
-					"value": 50
-			},
-			{
-					"id": "EVbatteryAlarmLevel",
-					"type": "number",
-					"label": {
-						"en": "EV battery alarm level (%)"
-					},
-					"hint": {
-						"en": "Homey will raise an alarm when the EV battery charge is below this level."
-					},
-					"min": 0,
-					"max": 100,
-					"value": 5
-			}
-		]
-	}
+  {
+    "type": "group",
+    "label": {
+      "en": "Car information",
+      "nl": "Auto-informatie",
+      "de": "Fahrzeuginformationen",
+      "fr": "Informations sur le véhicule",
+      "es": "Información del coche",
+      "it": "Informazioni sull'auto",
+      "da": "Bilinformation",
+      "sv": "Bilinformation",
+      "no": "Bilinformasjon",
+      "pl": "Informacje o samochodzie",
+      "ru": "Информация об автомобиле",
+      "ar": "معلومات السيارة",
+      "ko": "차량 정보"
+    },
+    "children": [
+      {
+        "id": "nameOrg",
+        "type": "label",
+        "label": {
+          "en": "Name",
+          "nl": "Naam",
+          "de": "Name",
+          "fr": "Nom",
+          "es": "Nombre",
+          "it": "Nome",
+          "da": "Navn",
+          "sv": "Namn",
+          "no": "Navn",
+          "pl": "Nazwa",
+          "ru": "Имя",
+          "ar": "الاسم",
+          "ko": "이름"
+        },
+        "value": "",
+        "hint": {
+          "en": "Car name as per manufacturer.",
+          "nl": "Naam van de auto volgens fabrikant.",
+          "de": "Fahrzeugname gemäß Hersteller.",
+          "fr": "Nom du véhicule selon le constructeur.",
+          "es": "Nombre del coche según el fabricante.",
+          "it": "Nome dell'auto secondo il produttore.",
+          "da": "Bilens navn ifølge producenten.",
+          "sv": "Bilens namn enligt tillverkaren.",
+          "no": "Bilens navn i henhold til produsenten.",
+          "pl": "Nazwa samochodu według producenta.",
+          "ru": "Название автомобиля по данным производителя.",
+          "ar": "اسم السيارة وفقًا للشركة المصنعة.",
+          "ko": "제조사 기준 차량 이름."
+        }
+      },
+      {
+        "id": "idOrg",
+        "type": "label",
+        "label": {
+          "en": "ID",
+          "nl": "ID",
+          "de": "ID",
+          "fr": "ID",
+          "es": "ID",
+          "it": "ID",
+          "da": "ID",
+          "sv": "ID",
+          "no": "ID",
+          "pl": "ID",
+          "ru": "ID",
+          "ar": "المعرّف",
+          "ko": "ID"
+        },
+        "value": "",
+        "hint": {
+          "en": "Car ID as per manufacturer.",
+          "nl": "Auto-ID volgens fabrikant.",
+          "de": "Fahrzeug-ID gemäß Hersteller.",
+          "fr": "ID du véhicule selon le constructeur.",
+          "es": "ID del coche según el fabricante.",
+          "it": "ID dell'auto secondo il produttore.",
+          "da": "Bil-ID ifølge producenten.",
+          "sv": "Bil-ID enligt tillverkaren.",
+          "no": "Bil-ID i henhold til produsenten.",
+          "pl": "Identyfikator samochodu według producenta.",
+          "ru": "ID автомобиля по данным производителя.",
+          "ar": "معرّف السيارة وفقًا للشركة المصنعة.",
+          "ko": "제조사 기준 차량 ID."
+        }
+      },
+      {
+        "id": "vin",
+        "type": "label",
+        "label": {
+          "en": "VIN",
+          "nl": "VIN",
+          "de": "FIN",
+          "fr": "VIN",
+          "es": "VIN",
+          "it": "VIN",
+          "da": "Stelnummer (VIN)",
+          "sv": "VIN-nummer",
+          "no": "VIN-nummer",
+          "pl": "Numer VIN",
+          "ru": "VIN",
+          "ar": "رقم الهيكل (VIN)",
+          "ko": "VIN"
+        },
+        "value": "",
+        "hint": {
+          "en": "Car VIN as per manufacturer.",
+          "nl": "VIN van de auto volgens fabrikant.",
+          "de": "FIN des Fahrzeugs gemäß Hersteller.",
+          "fr": "VIN du véhicule selon le constructeur.",
+          "es": "VIN del coche según el fabricante.",
+          "it": "VIN dell'auto secondo il produttore.",
+          "da": "Bilens stelnummer (VIN) ifølge producenten.",
+          "sv": "Bilens VIN-nummer enligt tillverkaren.",
+          "no": "Bilens VIN-nummer i henhold til produsenten.",
+          "pl": "Numer VIN samochodu według producenta.",
+          "ru": "VIN автомобиля по данным производителя.",
+          "ar": "رقم الهيكل (VIN) للسيارة وفقًا للشركة المصنعة.",
+          "ko": "제조사 기준 차량 VIN."
+        }
+      },
+      {
+        "id": "regDate",
+        "type": "label",
+        "label": {
+          "en": "Registration date",
+          "nl": "Registratiedatum",
+          "de": "Zulassungsdatum",
+          "fr": "Date d'immatriculation",
+          "es": "Fecha de matriculación",
+          "it": "Data di immatricolazione",
+          "da": "Registreringsdato",
+          "sv": "Registreringsdatum",
+          "no": "Registreringsdato",
+          "pl": "Data rejestracji",
+          "ru": "Дата регистрации",
+          "ar": "تاريخ التسجيل",
+          "ko": "등록일"
+        },
+        "value": ""
+      },
+      {
+        "id": "generation",
+        "type": "label",
+        "label": {
+          "en": "Generation",
+          "nl": "Generatie",
+          "de": "Generation",
+          "fr": "Génération",
+          "es": "Generación",
+          "it": "Generazione",
+          "da": "Generation",
+          "sv": "Generation",
+          "no": "Generasjon",
+          "pl": "Generacja",
+          "ru": "Поколение",
+          "ar": "الجيل",
+          "ko": "세대"
+        },
+        "value": ""
+      },
+      {
+        "id": "engine",
+        "type": "label",
+        "label": {
+          "en": "Engine",
+          "nl": "Motor",
+          "de": "Motor",
+          "fr": "Moteur",
+          "es": "Motor",
+          "it": "Motore",
+          "da": "Motor",
+          "sv": "Motor",
+          "no": "Motor",
+          "pl": "Silnik",
+          "ru": "Двигатель",
+          "ar": "المحرك",
+          "ko": "엔진"
+        },
+        "hint": {
+          "en": "Full EV (Electric Vehicle), PHEV (Plugin Hybrid Electric Vehicle), or HEV/ICE (Hybrid Electric Vehicle/Internal Combustion Engine)",
+          "nl": "Volledig elektrisch (EV), plug-in hybride (PHEV), of hybride/verbrandingsmotor (HEV/ICE)",
+          "de": "Vollelektrisch (EV), Plug-in-Hybrid (PHEV) oder Hybrid/Verbrennungsmotor (HEV/ICE)",
+          "fr": "Tout électrique (EV), hybride rechargeable (PHEV), ou hybride/moteur thermique (HEV/ICE)",
+          "es": "Totalmente eléctrico (EV), híbrido enchufable (PHEV), o híbrido/motor de combustión (HEV/ICE)",
+          "it": "Completamente elettrico (EV), ibrido plug-in (PHEV), o ibrido/motore a combustione (HEV/ICE)",
+          "da": "Fuldelektrisk (EV), plug-in hybrid (PHEV), eller hybrid/forbrændingsmotor (HEV/ICE)",
+          "sv": "Helelektrisk (EV), laddhybrid (PHEV), eller hybrid/förbränningsmotor (HEV/ICE)",
+          "no": "Helelektrisk (EV), ladbar hybrid (PHEV), eller hybrid/forbrenningsmotor (HEV/ICE)",
+          "pl": "W pełni elektryczny (EV), hybryda plug-in (PHEV) lub hybryda/silnik spalinowy (HEV/ICE)",
+          "ru": "Полностью электрический (EV), подключаемый гибрид (PHEV) или гибрид/двигатель внутреннего сгорания (HEV/ICE)",
+          "ar": "كهربائية بالكامل (EV)، هجينة قابلة للشحن (PHEV)، أو هجينة/محرك احتراق داخلي (HEV/ICE)",
+          "ko": "완전 전기차(EV), 플러그인 하이브리드(PHEV), 또는 하이브리드/내연기관(HEV/ICE)"
+        },
+        "value": ""
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Connection settings",
+      "nl": "Verbindingsinstellingen",
+      "de": "Verbindungseinstellungen",
+      "fr": "Paramètres de connexion",
+      "es": "Configuración de conexión",
+      "it": "Impostazioni di connessione",
+      "da": "Forbindelsesindstillinger",
+      "sv": "Anslutningsinställningar",
+      "no": "Tilkoblingsinnstillinger",
+      "pl": "Ustawienia połączenia",
+      "ru": "Настройки подключения",
+      "ar": "إعدادات الاتصال",
+      "ko": "연결 설정"
+    },
+    "children": [
+      {
+        "id": "username",
+        "type": "text",
+        "label": {
+          "en": "Username",
+          "nl": "Gebruikersnaam",
+          "de": "Benutzername",
+          "fr": "Nom d'utilisateur",
+          "es": "Nombre de usuario",
+          "it": "Nome utente",
+          "da": "Brugernavn",
+          "sv": "Användarnamn",
+          "no": "Brukernavn",
+          "pl": "Nazwa użytkownika",
+          "ru": "Имя пользователя",
+          "ar": "اسم المستخدم",
+          "ko": "사용자 이름"
+        },
+        "value": ""
+      },
+      {
+        "id": "password",
+        "type": "password",
+        "label": {
+          "en": "Password",
+          "nl": "Wachtwoord",
+          "de": "Passwort",
+          "fr": "Mot de passe",
+          "es": "Contraseña",
+          "it": "Password",
+          "da": "Adgangskode",
+          "sv": "Lösenord",
+          "no": "Passord",
+          "pl": "Hasło",
+          "ru": "Пароль",
+          "ar": "كلمة المرور",
+          "ko": "비밀번호"
+        },
+        "value": ""
+      },
+      {
+        "id": "pin",
+        "type": "password",
+        "label": {
+          "en": "PIN",
+          "nl": "Pincode",
+          "de": "PIN",
+          "fr": "Code PIN",
+          "es": "PIN",
+          "it": "PIN",
+          "da": "PIN-kode",
+          "sv": "PIN-kod",
+          "no": "PIN-kode",
+          "pl": "Kod PIN",
+          "ru": "PIN-код",
+          "ar": "الرقم السري",
+          "ko": "PIN 번호"
+        },
+        "value": ""
+      },
+      {
+        "id": "region",
+        "type": "dropdown",
+        "value": "EU",
+        "label": {
+          "en": "Region",
+          "nl": "Regio",
+          "de": "Region",
+          "fr": "Région",
+          "es": "Región",
+          "it": "Regione",
+          "da": "Region",
+          "sv": "Region",
+          "no": "Region",
+          "pl": "Region",
+          "ru": "Регион",
+          "ar": "المنطقة",
+          "ko": "지역"
+        },
+        "values": [
+          {
+            "id": "EU",
+            "label": {
+              "en": "EU",
+              "nl": "EU",
+              "de": "EU",
+              "fr": "EU",
+              "es": "EU",
+              "it": "EU",
+              "da": "EU",
+              "sv": "EU",
+              "no": "EU",
+              "pl": "EU",
+              "ru": "EU",
+              "ar": "EU",
+              "ko": "EU"
+            }
+          },
+          {
+            "id": "US",
+            "label": {
+              "en": "US",
+              "nl": "US",
+              "de": "US",
+              "fr": "US",
+              "es": "US",
+              "it": "US",
+              "da": "US",
+              "sv": "US",
+              "no": "US",
+              "pl": "US",
+              "ru": "US",
+              "ar": "US",
+              "ko": "US"
+            }
+          },
+          {
+            "id": "CA",
+            "label": {
+              "en": "CA",
+              "nl": "CA",
+              "de": "CA",
+              "fr": "CA",
+              "es": "CA",
+              "it": "CA",
+              "da": "CA",
+              "sv": "CA",
+              "no": "CA",
+              "pl": "CA",
+              "ru": "CA",
+              "ar": "CA",
+              "ko": "CA"
+            }
+          },
+          {
+            "id": "AU",
+            "label": {
+              "en": "AU",
+              "nl": "AU",
+              "de": "AU",
+              "fr": "AU",
+              "es": "AU",
+              "it": "AU",
+              "da": "AU",
+              "sv": "AU",
+              "no": "AU",
+              "pl": "AU",
+              "ru": "AU",
+              "ar": "AU",
+              "ko": "AU"
+            }
+          },
+          {
+            "id": "CN",
+            "label": {
+              "en": "CN",
+              "nl": "CN",
+              "de": "CN",
+              "fr": "CN",
+              "es": "CN",
+              "it": "CN",
+              "da": "CN",
+              "sv": "CN",
+              "no": "CN",
+              "pl": "CN",
+              "ru": "CN",
+              "ar": "CN",
+              "ko": "CN"
+            }
+          }
+        ]
+      },
+      {
+        "id": "language",
+        "type": "dropdown",
+        "value": "en",
+        "label": {
+          "en": "App language",
+          "nl": "App-taal",
+          "de": "App-Sprache",
+          "fr": "Langue de l'application",
+          "es": "Idioma de la aplicación",
+          "it": "Lingua dell'app",
+          "da": "App-sprog",
+          "sv": "App-språk",
+          "no": "App-språk",
+          "pl": "Język aplikacji",
+          "ru": "Язык приложения",
+          "ar": "لغة التطبيق",
+          "ko": "앱 언어"
+        },
+        "hint": {
+          "en": "This setting will effect the language used in the official Kia Connect app. Works for EU region only at the moment.",
+          "nl": "Deze instelling beïnvloedt de taal die wordt gebruikt in de officiële Kia Connect-app. Werkt momenteel alleen voor de EU-regio.",
+          "de": "Diese Einstellung beeinflusst die Sprache, die in der offiziellen Kia Connect-App verwendet wird. Funktioniert derzeit nur für die Region EU.",
+          "fr": "Ce paramètre affecte la langue utilisée dans l'application officielle Kia Connect. Fonctionne actuellement uniquement pour la région UE.",
+          "es": "Este ajuste afecta al idioma utilizado en la aplicación oficial Kia Connect. Actualmente solo funciona para la región de la UE.",
+          "it": "Questa impostazione influisce sulla lingua utilizzata nell'app ufficiale Kia Connect. Al momento funziona solo per la regione UE.",
+          "da": "Denne indstilling påvirker det sprog, der bruges i den officielle Kia Connect-app. Virker i øjeblikket kun for EU-regionen.",
+          "sv": "Den här inställningen påverkar språket som används i den officiella Kia Connect-appen. Fungerar för närvarande endast för EU-regionen.",
+          "no": "Denne innstillingen påvirker språket som brukes i den offisielle Kia Connect-appen. Fungerer for øyeblikket kun for EU-regionen.",
+          "pl": "To ustawienie wpływa na język używany w oficjalnej aplikacji Kia Connect. Obecnie działa tylko dla regionu UE.",
+          "ru": "Эта настройка влияет на язык, используемый в официальном приложении Kia Connect. В настоящее время работает только для региона ЕС.",
+          "ar": "يؤثر هذا الإعداد على اللغة المستخدمة في تطبيق Kia Connect الرسمي. يعمل حاليًا فقط لمنطقة الاتحاد الأوروبي.",
+          "ko": "이 설정은 공식 Kia Connect 앱에서 사용되는 언어에 영향을 줍니다. 현재는 EU 지역에서만 작동합니다."
+        },
+        "values": [
+          {
+            "id": "cs",
+            "label": {
+              "en": "CS",
+              "nl": "CS",
+              "de": "CS",
+              "fr": "CS",
+              "es": "CS",
+              "it": "CS",
+              "da": "CS",
+              "sv": "CS",
+              "no": "CS",
+              "pl": "CS",
+              "ru": "CS",
+              "ar": "CS",
+              "ko": "CS"
+            }
+          },
+          {
+            "id": "da",
+            "label": {
+              "en": "DA",
+              "nl": "DA",
+              "de": "DA",
+              "fr": "DA",
+              "es": "DA",
+              "it": "DA",
+              "da": "DA",
+              "sv": "DA",
+              "no": "DA",
+              "pl": "DA",
+              "ru": "DA",
+              "ar": "DA",
+              "ko": "DA"
+            }
+          },
+          {
+            "id": "nl",
+            "label": {
+              "en": "NL",
+              "nl": "NL",
+              "de": "NL",
+              "fr": "NL",
+              "es": "NL",
+              "it": "NL",
+              "da": "NL",
+              "sv": "NL",
+              "no": "NL",
+              "pl": "NL",
+              "ru": "NL",
+              "ar": "NL",
+              "ko": "NL"
+            }
+          },
+          {
+            "id": "en",
+            "label": {
+              "en": "EN",
+              "nl": "EN",
+              "de": "EN",
+              "fr": "EN",
+              "es": "EN",
+              "it": "EN",
+              "da": "EN",
+              "sv": "EN",
+              "no": "EN",
+              "pl": "EN",
+              "ru": "EN",
+              "ar": "EN",
+              "ko": "EN"
+            }
+          },
+          {
+            "id": "fi",
+            "label": {
+              "en": "FI",
+              "nl": "FI",
+              "de": "FI",
+              "fr": "FI",
+              "es": "FI",
+              "it": "FI",
+              "da": "FI",
+              "sv": "FI",
+              "no": "FI",
+              "pl": "FI",
+              "ru": "FI",
+              "ar": "FI",
+              "ko": "FI"
+            }
+          },
+          {
+            "id": "fr",
+            "label": {
+              "en": "FR",
+              "nl": "FR",
+              "de": "FR",
+              "fr": "FR",
+              "es": "FR",
+              "it": "FR",
+              "da": "FR",
+              "sv": "FR",
+              "no": "FR",
+              "pl": "FR",
+              "ru": "FR",
+              "ar": "FR",
+              "ko": "FR"
+            }
+          },
+          {
+            "id": "de",
+            "label": {
+              "en": "DE",
+              "nl": "DE",
+              "de": "DE",
+              "fr": "DE",
+              "es": "DE",
+              "it": "DE",
+              "da": "DE",
+              "sv": "DE",
+              "no": "DE",
+              "pl": "DE",
+              "ru": "DE",
+              "ar": "DE",
+              "ko": "DE"
+            }
+          },
+          {
+            "id": "it",
+            "label": {
+              "en": "IT",
+              "nl": "IT",
+              "de": "IT",
+              "fr": "IT",
+              "es": "IT",
+              "it": "IT",
+              "da": "IT",
+              "sv": "IT",
+              "no": "IT",
+              "pl": "IT",
+              "ru": "IT",
+              "ar": "IT",
+              "ko": "IT"
+            }
+          },
+          {
+            "id": "pl",
+            "label": {
+              "en": "PL",
+              "nl": "PL",
+              "de": "PL",
+              "fr": "PL",
+              "es": "PL",
+              "it": "PL",
+              "da": "PL",
+              "sv": "PL",
+              "no": "PL",
+              "pl": "PL",
+              "ru": "PL",
+              "ar": "PL",
+              "ko": "PL"
+            }
+          },
+          {
+            "id": "hu",
+            "label": {
+              "en": "HU",
+              "nl": "HU",
+              "de": "HU",
+              "fr": "HU",
+              "es": "HU",
+              "it": "HU",
+              "da": "HU",
+              "sv": "HU",
+              "no": "HU",
+              "pl": "HU",
+              "ru": "HU",
+              "ar": "HU",
+              "ko": "HU"
+            }
+          },
+          {
+            "id": "no",
+            "label": {
+              "en": "NO",
+              "nl": "NO",
+              "de": "NO",
+              "fr": "NO",
+              "es": "NO",
+              "it": "NO",
+              "da": "NO",
+              "sv": "NO",
+              "no": "NO",
+              "pl": "NO",
+              "ru": "NO",
+              "ar": "NO",
+              "ko": "NO"
+            }
+          },
+          {
+            "id": "sk",
+            "label": {
+              "en": "SK",
+              "nl": "SK",
+              "de": "SK",
+              "fr": "SK",
+              "es": "SK",
+              "it": "SK",
+              "da": "SK",
+              "sv": "SK",
+              "no": "SK",
+              "pl": "SK",
+              "ru": "SK",
+              "ar": "SK",
+              "ko": "SK"
+            }
+          },
+          {
+            "id": "es",
+            "label": {
+              "en": "ES",
+              "nl": "ES",
+              "de": "ES",
+              "fr": "ES",
+              "es": "ES",
+              "it": "ES",
+              "da": "ES",
+              "sv": "ES",
+              "no": "ES",
+              "pl": "ES",
+              "ru": "ES",
+              "ar": "ES",
+              "ko": "ES"
+            }
+          },
+          {
+            "id": "sv",
+            "label": {
+              "en": "SV",
+              "nl": "SV",
+              "de": "SV",
+              "fr": "SV",
+              "es": "SV",
+              "it": "SV",
+              "da": "SV",
+              "sv": "SV",
+              "no": "SV",
+              "pl": "SV",
+              "ru": "SV",
+              "ar": "SV",
+              "ko": "SV"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Car status refresh settings",
+      "nl": "Instellingen voor het vernieuwen van de autostatus",
+      "de": "Einstellungen für die Aktualisierung des Fahrzeugstatus",
+      "fr": "Paramètres d'actualisation du statut du véhicule",
+      "es": "Configuración de actualización del estado del coche",
+      "it": "Impostazioni di aggiornamento dello stato dell'auto",
+      "da": "Indstillinger for opdatering af bilstatus",
+      "sv": "Inställningar för uppdatering av bilstatus",
+      "no": "Innstillinger for oppdatering av bilstatus",
+      "pl": "Ustawienia odświeżania stanu samochodu",
+      "ru": "Настройки обновления статуса автомобиля",
+      "ar": "إعدادات تحديث حالة السيارة",
+      "ko": "차량 상태 새로고침 설정"
+    },
+    "children": [
+      {
+        "id": "pollInterval",
+        "type": "number",
+        "label": {
+          "en": "Update interval (minutes)",
+          "nl": "Update-interval (minuten)",
+          "de": "Aktualisierungsintervall (Minuten)",
+          "fr": "Intervalle de mise à jour (minutes)",
+          "es": "Intervalo de actualización (minutos)",
+          "it": "Intervallo di aggiornamento (minuti)",
+          "da": "Opdateringsinterval (minutter)",
+          "sv": "Uppdateringsintervall (minuter)",
+          "no": "Oppdateringsintervall (minutter)",
+          "pl": "Interwał aktualizacji (minuty)",
+          "ru": "Интервал обновления (минуты)",
+          "ar": "فاصل التحديث (بالدقائق)",
+          "ko": "업데이트 간격(분)"
+        },
+        "hint": {
+          "en": "Interval for checking the server for a status change.\nAttention: Homey will only receive status updates from the car when you park the car, or by doing a manual refresh!\nWARNING: A low poll interval can get you locked out of the server!",
+          "nl": "Interval voor het controleren van de server op statuswijzigingen.\nLet op: Homey ontvangt alleen statusupdates van de auto wanneer u de auto parkeert, of door handmatig te vernieuwen!\nWAARSCHUWING: Een laag pollinginterval kan ervoor zorgen dat u wordt buitengesloten van de server!",
+          "de": "Intervall zur Überprüfung des Servers auf Statusänderungen.\nAchtung: Homey erhält nur dann Statusaktualisierungen vom Fahrzeug, wenn Sie das Fahrzeug parken oder eine manuelle Aktualisierung durchführen!\nWARNUNG: Ein niedriges Abfrageintervall kann dazu führen, dass Sie vom Server ausgesperrt werden!",
+          "fr": "Intervalle de vérification du serveur pour un changement de statut.\nAttention : Homey ne recevra des mises à jour de statut du véhicule que lorsque vous garerez la voiture, ou en effectuant une actualisation manuelle !\nATTENTION : Un intervalle d'interrogation trop court peut vous faire bloquer par le serveur !",
+          "es": "Intervalo para comprobar en el servidor si hay un cambio de estado.\nAtención: Homey solo recibirá actualizaciones de estado del coche cuando lo aparque, o realizando una actualización manual.\nADVERTENCIA: ¡Un intervalo de sondeo bajo puede hacer que se le bloquee el acceso al servidor!",
+          "it": "Intervallo per il controllo sul server di un cambiamento di stato.\nAttenzione: Homey riceverà aggiornamenti di stato dall'auto solo quando parcheggi l'auto, oppure eseguendo un aggiornamento manuale!\nATTENZIONE: un intervallo di polling basso può causare il blocco dell'accesso al server!",
+          "da": "Interval for at kontrollere serveren for en statusændring.\nBemærk: Homey modtager kun statusopdateringer fra bilen, når du parkerer bilen, eller ved at foretage en manuel opdatering!\nADVARSEL: Et lavt pollinginterval kan medføre, at du bliver låst ude af serveren!",
+          "sv": "Intervall för att kontrollera servern för en statusändring.\nObservera: Homey tar endast emot statusuppdateringar från bilen när du parkerar bilen, eller genom att göra en manuell uppdatering!\nVARNING: Ett lågt pollningsintervall kan göra att du blir utelåst från servern!",
+          "no": "Intervall for å sjekke serveren for en statusendring.\nMerk: Homey vil kun motta statusoppdateringer fra bilen når du parkerer bilen, eller ved å gjøre en manuell oppdatering!\nADVARSEL: Et lavt pollingintervall kan føre til at du blir utestengt fra serveren!",
+          "pl": "Interwał sprawdzania serwera pod kątem zmiany stanu.\nUwaga: Homey otrzyma aktualizacje stanu z samochodu tylko podczas parkowania samochodu lub poprzez ręczne odświeżenie!\nOSTRZEŻENIE: Zbyt krótki interwał odpytywania może spowodować zablokowanie dostępu do serwera!",
+          "ru": "Интервал проверки сервера на изменение статуса.\nВнимание: Homey получит обновления статуса от автомобиля только при парковке автомобиля или при ручном обновлении!\nВНИМАНИЕ: слишком короткий интервал опроса может привести к блокировке доступа к серверу!",
+          "ar": "الفاصل الزمني للتحقق من الخادم بحثًا عن تغيير في الحالة.\nتنبيه: سيتلقى Homey تحديثات الحالة من السيارة فقط عند ركن السيارة، أو عن طريق إجراء تحديث يدوي!\nتحذير: قد يؤدي فاصل استطلاع منخفض إلى حظرك من الخادم!",
+          "ko": "상태 변경을 확인하기 위해 서버를 확인하는 간격입니다.\n주의: Homey는 차량을 주차하거나 수동으로 새로고침할 때만 차량의 상태 업데이트를 받습니다!\n경고: 폴링 간격이 너무 짧으면 서버 접근이 차단될 수 있습니다!"
+        },
+        "min": 5,
+        "value": 15
+      },
+      {
+        "id": "pollIntervalEngineOn",
+        "type": "number",
+        "label": {
+          "en": "Update interval when engine is on (minutes)",
+          "nl": "Update-interval wanneer de motor draait (minuten)",
+          "de": "Aktualisierungsintervall bei laufendem Motor (Minuten)",
+          "fr": "Intervalle de mise à jour lorsque le moteur tourne (minutes)",
+          "es": "Intervalo de actualización cuando el motor está en marcha (minutos)",
+          "it": "Intervallo di aggiornamento a motore acceso (minuti)",
+          "da": "Opdateringsinterval, når motoren kører (minutter)",
+          "sv": "Uppdateringsintervall när motorn är igång (minuter)",
+          "no": "Oppdateringsintervall når motoren går (minutter)",
+          "pl": "Interwał aktualizacji, gdy silnik pracuje (minuty)",
+          "ru": "Интервал обновления при работающем двигателе (минуты)",
+          "ar": "فاصل التحديث عند تشغيل المحرك (بالدقائق)",
+          "ko": "엔진 작동 중 업데이트 간격(분)"
+        },
+        "hint": {
+          "en": "Interval for checking the car status while the engine is on.\nAttention: for Homey to know that the engine is on, a manual refresh or cloud refresh must be performed!\nWARNING: A low poll interval can get you locked out of the server!\nDisable this function by setting the time to 0.",
+          "nl": "Interval voor het controleren van de autostatus terwijl de motor draait.\nLet op: om te weten dat de motor draait, moet Homey eerst een handmatige of cloud-vernieuwing uitvoeren!\nWAARSCHUWING: Een laag pollinginterval kan ervoor zorgen dat u wordt buitengesloten van de server!\nSchakel deze functie uit door de tijd op 0 te zetten.",
+          "de": "Intervall zur Überprüfung des Fahrzeugstatus, während der Motor läuft.\nAchtung: Damit Homey weiß, dass der Motor läuft, muss zuvor eine manuelle Aktualisierung oder Cloud-Aktualisierung durchgeführt werden!\nWARNUNG: Ein niedriges Abfrageintervall kann dazu führen, dass Sie vom Server ausgesperrt werden!\nDeaktivieren Sie diese Funktion, indem Sie die Zeit auf 0 setzen.",
+          "fr": "Intervalle de vérification du statut du véhicule pendant que le moteur tourne.\nAttention : pour que Homey sache que le moteur tourne, une actualisation manuelle ou via le cloud doit d'abord être effectuée !\nATTENTION : Un intervalle d'interrogation trop court peut vous faire bloquer par le serveur !\nDésactivez cette fonction en réglant la durée sur 0.",
+          "es": "Intervalo para comprobar el estado del coche mientras el motor está en marcha.\nAtención: para que Homey sepa que el motor está encendido, primero debe realizarse una actualización manual o desde la nube.\nADVERTENCIA: ¡Un intervalo de sondeo bajo puede hacer que se le bloquee el acceso al servidor!\nDesactive esta función poniendo el tiempo en 0.",
+          "it": "Intervallo per il controllo dello stato dell'auto mentre il motore è acceso.\nAttenzione: affinché Homey sappia che il motore è acceso, è necessario eseguire prima un aggiornamento manuale o dal cloud!\nATTENZIONE: un intervallo di polling basso può causare il blocco dell'accesso al server!\nDisattiva questa funzione impostando il tempo su 0.",
+          "da": "Interval for kontrol af bilstatus, mens motoren kører.\nBemærk: For at Homey kan vide, at motoren kører, skal der først udføres en manuel eller cloud-opdatering!\nADVARSEL: Et lavt pollinginterval kan medføre, at du bliver låst ude af serveren!\nDeaktiver denne funktion ved at sætte tiden til 0.",
+          "sv": "Intervall för att kontrollera bilstatus medan motorn är igång.\nObservera: för att Homey ska veta att motorn är igång måste en manuell uppdatering eller molnuppdatering först utföras!\nVARNING: Ett lågt pollningsintervall kan göra att du blir utelåst från servern!\nInaktivera denna funktion genom att sätta tiden till 0.",
+          "no": "Intervall for å sjekke bilstatus mens motoren går.\nMerk: For at Homey skal vite at motoren går, må en manuell oppdatering eller skyoppdatering utføres først!\nADVARSEL: Et lavt pollingintervall kan føre til at du blir utestengt fra serveren!\nDeaktiver denne funksjonen ved å sette tiden til 0.",
+          "pl": "Interwał sprawdzania stanu samochodu, gdy silnik pracuje.\nUwaga: aby Homey wiedział, że silnik pracuje, należy najpierw wykonać ręczne odświeżenie lub odświeżenie w chmurze!\nOSTRZEŻENIE: Zbyt krótki interwał odpytywania może spowodować zablokowanie dostępu do serwera!\nWyłącz tę funkcję, ustawiając czas na 0.",
+          "ru": "Интервал проверки статуса автомобиля при работающем двигателе.\nВнимание: чтобы Homey узнал, что двигатель работает, необходимо сначала выполнить ручное или облачное обновление!\nВНИМАНИЕ: слишком короткий интервал опроса может привести к блокировке доступа к серверу!\nОтключите эту функцию, установив время на 0.",
+          "ar": "الفاصل الزمني للتحقق من حالة السيارة أثناء تشغيل المحرك.\nتنبيه: لكي يعرف Homey أن المحرك يعمل، يجب إجراء تحديث يدوي أو تحديث سحابي أولاً!\nتحذير: قد يؤدي فاصل استطلاع منخفض إلى حظرك من الخادم!\nقم بتعطيل هذه الميزة بضبط الوقت على 0.",
+          "ko": "엔진이 켜져 있는 동안 차량 상태를 확인하는 간격입니다.\n주의: Homey가 엔진이 켜져 있음을 알려면 먼저 수동 새로고침 또는 클라우드 새로고침을 수행해야 합니다!\n경고: 폴링 간격이 너무 짧으면 서버 접근이 차단될 수 있습니다!\n시간을 0으로 설정하여 이 기능을 비활성화하세요."
+        },
+        "min": 0,
+        "value": 10,
+        "step": 1
+      },
+      {
+        "id": "pollIntervalForced",
+        "type": "number",
+        "label": {
+          "en": "24/7 Car update interval (minutes)",
+          "nl": "24/7 auto-update-interval (minuten)",
+          "de": "24/7-Auto-Aktualisierungsintervall (Minuten)",
+          "fr": "Intervalle de mise à jour 24h/24 (minutes)",
+          "es": "Intervalo de actualización 24/7 del coche (minutos)",
+          "it": "Intervallo di aggiornamento 24/7 dell'auto (minuti)",
+          "da": "24/7 bilopdateringsinterval (minutter)",
+          "sv": "24/7 uppdateringsintervall för bilen (minuter)",
+          "no": "24/7 oppdateringsintervall for bilen (minutter)",
+          "pl": "Interwał aktualizacji samochodu 24/7 (minuty)",
+          "ru": "Интервал обновления автомобиля 24/7 (минуты)",
+          "ar": "فاصل تحديث السيارة على مدار الساعة (بالدقائق)",
+          "ko": "24/7 차량 업데이트 간격(분)"
+        },
+        "hint": {
+          "en": "Interval for checking the car status also when the engine is off.\nWARNING: This will drain your 12V battery fast!\nA low poll interval can get you locked out of the server\nDisable this function by setting the time to 0.",
+          "nl": "Interval voor het controleren van de autostatus, ook wanneer de motor uit staat.\nWAARSCHUWING: Dit put de 12V-accu snel uit!\nEen laag pollinginterval kan ervoor zorgen dat u wordt buitengesloten van de server.\nSchakel deze functie uit door de tijd op 0 te zetten.",
+          "de": "Intervall zur Überprüfung des Fahrzeugstatus, auch wenn der Motor aus ist.\nWARNUNG: Dies entlädt die 12V-Batterie schnell!\nEin niedriges Abfrageintervall kann dazu führen, dass Sie vom Server ausgesperrt werden.\nDeaktivieren Sie diese Funktion, indem Sie die Zeit auf 0 setzen.",
+          "fr": "Intervalle de vérification du statut du véhicule, même lorsque le moteur est éteint.\nATTENTION : Cela déchargera rapidement votre batterie 12V !\nUn intervalle d'interrogation trop court peut vous faire bloquer par le serveur.\nDésactivez cette fonction en réglant la durée sur 0.",
+          "es": "Intervalo para comprobar el estado del coche también cuando el motor está apagado.\nADVERTENCIA: ¡Esto agotará la batería de 12V rápidamente!\nUn intervalo de sondeo bajo puede hacer que se le bloquee el acceso al servidor.\nDesactive esta función poniendo el tiempo en 0.",
+          "it": "Intervallo per il controllo dello stato dell'auto anche a motore spento.\nATTENZIONE: questo scaricherà rapidamente la batteria 12V!\nUn intervallo di polling basso può causare il blocco dell'accesso al server.\nDisattiva questa funzione impostando il tempo su 0.",
+          "da": "Interval for kontrol af bilstatus, også når motoren er slukket.\nADVARSEL: Dette vil aflade dit 12V-batteri hurtigt!\nEt lavt pollinginterval kan medføre, at du bliver låst ude af serveren.\nDeaktiver denne funktion ved at sætte tiden til 0.",
+          "sv": "Intervall för att kontrollera bilstatus även när motorn är avstängd.\nVARNING: Detta laddar snabbt ur ditt 12V-batteri!\nEtt lågt pollningsintervall kan göra att du blir utelåst från servern.\nInaktivera denna funktion genom att sätta tiden till 0.",
+          "no": "Intervall for å sjekke bilstatus også når motoren er av.\nADVARSEL: Dette vil tømme 12V-batteriet raskt!\nEt lavt pollingintervall kan føre til at du blir utestengt fra serveren.\nDeaktiver denne funksjonen ved å sette tiden til 0.",
+          "pl": "Interwał sprawdzania stanu samochodu również gdy silnik jest wyłączony.\nOSTRZEŻENIE: To szybko rozładuje akumulator 12V!\nZbyt krótki interwał odpytywania może spowodować zablokowanie dostępu do serwera.\nWyłącz tę funkcję, ustawiając czas na 0.",
+          "ru": "Интервал проверки статуса автомобиля также при выключенном двигателе.\nВНИМАНИЕ: это быстро разрядит аккумулятор 12В!\nСлишком короткий интервал опроса может привести к блокировке доступа к серверу.\nОтключите эту функцию, установив время на 0.",
+          "ar": "الفاصل الزمني للتحقق من حالة السيارة حتى عند إيقاف تشغيل المحرك.\nتحذير: سيؤدي هذا إلى استنزاف بطارية 12 فولت بسرعة!\nقد يؤدي فاصل استطلاع منخفض إلى حظرك من الخادم.\nقم بتعطيل هذه الميزة بضبط الوقت على 0.",
+          "ko": "엔진이 꺼져 있을 때도 차량 상태를 확인하는 간격입니다.\n경고: 12V 배터리가 빠르게 소모됩니다!\n폴링 간격이 너무 짧으면 서버 접근이 차단될 수 있습니다.\n시간을 0으로 설정하여 이 기능을 비활성화하세요."
+        },
+        "min": 0,
+        "value": 0,
+        "step": 15
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Home location settings",
+      "nl": "Instellingen thuislocatie",
+      "de": "Einstellungen für den Standort Zuhause",
+      "fr": "Paramètres de l'emplacement du domicile",
+      "es": "Configuración de la ubicación de casa",
+      "it": "Impostazioni della posizione di casa",
+      "da": "Indstillinger for hjemmets placering",
+      "sv": "Inställningar för hemmets plats",
+      "no": "Innstillinger for hjemmets plassering",
+      "pl": "Ustawienia lokalizacji domu",
+      "ru": "Настройки местоположения дома",
+      "ar": "إعدادات موقع المنزل",
+      "ko": "집 위치 설정"
+    },
+    "children": [
+      {
+        "id": "lat",
+        "type": "number",
+        "label": {
+          "en": "Home latitude",
+          "nl": "Breedtegraad thuis",
+          "de": "Breitengrad zu Hause",
+          "fr": "Latitude du domicile",
+          "es": "Latitud de casa",
+          "it": "Latitudine di casa",
+          "da": "Hjemmets breddegrad",
+          "sv": "Hemmets latitud",
+          "no": "Hjemmets breddegrad",
+          "pl": "Szerokość geograficzna domu",
+          "ru": "Широта дома",
+          "ar": "خط عرض المنزل",
+          "ko": "집 위도"
+        },
+        "hint": {
+          "en": "Home location is used to calculate the car's distance.",
+          "nl": "De thuislocatie wordt gebruikt om de afstand van de auto te berekenen.",
+          "de": "Der Standort Zuhause wird verwendet, um die Entfernung des Fahrzeugs zu berechnen.",
+          "fr": "L'emplacement du domicile est utilisé pour calculer la distance du véhicule.",
+          "es": "La ubicación de casa se utiliza para calcular la distancia del coche.",
+          "it": "La posizione di casa viene utilizzata per calcolare la distanza dell'auto.",
+          "da": "Hjemmets placering bruges til at beregne bilens afstand.",
+          "sv": "Hemmets plats används för att beräkna bilens avstånd.",
+          "no": "Hjemmets plassering brukes til å beregne bilens avstand.",
+          "pl": "Lokalizacja domu jest używana do obliczania odległości samochodu.",
+          "ru": "Местоположение дома используется для расчёта расстояния до автомобиля.",
+          "ar": "يُستخدم موقع المنزل لحساب مسافة السيارة.",
+          "ko": "집 위치는 차량과의 거리를 계산하는 데 사용됩니다."
+        },
+        "value": 0
+      },
+      {
+        "id": "lon",
+        "type": "number",
+        "label": {
+          "en": "Home longitude",
+          "nl": "Lengtegraad thuis",
+          "de": "Längengrad zu Hause",
+          "fr": "Longitude du domicile",
+          "es": "Longitud de casa",
+          "it": "Longitudine di casa",
+          "da": "Hjemmets længdegrad",
+          "sv": "Hemmets longitud",
+          "no": "Hjemmets lengdegrad",
+          "pl": "Długość geograficzna domu",
+          "ru": "Долгота дома",
+          "ar": "خط طول المنزل",
+          "ko": "집 경도"
+        },
+        "hint": {
+          "en": "Home location is used to calculate the car's distance.",
+          "nl": "De thuislocatie wordt gebruikt om de afstand van de auto te berekenen.",
+          "de": "Der Standort Zuhause wird verwendet, um die Entfernung des Fahrzeugs zu berechnen.",
+          "fr": "L'emplacement du domicile est utilisé pour calculer la distance du véhicule.",
+          "es": "La ubicación de casa se utiliza para calcular la distancia del coche.",
+          "it": "La posizione di casa viene utilizzata per calcolare la distanza dell'auto.",
+          "da": "Hjemmets placering bruges til at beregne bilens afstand.",
+          "sv": "Hemmets plats används för att beräkna bilens avstånd.",
+          "no": "Hjemmets plassering brukes til å beregne bilens avstand.",
+          "pl": "Lokalizacja domu jest używana do obliczania odległości samochodu.",
+          "ru": "Местоположение дома используется для расчёта расстояния до автомобиля.",
+          "ar": "يُستخدم موقع المنزل لحساب مسافة السيارة.",
+          "ko": "집 위치는 차량과의 거리를 계산하는 데 사용됩니다."
+        },
+        "value": 0
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Various settings",
+      "nl": "Diverse instellingen",
+      "de": "Verschiedene Einstellungen",
+      "fr": "Divers paramètres",
+      "es": "Configuración diversa",
+      "it": "Varie impostazioni",
+      "da": "Diverse indstillinger",
+      "sv": "Diverse inställningar",
+      "no": "Diverse innstillinger",
+      "pl": "Różne ustawienia",
+      "ru": "Прочие настройки",
+      "ar": "إعدادات متنوعة",
+      "ko": "기타 설정"
+    },
+    "children": [
+      {
+        "id": "batteryAlarmLevel",
+        "type": "number",
+        "label": {
+          "en": "12V battery alarm level (%)",
+          "nl": "Alarmniveau 12V-accu (%)",
+          "de": "Alarmstufe 12V-Batterie (%)",
+          "fr": "Niveau d'alarme batterie 12V (%)",
+          "es": "Nivel de alarma de la batería de 12V (%)",
+          "it": "Livello di allarme batteria 12V (%)",
+          "da": "Alarmniveau for 12V-batteri (%)",
+          "sv": "Larmnivå för 12V-batteri (%)",
+          "no": "Alarmnivå for 12V-batteri (%)",
+          "pl": "Poziom alarmu akumulatora 12V (%)",
+          "ru": "Уровень тревоги аккумулятора 12В (%)",
+          "ar": "مستوى إنذار بطارية 12 فولت (%)",
+          "ko": "12V 배터리 경고 수준 (%)"
+        },
+        "hint": {
+          "en": "Homey will raise an alarm when the 12V battery charge is below this level.",
+          "nl": "Homey slaat alarm wanneer de lading van de 12V-accu onder dit niveau komt.",
+          "de": "Homey löst einen Alarm aus, wenn die Ladung der 12V-Batterie unter dieses Niveau fällt.",
+          "fr": "Homey déclenchera une alarme lorsque la charge de la batterie 12V descendra en dessous de ce niveau.",
+          "es": "Homey activará una alarma cuando la carga de la batería de 12V esté por debajo de este nivel.",
+          "it": "Homey attiverà un allarme quando la carica della batteria 12V scende sotto questo livello.",
+          "da": "Homey udløser en alarm, når 12V-batteriets opladning er under dette niveau.",
+          "sv": "Homey utlöser ett larm när 12V-batteriets laddning är under denna nivå.",
+          "no": "Homey utløser en alarm når ladenivået til 12V-batteriet er under dette nivået.",
+          "pl": "Homey wywoła alarm, gdy poziom naładowania akumulatora 12V spadnie poniżej tego poziomu.",
+          "ru": "Homey подаст тревогу, когда заряд аккумулятора 12В опустится ниже этого уровня.",
+          "ar": "سيصدر Homey إنذارًا عندما يكون شحن بطارية 12 فولت أقل من هذا المستوى.",
+          "ko": "12V 배터리 충전량이 이 수준 미만이 되면 Homey가 경보를 발생시킵니다."
+        },
+        "min": 0,
+        "max": 100,
+        "value": 50
+      },
+      {
+        "id": "EVbatteryAlarmLevel",
+        "type": "number",
+        "label": {
+          "en": "EV battery alarm level (%)",
+          "nl": "Alarmniveau EV-batterij (%)",
+          "de": "Alarmstufe EV-Batterie (%)",
+          "fr": "Niveau d'alarme batterie du véhicule électrique (%)",
+          "es": "Nivel de alarma de la batería del VE (%)",
+          "it": "Livello di allarme batteria EV (%)",
+          "da": "Alarmniveau for EV-batteri (%)",
+          "sv": "Larmnivå för EV-batteri (%)",
+          "no": "Alarmnivå for EV-batteri (%)",
+          "pl": "Poziom alarmu baterii EV (%)",
+          "ru": "Уровень тревоги батареи электромобиля (%)",
+          "ar": "مستوى إنذار بطارية السيارة الكهربائية (%)",
+          "ko": "EV 배터리 경고 수준(%)"
+        },
+        "hint": {
+          "en": "Homey will raise an alarm when the EV battery charge is below this level.",
+          "nl": "Homey slaat alarm wanneer de lading van de EV-batterij onder dit niveau komt.",
+          "de": "Homey löst einen Alarm aus, wenn die Ladung der EV-Batterie unter dieses Niveau fällt.",
+          "fr": "Homey déclenchera une alarme lorsque la charge de la batterie du véhicule électrique descendra en dessous de ce niveau.",
+          "es": "Homey activará una alarma cuando la carga de la batería del VE esté por debajo de este nivel.",
+          "it": "Homey attiverà un allarme quando la carica della batteria EV scende sotto questo livello.",
+          "da": "Homey udløser en alarm, når EV-batteriets opladning er under dette niveau.",
+          "sv": "Homey utlöser ett larm när EV-batteriets laddning är under denna nivå.",
+          "no": "Homey utløser en alarm når ladenivået til EV-batteriet er under dette nivået.",
+          "pl": "Homey wywoła alarm, gdy poziom naładowania baterii EV spadnie poniżej tego poziomu.",
+          "ru": "Homey подаст тревогу, когда заряд батареи электромобиля опустится ниже этого уровня.",
+          "ar": "سيصدر Homey إنذارًا عندما يكون شحن بطارية السيارة الكهربائية أقل من هذا المستوى.",
+          "ko": "EV 배터리 충전량이 이 수준 미만이 되면 Homey가 경보를 발생시킵니다."
+        },
+        "min": 0,
+        "max": 100,
+        "value": 5
+      }
+    ]
+  }
 ]

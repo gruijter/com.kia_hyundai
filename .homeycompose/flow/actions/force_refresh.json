@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Force status refresh (once)"
-    },
-    "titleFormatted": {
-        "en": "Force status refresh (once)"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Force status refresh (once)",
+    "nl": "Status geforceerd vernieuwen (eenmalig)",
+    "de": "Status erzwungen aktualisieren (einmalig)",
+    "fr": "Forcer l'actualisation du statut (une fois)",
+    "es": "Forzar actualización del estado (una vez)",
+    "it": "Forza l'aggiornamento dello stato (una volta)",
+    "da": "Gennemtving statusopdatering (én gang)",
+    "sv": "Tvinga statusuppdatering (en gång)",
+    "no": "Tving statusoppdatering (én gang)",
+    "pl": "Wymuś odświeżenie stanu (jednorazowo)",
+    "ru": "Принудительно обновить статус (один раз)",
+    "ar": "فرض تحديث الحالة (مرة واحدة)",
+    "ko": "상태 강제 새로고침(1회)"
+  },
+  "titleFormatted": {
+    "en": "Force status refresh (once)",
+    "nl": "Status geforceerd vernieuwen (eenmalig)",
+    "de": "Status erzwungen aktualisieren (einmalig)",
+    "fr": "Forcer l'actualisation du statut (une fois)",
+    "es": "Forzar actualización del estado (una vez)",
+    "it": "Forza l'aggiornamento dello stato (una volta)",
+    "da": "Gennemtving statusopdatering (én gang)",
+    "sv": "Tvinga statusuppdatering (en gång)",
+    "no": "Tving statusoppdatering (én gang)",
+    "pl": "Wymuś odświeżenie stanu (jednorazowo)",
+    "ru": "Принудительно обновить статус (один раз)",
+    "ar": "فرض تحديث الحالة (مرة واحدة)",
+    "ko": "상태 강제 새로고침(1회)"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

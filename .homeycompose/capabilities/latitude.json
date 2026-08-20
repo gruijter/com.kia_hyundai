@@ -1,13 +1,37 @@
 {
-	"type": "number",
-	"title": {
-		"en": "Latitude"
-	},
-	"units": {
-		"en": "degrees"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": false,
-	"uiComponent": null
+  "type": "number",
+  "title": {
+    "en": "Latitude",
+    "nl": "Breedtegraad",
+    "de": "Breitengrad",
+    "fr": "Latitude",
+    "es": "Latitud",
+    "it": "Latitudine",
+    "da": "Breddegrad",
+    "sv": "Latitud",
+    "no": "Breddegrad",
+    "pl": "Szerokość geograficzna",
+    "ru": "Широта",
+    "ar": "خط العرض",
+    "ko": "위도"
+  },
+  "units": {
+    "en": "degrees",
+    "nl": "graden",
+    "de": "Grad",
+    "fr": "degrés",
+    "es": "grados",
+    "it": "gradi",
+    "da": "grader",
+    "sv": "grader",
+    "no": "grader",
+    "pl": "stopnie",
+    "ru": "градусы",
+    "ar": "درجات",
+    "ko": "도"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": false,
+  "uiComponent": null
 }

@@ -1,23 +1,47 @@
 {
-	"title": { 
-		"en": "Odometer changed"
-	},
-	"highlight": true,
-	"args": [
-		{
-				"type": "device",
-				"name": "device",
-				"filter": "driver_id=car"
-		}
-	],
-	"tokens": [
-		{
-			"name": "measure_odo",
-			"type": "number",
-			"title": { 
-				"en": "Odometer"
-			},
-			"example": 53000
-		}
-	]
+  "title": {
+    "en": "Odometer changed",
+    "nl": "Kilometerstand gewijzigd",
+    "de": "Kilometerstand geändert",
+    "fr": "Le compteur kilométrique a changé",
+    "es": "El cuentakilómetros ha cambiado",
+    "it": "Il contachilometri è cambiato",
+    "da": "Kilometertæller ændret",
+    "sv": "Vägmätaren har ändrats",
+    "no": "Kilometerteller endret",
+    "pl": "Licznik przebiegu uległ zmianie",
+    "ru": "Показания одометра изменились",
+    "ar": "تغيّر عداد المسافات",
+    "ko": "주행거리계 변경됨"
+  },
+  "highlight": true,
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "measure_odo",
+      "type": "number",
+      "title": {
+        "en": "Odometer",
+        "nl": "Kilometerstand",
+        "de": "Kilometerstand",
+        "fr": "Compteur kilométrique",
+        "es": "Cuentakilómetros",
+        "it": "Contachilometri",
+        "da": "Kilometertæller",
+        "sv": "Vägmätare",
+        "no": "Kilometerteller",
+        "pl": "Licznik przebiegu",
+        "ru": "Одометр",
+        "ar": "عداد المسافات",
+        "ko": "주행거리계"
+      },
+      "example": 53000
+    }
+  ]
 }

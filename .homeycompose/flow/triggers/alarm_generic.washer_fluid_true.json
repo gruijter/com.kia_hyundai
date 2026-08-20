@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The washer fluid alarm turned on"
-    },
-    "titleFormatted": {
-        "en": "The washer fluid alarm turned on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The washer fluid alarm turned on",
+    "nl": "Het ruitensproeiervloeistofalarm is ingeschakeld",
+    "de": "Der Waschwasseralarm wurde eingeschaltet",
+    "fr": "L'alarme de liquide lave-glace a été activée",
+    "es": "La alarma de líquido limpiaparabrisas se ha activado",
+    "it": "L'allarme del liquido lavavetro è stato attivato",
+    "da": "Sprinklervæskealarmen blev tændt",
+    "sv": "Spolarvätskelarmet slogs på",
+    "no": "Spylervæskealarmen ble slått på",
+    "pl": "Alarm płynu do spryskiwaczy został włączony",
+    "ru": "Тревога жидкости стеклоомывателя включена",
+    "ar": "تم تشغيل إنذار سائل المساحات",
+    "ko": "워셔액 경보가 켜짐"
+  },
+  "titleFormatted": {
+    "en": "The washer fluid alarm turned on",
+    "nl": "Het ruitensproeiervloeistofalarm is ingeschakeld",
+    "de": "Der Waschwasseralarm wurde eingeschaltet",
+    "fr": "L'alarme de liquide lave-glace a été activée",
+    "es": "La alarma de líquido limpiaparabrisas se ha activado",
+    "it": "L'allarme del liquido lavavetro è stato attivato",
+    "da": "Sprinklervæskealarmen blev tændt",
+    "sv": "Spolarvätskelarmet slogs på",
+    "no": "Spylervæskealarmen ble slått på",
+    "pl": "Alarm płynu do spryskiwaczy został włączony",
+    "ru": "Тревога жидкости стеклоомывателя включена",
+    "ar": "تم تشغيل إنذار سائل المساحات",
+    "ko": "워셔액 경보가 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

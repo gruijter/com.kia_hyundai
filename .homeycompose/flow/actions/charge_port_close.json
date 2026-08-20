@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Close charge port"
-    },
-    "titleFormatted": {
-        "en": "Close charge port"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
-        }
-    ]
+  "title": {
+    "en": "Close charge port",
+    "nl": "Laadklep sluiten",
+    "de": "Ladeklappe schließen",
+    "fr": "Fermer la trappe de charge",
+    "es": "Cerrar la tapa de carga",
+    "it": "Chiudi lo sportello di ricarica",
+    "da": "Luk opladningsklap",
+    "sv": "Stäng laddlucka",
+    "no": "Lukk ladeluke",
+    "pl": "Zamknij klapkę ładowania",
+    "ru": "Закрыть лючок зарядки",
+    "ar": "إغلاق غطاء الشحن",
+    "ko": "충전구 닫기"
+  },
+  "titleFormatted": {
+    "en": "Close charge port",
+    "nl": "Laadklep sluiten",
+    "de": "Ladeklappe schließen",
+    "fr": "Fermer la trappe de charge",
+    "es": "Cerrar la tapa de carga",
+    "it": "Chiudi lo sportello di ricarica",
+    "da": "Luk opladningsklap",
+    "sv": "Stäng laddlucka",
+    "no": "Lukk ladeluke",
+    "pl": "Zamknij klapkę ładowania",
+    "ru": "Закрыть лючок зарядки",
+    "ar": "إغلاق غطاء الشحن",
+    "ko": "충전구 닫기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=measure_battery.health"
+    }
+  ]
 }

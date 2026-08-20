@@ -1,18 +1,54 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Climate control"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Climate control on"
-	},
-	"insightsTitleFalse": {
-		"en": "Climate control off"
-	},
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/climate_control.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Climate control",
+    "nl": "Klimaatregeling",
+    "de": "Klimasteuerung",
+    "fr": "Climatisation",
+    "es": "Climatización",
+    "it": "Climatizzazione",
+    "da": "Klimastyring",
+    "sv": "Klimatstyrning",
+    "no": "Klimastyring",
+    "pl": "Klimatyzacja",
+    "ru": "Климат-контроль",
+    "ar": "التحكم بالمناخ",
+    "ko": "공조 제어"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Climate control on",
+    "nl": "Klimaatregeling aan",
+    "de": "Klimasteuerung ein",
+    "fr": "Climatisation activée",
+    "es": "Climatización activada",
+    "it": "Climatizzazione attivata",
+    "da": "Klimastyring til",
+    "sv": "Klimatstyrning på",
+    "no": "Klimastyring på",
+    "pl": "Klimatyzacja włączona",
+    "ru": "Климат-контроль включен",
+    "ar": "التحكم بالمناخ نشط",
+    "ko": "공조 제어 켜짐"
+  },
+  "insightsTitleFalse": {
+    "en": "Climate control off",
+    "nl": "Klimaatregeling uit",
+    "de": "Klimasteuerung aus",
+    "fr": "Climatisation désactivée",
+    "es": "Climatización desactivada",
+    "it": "Climatizzazione disattivata",
+    "da": "Klimastyring fra",
+    "sv": "Klimatstyrning av",
+    "no": "Klimastyring av",
+    "pl": "Klimatyzacja wyłączona",
+    "ru": "Климат-контроль выключен",
+    "ar": "التحكم بالمناخ متوقف",
+    "ko": "공조 제어 꺼짐"
+  },
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/climate_control.svg"
 }

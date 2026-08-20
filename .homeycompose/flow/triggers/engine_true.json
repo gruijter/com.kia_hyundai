@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The engine turned on"
-    },
-    "titleFormatted": {
-        "en": "The engine turned on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The engine turned on",
+    "nl": "De motor is ingeschakeld",
+    "de": "Der Motor wurde eingeschaltet",
+    "fr": "Le moteur a été allumé",
+    "es": "El motor se ha encendido",
+    "it": "Il motore è stato acceso",
+    "da": "Motoren blev tændt",
+    "sv": "Motorn slogs på",
+    "no": "Motoren ble slått på",
+    "pl": "Silnik został włączony",
+    "ru": "Двигатель включен",
+    "ar": "تم تشغيل المحرك",
+    "ko": "엔진이 켜짐"
+  },
+  "titleFormatted": {
+    "en": "The engine turned on",
+    "nl": "De motor is ingeschakeld",
+    "de": "Der Motor wurde eingeschaltet",
+    "fr": "Le moteur a été allumé",
+    "es": "El motor se ha encendido",
+    "it": "Il motore è stato acceso",
+    "da": "Motoren blev tændt",
+    "sv": "Motorn slogs på",
+    "no": "Motoren ble slått på",
+    "pl": "Silnik został włączony",
+    "ru": "Двигатель включен",
+    "ar": "تم تشغيل المحرك",
+    "ko": "엔진이 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

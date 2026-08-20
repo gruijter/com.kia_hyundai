@@ -1,9 +1,21 @@
 {
-	"type": "string",
-	"title": {
-		"en": "Status refresh"
-	},
-	"getable": true,
-	"setable": false,
-	"icon": "./assets/last_refresh.svg"
+  "type": "string",
+  "title": {
+    "en": "Status refresh",
+    "nl": "Statusvernieuwing",
+    "de": "Statusaktualisierung",
+    "fr": "Actualisation du statut",
+    "es": "Actualización de estado",
+    "it": "Aggiornamento dello stato",
+    "da": "Statusopdatering",
+    "sv": "Statusuppdatering",
+    "no": "Statusoppdatering",
+    "pl": "Odświeżenie stanu",
+    "ru": "Обновление статуса",
+    "ar": "تحديث الحالة",
+    "ko": "상태 새로고침"
+  },
+  "getable": true,
+  "setable": false,
+  "icon": "./assets/last_refresh.svg"
 }

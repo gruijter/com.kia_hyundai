@@ -1,13 +1,37 @@
 {
-	"type": "string",
-	"title": {
-		"en": "Car location"
-	},
-	"desc": {
-		"en": "Location of the car"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": false,
-	"icon": "./assets/location.svg"
+  "type": "string",
+  "title": {
+    "en": "Car location",
+    "nl": "Locatie van de auto",
+    "de": "Standort des Fahrzeugs",
+    "fr": "Emplacement du véhicule",
+    "es": "Ubicación del coche",
+    "it": "Posizione dell'auto",
+    "da": "Bilens placering",
+    "sv": "Bilens plats",
+    "no": "Bilens plassering",
+    "pl": "Lokalizacja samochodu",
+    "ru": "Местоположение автомобиля",
+    "ar": "موقع السيارة",
+    "ko": "차량 위치"
+  },
+  "desc": {
+    "en": "Location of the car",
+    "nl": "Locatie van de auto",
+    "de": "Standort des Fahrzeugs",
+    "fr": "Emplacement du véhicule",
+    "es": "Ubicación del coche",
+    "it": "Posizione dell'auto",
+    "da": "Bilens placering",
+    "sv": "Bilens plats",
+    "no": "Bilens plassering",
+    "pl": "Lokalizacja samochodu",
+    "ru": "Местоположение автомобиля",
+    "ar": "موقع السيارة",
+    "ko": "차량 위치"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": false,
+  "icon": "./assets/location.svg"
 }

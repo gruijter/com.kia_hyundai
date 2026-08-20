@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Enable valet mode"
-    },
-    "titleFormatted": {
-        "en": "Enable valet mode"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Enable valet mode",
+    "nl": "Valet-modus inschakelen",
+    "de": "Valet-Modus aktivieren",
+    "fr": "Activer le mode valet",
+    "es": "Activar el modo aparcacoches",
+    "it": "Attiva la modalità valet",
+    "da": "Aktiver valet-tilstand",
+    "sv": "Aktivera valet-läge",
+    "no": "Aktiver valet-modus",
+    "pl": "Włącz tryb parkingowego",
+    "ru": "Включить режим парковщика",
+    "ar": "تفعيل وضع صف السيارات",
+    "ko": "발렛 모드 활성화"
+  },
+  "titleFormatted": {
+    "en": "Enable valet mode",
+    "nl": "Valet-modus inschakelen",
+    "de": "Valet-Modus aktivieren",
+    "fr": "Activer le mode valet",
+    "es": "Activar el modo aparcacoches",
+    "it": "Attiva la modalità valet",
+    "da": "Aktiver valet-tilstand",
+    "sv": "Aktivera valet-läge",
+    "no": "Aktiver valet-modus",
+    "pl": "Włącz tryb parkingowego",
+    "ru": "Включить режим парковщика",
+    "ar": "تفعيل وضع صف السيارات",
+    "ko": "발렛 모드 활성화"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

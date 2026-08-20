@@ -1,0 +1,35 @@
+{
+  "pair": {
+    "title": "Tilkobl din Kia-bil",
+    "subtitle": "Brug dine Kia Connect-legitimationsoplysninger",
+    "region": "Vælg din region",
+    "region_eu": "Europa",
+    "region_us": "USA",
+    "region_ca": "Canada",
+    "region_au": "Australien",
+    "region_cn": "Kina",
+    "username": "Brugernavn",
+    "password": "Adgangskode",
+    "pin": "4-cifret PIN-kode",
+    "validate": "Fortsæt",
+
+    "required": "Du skal udfylde alle felter.",
+    "invalid_pin": "Ugyldig PIN-kode, indtast din 4-cifrede PIN-kode.",
+    "no_vehicles": "Ingen køretøjer fundet for denne konto.",
+    "pairing_failed": "Tilkobling mislykkedes: __error__"
+
+  },
+  "migrating": "Migrerer enhed, vent venligst...",
+  "device_no_vehicle": "Denne bil er ikke længere tilgængelig på denne konto (VIN __vin__). Kontroller, om den stadig er delt/registreret til denne konto.",
+  "device_auth_failed": "Login mislykkedes. Kontroller dit brugernavn, adgangskode og PIN-kode i enhedsindstillingerne.",
+  "device_otp_required": "Denne konto kræver en ekstra bekræftelseskode (OTP) ved login, hvilket denne app endnu ikke understøtter.",
+  "device_quota_reached": "Dagligt kvote nået! Venter 60 minutter.",
+  "device_restarting": "Enheden genstarter. Vent et par minutter!",
+  "error_engine_on": "Styring ikke mulig; motoren kører.",
+  "error_not_ev": "Styring ikke mulig; ikke en elbil.",
+  "error_climate_control_off": "Klimastyring er ikke tændt.",
+  "error_location_not_found": "Kunne ikke finde den placering.",
+  "error_queue_full": "Der er allerede for mange kommandoer i køen til denne bil. Vent et øjeblik, og prøv igen.",
+  "error_unknown_command": "Ukendt kommando: __command__",
+  "error_invalid_window_state": "Ugyldig rudetilstand: __state__"
+}

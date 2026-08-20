@@ -1,45 +1,129 @@
 {
-    "title": {
-        "en": "Limit AC charging current"
+  "title": {
+    "en": "Limit AC charging current",
+    "nl": "AC-laadstroom beperken",
+    "de": "AC-Ladestrom begrenzen",
+    "fr": "Limiter le courant de charge AC",
+    "es": "Limitar la corriente de carga AC",
+    "it": "Limita la corrente di ricarica AC",
+    "da": "Begræns AC-opladningsstrøm",
+    "sv": "Begränsa AC-laddström",
+    "no": "Begrens AC-ladestrøm",
+    "pl": "Ogranicz prąd ładowania AC",
+    "ru": "Ограничить ток зарядки переменным током",
+    "ar": "تحديد تيار الشحن بالتيار المتردد",
+    "ko": "AC 충전 전류 제한"
+  },
+  "titleFormatted": {
+    "en": "Limit AC charging current to [[level]]",
+    "nl": "AC-laadstroom beperken tot [[level]]",
+    "de": "AC-Ladestrom auf [[level]] begrenzen",
+    "fr": "Limiter le courant de charge AC à [[level]]",
+    "es": "Limitar la corriente de carga AC a [[level]]",
+    "it": "Limita la corrente di ricarica AC a [[level]]",
+    "da": "Begræns AC-opladningsstrøm til [[level]]",
+    "sv": "Begränsa AC-laddström till [[level]]",
+    "no": "Begrens AC-ladestrøm til [[level]]",
+    "pl": "Ogranicz prąd ładowania AC do [[level]]",
+    "ru": "Ограничить ток зарядки переменным током до [[level]]",
+    "ar": "تحديد تيار الشحن بالتيار المتردد إلى [[level]]",
+    "ko": "AC 충전 전류를 [[level]](으)로 제한"
+  },
+  "hint": {
+    "en": "Limits how fast the car charges from a regular AC socket/wallbox (not DC fast charging). Lower it to avoid overloading a shared circuit or fuse.",
+    "nl": "Beperkt hoe snel de auto oplaadt via een normaal AC-stopcontact/wallbox (niet DC-snelladen). Verlaag dit om overbelasting van een gedeelde groep of zekering te voorkomen.",
+    "de": "Begrenzt, wie schnell das Fahrzeug über eine normale AC-Steckdose/Wallbox lädt (nicht DC-Schnellladen). Verringern Sie den Wert, um eine Überlastung eines gemeinsam genutzten Stromkreises oder einer Sicherung zu vermeiden.",
+    "fr": "Limite la vitesse de charge du véhicule via une prise AC/wallbox standard (pas la charge rapide DC). Réduisez-la pour éviter de surcharger un circuit partagé ou un fusible.",
+    "es": "Limita la velocidad de carga del coche desde un enchufe AC/wallbox normal (no carga rápida DC). Redúzcalo para evitar sobrecargar un circuito compartido o un fusible.",
+    "it": "Limita la velocità di ricarica dell'auto da una presa AC/wallbox normale (non ricarica rapida DC). Riducilo per evitare di sovraccaricare un circuito condiviso o un fusibile.",
+    "da": "Begrænser hvor hurtigt bilen oplader fra en almindelig AC-stikkontakt/wallbox (ikke DC-hurtigopladning). Sænk den for at undgå at overbelaste et delt kredsløb eller en sikring.",
+    "sv": "Begränsar hur snabbt bilen laddas från ett vanligt AC-uttag/wallbox (inte DC-snabbladdning). Sänk den för att undvika att överbelasta en delad krets eller säkring.",
+    "no": "Begrenser hvor raskt bilen lader fra en vanlig AC-kontakt/wallbox (ikke DC-hurtiglading). Reduser den for å unngå å overbelaste en delt kurs eller sikring.",
+    "pl": "Ogranicza szybkość ładowania samochodu z normalnego gniazda AC/wallboxa (nie dotyczy szybkiego ładowania DC). Zmniejsz wartość, aby uniknąć przeciążenia współdzielonego obwodu lub bezpiecznika.",
+    "ru": "Ограничивает скорость зарядки автомобиля от обычной розетки переменного тока/настенной станции (не относится к быстрой зарядке постоянным током). Уменьшите значение, чтобы избежать перегрузки общей цепи или предохранителя.",
+    "ar": "يحدّ من سرعة شحن السيارة من مقبس تيار متردد عادي/محطة شحن حائطية (وليس الشحن السريع بالتيار المستمر). قلّل القيمة لتجنب زيادة التحميل على دائرة كهربائية مشتركة أو صمام كهربائي.",
+    "ko": "일반 AC 콘센트/월박스에서 차량이 충전되는 속도를 제한합니다(DC 급속 충전 아님). 공유 회로나 퓨즈의 과부하를 방지하려면 값을 낮추세요."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=measure_battery.health"
     },
-    "titleFormatted": {
-        "en": "Limit AC charging current to [[level]]"
-    },
-    "hint": {
-        "en": "Limits how fast the car charges from a regular AC socket/wallbox (not DC fast charging). Lower it to avoid overloading a shared circuit or fuse."
-    },
-    "args": [
+    {
+      "type": "dropdown",
+      "name": "level",
+      "title": {
+        "en": "Charging current",
+        "nl": "Laadstroom",
+        "de": "Ladestrom",
+        "fr": "Courant de charge",
+        "es": "Corriente de carga",
+        "it": "Corrente di ricarica",
+        "da": "Opladningsstrøm",
+        "sv": "Laddström",
+        "no": "Ladestrøm",
+        "pl": "Prąd ładowania",
+        "ru": "Ток зарядки",
+        "ar": "تيار الشحن",
+        "ko": "충전 전류"
+      },
+      "values": [
         {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
+          "id": "1",
+          "title": {
+            "en": "100% (fastest)",
+            "nl": "100% (snelst)",
+            "de": "100% (am schnellsten)",
+            "fr": "100 % (le plus rapide)",
+            "es": "100 % (más rápido)",
+            "it": "100% (più veloce)",
+            "da": "100% (hurtigst)",
+            "sv": "100% (snabbast)",
+            "no": "100% (raskest)",
+            "pl": "100% (najszybciej)",
+            "ru": "100% (самый быстрый)",
+            "ar": "100% (الأسرع)",
+            "ko": "100% (가장 빠름)"
+          }
         },
         {
-            "type": "dropdown",
-            "name": "level",
-            "title": {
-                "en": "Charging current"
-            },
-            "values": [
-                {
-                    "id": "1",
-                    "title": {
-                        "en": "100% (fastest)"
-                    }
-                },
-                {
-                    "id": "2",
-                    "title": {
-                        "en": "90%"
-                    }
-                },
-                {
-                    "id": "3",
-                    "title": {
-                        "en": "60% (slowest)"
-                    }
-                }
-            ]
+          "id": "2",
+          "title": {
+            "en": "90%",
+            "nl": "90%",
+            "de": "90%",
+            "fr": "90 %",
+            "es": "90 %",
+            "it": "90%",
+            "da": "90%",
+            "sv": "90%",
+            "no": "90%",
+            "pl": "90%",
+            "ru": "90%",
+            "ar": "90%",
+            "ko": "90%"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "60% (slowest)",
+            "nl": "60% (langzaamst)",
+            "de": "60% (am langsamsten)",
+            "fr": "60 % (le plus lent)",
+            "es": "60 % (más lento)",
+            "it": "60% (più lento)",
+            "da": "60% (langsomst)",
+            "sv": "60% (långsammast)",
+            "no": "60% (tregest)",
+            "pl": "60% (najwolniej)",
+            "ru": "60% (самый медленный)",
+            "ar": "60% (الأبطأ)",
+            "ko": "60% (가장 느림)"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

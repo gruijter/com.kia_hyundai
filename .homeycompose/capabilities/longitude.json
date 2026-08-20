@@ -1,13 +1,37 @@
 {
-	"type": "number",
-	"title": {
-		"en": "Longitude"
-	},
-	"units": {
-		"en": "degrees"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": false,
-	"uiComponent": null
+  "type": "number",
+  "title": {
+    "en": "Longitude",
+    "nl": "Lengtegraad",
+    "de": "Längengrad",
+    "fr": "Longitude",
+    "es": "Longitud",
+    "it": "Longitudine",
+    "da": "Længdegrad",
+    "sv": "Longitud",
+    "no": "Lengdegrad",
+    "pl": "Długość geograficzna",
+    "ru": "Долгота",
+    "ar": "خط الطول",
+    "ko": "경도"
+  },
+  "units": {
+    "en": "degrees",
+    "nl": "graden",
+    "de": "Grad",
+    "fr": "degrés",
+    "es": "grados",
+    "it": "gradi",
+    "da": "grader",
+    "sv": "grader",
+    "no": "grader",
+    "pl": "stopnie",
+    "ru": "градусы",
+    "ar": "درجات",
+    "ko": "도"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": false,
+  "uiComponent": null
 }

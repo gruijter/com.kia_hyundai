@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Defrosting turned on"
-    },
-    "titleFormatted": {
-        "en": "Defrosting turned on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Defrosting turned on",
+    "nl": "Ontdooien ingeschakeld",
+    "de": "Enteisen eingeschaltet",
+    "fr": "Le dégivrage a été activé",
+    "es": "La descongelación se ha activado",
+    "it": "Lo sbrinamento è stato attivato",
+    "da": "Afrimning tændt",
+    "sv": "Avfrostning påslagen",
+    "no": "Avriming slått på",
+    "pl": "Odszranianie zostało włączone",
+    "ru": "Разморозка включена",
+    "ar": "تم تشغيل إزالة الصقيع",
+    "ko": "성에 제거가 켜짐"
+  },
+  "titleFormatted": {
+    "en": "Defrosting turned on",
+    "nl": "Ontdooien ingeschakeld",
+    "de": "Enteisen eingeschaltet",
+    "fr": "Le dégivrage a été activé",
+    "es": "La descongelación se ha activado",
+    "it": "Lo sbrinamento è stato attivato",
+    "da": "Afrimning tændt",
+    "sv": "Avfrostning påslagen",
+    "no": "Avriming slått på",
+    "pl": "Odszranianie zostało włączone",
+    "ru": "Разморозка включена",
+    "ar": "تم تشغيل إزالة الصقيع",
+    "ko": "성에 제거가 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

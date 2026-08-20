@@ -1,12 +1,24 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Vent windows"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": false,
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/vent_windows.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Vent windows",
+    "nl": "Ramen ventileren",
+    "de": "Fenster lüften",
+    "fr": "Aérer les fenêtres",
+    "es": "Ventilar las ventanas",
+    "it": "Ventila i finestrini",
+    "da": "Udluft ruder",
+    "sv": "Vädra fönster",
+    "no": "Luft ut vinduer",
+    "pl": "Uchyl szyby",
+    "ru": "Приоткрыть окна",
+    "ar": "تهوية النوافذ",
+    "ko": "창문 환기"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": false,
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/vent_windows.svg"
 }

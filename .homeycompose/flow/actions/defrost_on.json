@@ -1,28 +1,64 @@
 {
-    "title": {
-        "en": "Turn defrost on"
+  "title": {
+    "en": "Turn defrost on",
+    "nl": "Ontdooien inschakelen",
+    "de": "Enteisen einschalten",
+    "fr": "Activer le dégivrage",
+    "es": "Encender la descongelación",
+    "it": "Attiva lo sbrinamento",
+    "da": "Tænd for afrimning",
+    "sv": "Slå på avfrostning",
+    "no": "Slå på avriming",
+    "pl": "Włącz odszranianie",
+    "ru": "Включить разморозку",
+    "ar": "تشغيل إزالة الصقيع",
+    "ko": "성에 제거 켜기"
+  },
+  "titleFormatted": {
+    "en": "Turn defrost on for [[duration]]",
+    "nl": "Ontdooien inschakelen voor [[duration]]",
+    "de": "Enteisen einschalten für [[duration]]",
+    "fr": "Activer le dégivrage pendant [[duration]]",
+    "es": "Encender la descongelación durante [[duration]]",
+    "it": "Attiva lo sbrinamento per [[duration]]",
+    "da": "Tænd for afrimning i [[duration]]",
+    "sv": "Slå på avfrostning i [[duration]]",
+    "no": "Slå på avriming i [[duration]]",
+    "pl": "Włącz odszranianie na [[duration]]",
+    "ru": "Включить разморозку на [[duration]]",
+    "ar": "تشغيل إزالة الصقيع لمدة [[duration]]",
+    "ko": "[[duration]] 동안 성에 제거 켜기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
     },
-    "titleFormatted": {
-        "en": "Turn defrost on for [[duration]]"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        },
-        {
-            "type": "range",
-            "name": "duration",
-            "title": {
-                "en": "Duration (minutes)"
-            },
-            "min": 1,
-            "max": 10,
-            "value": 10,
-            "step": 1,
-            "label": "min",
-            "labelDecimals": 0
-        }
-    ]
+    {
+      "type": "range",
+      "name": "duration",
+      "title": {
+        "en": "Duration (minutes)",
+        "nl": "Duur (minuten)",
+        "de": "Dauer (Minuten)",
+        "fr": "Durée (minutes)",
+        "es": "Duración (minutos)",
+        "it": "Durata (minuti)",
+        "da": "Varighed (minutter)",
+        "sv": "Varaktighet (minuter)",
+        "no": "Varighet (minutter)",
+        "pl": "Czas trwania (minuty)",
+        "ru": "Продолжительность (минуты)",
+        "ar": "المدة (بالدقائق)",
+        "ko": "지속 시간(분)"
+      },
+      "min": 1,
+      "max": 10,
+      "value": 10,
+      "step": 1,
+      "label": "min",
+      "labelDecimals": 0
+    }
+  ]
 }

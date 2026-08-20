@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The A/C turned off"
-    },
-    "titleFormatted": {
-        "en": "The A/C turned off"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The A/C turned off",
+    "nl": "De airco is uitgeschakeld",
+    "de": "Die Klimaanlage wurde ausgeschaltet",
+    "fr": "La climatisation a été désactivée",
+    "es": "El aire acondicionado se ha apagado",
+    "it": "L'aria condizionata è stata spenta",
+    "da": "Klimaanlægget blev slukket",
+    "sv": "Klimatanläggningen stängdes av",
+    "no": "Klimaanlegget ble slått av",
+    "pl": "Klimatyzacja została wyłączona",
+    "ru": "Кондиционер выключен",
+    "ar": "تم إيقاف تشغيل مكيف الهواء",
+    "ko": "에어컨이 꺼짐"
+  },
+  "titleFormatted": {
+    "en": "The A/C turned off",
+    "nl": "De airco is uitgeschakeld",
+    "de": "Die Klimaanlage wurde ausgeschaltet",
+    "fr": "La climatisation a été désactivée",
+    "es": "El aire acondicionado se ha apagado",
+    "it": "L'aria condizionata è stata spenta",
+    "da": "Klimaanlægget blev slukket",
+    "sv": "Klimatanläggningen stängdes av",
+    "no": "Klimaanlegget ble slått av",
+    "pl": "Klimatyzacja została wyłączona",
+    "ru": "Кондиционер выключен",
+    "ar": "تم إيقاف تشغيل مكيف الهواء",
+    "ko": "에어컨이 꺼짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

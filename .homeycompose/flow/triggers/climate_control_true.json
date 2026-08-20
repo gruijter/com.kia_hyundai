@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The A/C turned on"
-    },
-    "titleFormatted": {
-        "en": "The A/C turned on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The A/C turned on",
+    "nl": "De airco is ingeschakeld",
+    "de": "Die Klimaanlage wurde eingeschaltet",
+    "fr": "La climatisation a été activée",
+    "es": "El aire acondicionado se ha encendido",
+    "it": "L'aria condizionata è stata accesa",
+    "da": "Klimaanlægget blev tændt",
+    "sv": "Klimatanläggningen slogs på",
+    "no": "Klimaanlegget ble slått på",
+    "pl": "Klimatyzacja została włączona",
+    "ru": "Кондиционер включен",
+    "ar": "تم تشغيل مكيف الهواء",
+    "ko": "에어컨이 켜짐"
+  },
+  "titleFormatted": {
+    "en": "The A/C turned on",
+    "nl": "De airco is ingeschakeld",
+    "de": "Die Klimaanlage wurde eingeschaltet",
+    "fr": "La climatisation a été activée",
+    "es": "El aire acondicionado se ha encendido",
+    "it": "L'aria condizionata è stata accesa",
+    "da": "Klimaanlægget blev tændt",
+    "sv": "Klimatanläggningen slogs på",
+    "no": "Klimaanlegget ble slått på",
+    "pl": "Klimatyzacja została włączona",
+    "ru": "Кондиционер включен",
+    "ar": "تم تشغيل مكيف الهواء",
+    "ko": "에어컨이 켜짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

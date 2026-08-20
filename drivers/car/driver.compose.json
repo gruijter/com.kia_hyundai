@@ -1,9 +1,21 @@
 {
   "name": {
-    "en": "Car"
+    "en": "Car",
+    "nl": "Auto",
+    "de": "Auto",
+    "fr": "Voiture",
+    "es": "Coche",
+    "it": "Auto",
+    "da": "Bil",
+    "sv": "Bil",
+    "no": "Bil",
+    "pl": "Samochód",
+    "ru": "Автомобиль",
+    "ar": "سيارة",
+    "ko": "자동차"
   },
   "class": "vehicle",
- "energy": {
+  "energy": {
     "electricCar": true
   },
   "capabilities": [
@@ -44,52 +56,162 @@
   "capabilitiesOptions": {
     "measure_speed": {
       "units": {
-        "en": "km/h"
+        "en": "km/h",
+        "nl": "km/u",
+        "de": "km/h",
+        "fr": "km/h",
+        "es": "km/h",
+        "it": "km/h",
+        "da": "km/t",
+        "sv": "km/h",
+        "no": "km/t",
+        "pl": "km/h",
+        "ru": "км/ч",
+        "ar": "كم/س",
+        "ko": "km/h"
       }
     },
     "meter_power.fuel_economy": {
       "title": {
-        "en": "Drive economy"
+        "en": "Drive economy",
+        "nl": "Rijzuinigheid",
+        "de": "Verbrauchseffizienz",
+        "fr": "Économie de conduite",
+        "es": "Economía de conducción",
+        "it": "Efficienza di guida",
+        "da": "Køreøkonomi",
+        "sv": "Köreffektivitet",
+        "no": "Kjøreøkonomi",
+        "pl": "Ekonomia jazdy",
+        "ru": "Экономичность езды",
+        "ar": "كفاءة استهلاك القيادة",
+        "ko": "주행 경제성"
       },
       "units": {
-        "en": "km/kWh"
+        "en": "km/kWh",
+        "nl": "km/kWh",
+        "de": "km/kWh",
+        "fr": "km/kWh",
+        "es": "km/kWh",
+        "it": "km/kWh",
+        "da": "km/kWh",
+        "sv": "km/kWh",
+        "no": "km/kWh",
+        "pl": "km/kWh",
+        "ru": "км/кВтч",
+        "ar": "كم/ك.و.س",
+        "ko": "km/kWh"
       }
     },
     "measure_power.charge": {
       "title": {
-        "en": "Charge power"
+        "en": "Charge power",
+        "nl": "Laadvermogen",
+        "de": "Ladeleistung",
+        "fr": "Puissance de charge",
+        "es": "Potencia de carga",
+        "it": "Potenza di ricarica",
+        "da": "Opladningseffekt",
+        "sv": "Laddningseffekt",
+        "no": "Ladeeffekt",
+        "pl": "Moc ładowania",
+        "ru": "Мощность зарядки",
+        "ar": "قدرة الشحن",
+        "ko": "충전 전력"
       }
     },
     "measure_battery.12V": {
       "title": {
-        "en": "12V Battery"
+        "en": "12V Battery",
+        "nl": "12V-accu",
+        "de": "12V-Batterie",
+        "fr": "Batterie 12V",
+        "es": "Batería de 12V",
+        "it": "Batteria 12V",
+        "da": "12V-batteri",
+        "sv": "12V-batteri",
+        "no": "12V-batteri",
+        "pl": "Akumulator 12V",
+        "ru": "Аккумулятор 12В",
+        "ar": "بطارية 12 فولت",
+        "ko": "12V 배터리"
       }
     },
     "measure_battery.health": {
       "title": {
-        "en": "Battery health (SoH)"
+        "en": "Battery health (SoH)",
+        "nl": "Accuconditie (SoH)",
+        "de": "Batteriezustand (SoH)",
+        "fr": "État de santé de la batterie (SoH)",
+        "es": "Estado de salud de la batería (SoH)",
+        "it": "Stato di salute della batteria (SoH)",
+        "da": "Batteritilstand (SoH)",
+        "sv": "Batteriets hälsa (SoH)",
+        "no": "Batteritilstand (SoH)",
+        "pl": "Stan zdrowia akumulatora (SoH)",
+        "ru": "Состояние батареи (SoH)",
+        "ar": "حالة البطارية (SoH)",
+        "ko": "배터리 상태(SoH)"
       }
     },
     "alarm_generic.washer_fluid": {
       "title": {
-        "en": "Washer fluid"
+        "en": "Washer fluid",
+        "nl": "Ruitensproeiervloeistof",
+        "de": "Scheibenwaschwasser",
+        "fr": "Liquide lave-glace",
+        "es": "Líquido limpiaparabrisas",
+        "it": "Liquido lavavetro",
+        "da": "Sprinklervæske",
+        "sv": "Spolarvätska",
+        "no": "Spylervæske",
+        "pl": "Płyn do spryskiwaczy",
+        "ru": "Жидкость стеклоомывателя",
+        "ar": "سائل المساحات",
+        "ko": "워셔액"
       }
     },
     "alarm_generic.brake_fluid": {
       "title": {
-        "en": "Brake fluid"
+        "en": "Brake fluid",
+        "nl": "Remvloeistof",
+        "de": "Bremsflüssigkeit",
+        "fr": "Liquide de frein",
+        "es": "Líquido de frenos",
+        "it": "Liquido dei freni",
+        "da": "Bremsevæske",
+        "sv": "Bromsvätska",
+        "no": "Bremsevæske",
+        "pl": "Płyn hamulcowy",
+        "ru": "Тормозная жидкость",
+        "ar": "سائل الفرامل",
+        "ko": "브레이크 오일"
       }
     },
     "alarm_generic.key_fob_battery": {
       "title": {
-        "en": "Key fob battery"
+        "en": "Key fob battery",
+        "nl": "Batterij sleutelhanger",
+        "de": "Batterie des Schlüsselanhängers",
+        "fr": "Batterie de la clé",
+        "es": "Batería del mando",
+        "it": "Batteria del telecomando",
+        "da": "Batteri i nøglebrik",
+        "sv": "Batteri i nyckelbricka",
+        "no": "Batteri i nøkkelbrikke",
+        "pl": "Bateria breloka",
+        "ru": "Батарея брелока",
+        "ar": "بطارية جهاز التحكم عن بعد",
+        "ko": "키 포브 배터리"
       }
     }
   },
   "platforms": [
     "local"
   ],
-  "connectivity": [ "cloud" ],
+  "connectivity": [
+    "cloud"
+  ],
   "images": {
     "small": "{{driverAssetsPath}}/images/small.png",
     "large": "{{driverAssetsPath}}/images/large.png",

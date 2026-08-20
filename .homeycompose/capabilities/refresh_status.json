@@ -1,12 +1,24 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Refresh car status"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": false,
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/last_refresh.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Refresh car status",
+    "nl": "Autostatus vernieuwen",
+    "de": "Fahrzeugstatus aktualisieren",
+    "fr": "Actualiser le statut du véhicule",
+    "es": "Actualizar el estado del coche",
+    "it": "Aggiorna lo stato dell'auto",
+    "da": "Opdater bilstatus",
+    "sv": "Uppdatera bilstatus",
+    "no": "Oppdater bilstatus",
+    "pl": "Odśwież stan samochodu",
+    "ru": "Обновить статус автомобиля",
+    "ar": "تحديث حالة السيارة",
+    "ko": "차량 상태 새로고침"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": false,
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/last_refresh.svg"
 }

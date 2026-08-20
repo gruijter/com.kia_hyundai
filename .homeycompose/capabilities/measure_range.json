@@ -1,14 +1,38 @@
 {
-	"type": "number",
-	"title": {
-		"en": "Range"
-	},
-	"units": {
-		"en": "km"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"uiComponent": "sensor",
-	"icon": "./assets/range.svg"
+  "type": "number",
+  "title": {
+    "en": "Range",
+    "nl": "Actieradius",
+    "de": "Reichweite",
+    "fr": "Autonomie",
+    "es": "Autonomía",
+    "it": "Autonomia",
+    "da": "Rækkevidde",
+    "sv": "Räckvidd",
+    "no": "Rekkevidde",
+    "pl": "Zasięg",
+    "ru": "Запас хода",
+    "ar": "مدى القيادة",
+    "ko": "주행 가능 거리"
+  },
+  "units": {
+    "en": "km",
+    "nl": "km",
+    "de": "km",
+    "fr": "km",
+    "es": "km",
+    "it": "km",
+    "da": "km",
+    "sv": "km",
+    "no": "km",
+    "pl": "km",
+    "ru": "км",
+    "ar": "كم",
+    "ko": "km"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "icon": "./assets/range.svg"
 }

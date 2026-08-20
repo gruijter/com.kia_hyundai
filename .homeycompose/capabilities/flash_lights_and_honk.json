@@ -1,12 +1,24 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Flash lights + honk"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": false,
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/flash_lights_and_honk.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Flash lights + honk",
+    "nl": "Lichten laten knipperen + claxon",
+    "de": "Lichter blinken lassen + hupen",
+    "fr": "Faire clignoter les phares + klaxonner",
+    "es": "Hacer parpadear las luces + tocar la bocina",
+    "it": "Lampeggiare i fari + clacson",
+    "da": "Blink med lygterne + dyt i hornet",
+    "sv": "Blinka med lyktorna + tuta",
+    "no": "Blink med lysene + tut",
+    "pl": "Mignij światłami + klakson",
+    "ru": "Мигнуть фарами + сигнал",
+    "ar": "وميض الأضواء + التنبيه بالبوق",
+    "ko": "라이트 깜빡이기 + 경적"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": false,
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/flash_lights_and_honk.svg"
 }

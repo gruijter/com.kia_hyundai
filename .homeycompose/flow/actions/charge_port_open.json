@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Open charge port"
-    },
-    "titleFormatted": {
-        "en": "Open charge port"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car&capabilities=measure_battery.health"
-        }
-    ]
+  "title": {
+    "en": "Open charge port",
+    "nl": "Laadklep openen",
+    "de": "Ladeklappe öffnen",
+    "fr": "Ouvrir la trappe de charge",
+    "es": "Abrir la tapa de carga",
+    "it": "Apri lo sportello di ricarica",
+    "da": "Åbn opladningsklap",
+    "sv": "Öppna laddlucka",
+    "no": "Åpne ladeluke",
+    "pl": "Otwórz klapkę ładowania",
+    "ru": "Открыть лючок зарядки",
+    "ar": "فتح غطاء الشحن",
+    "ko": "충전구 열기"
+  },
+  "titleFormatted": {
+    "en": "Open charge port",
+    "nl": "Laadklep openen",
+    "de": "Ladeklappe öffnen",
+    "fr": "Ouvrir la trappe de charge",
+    "es": "Abrir la tapa de carga",
+    "it": "Apri lo sportello di ricarica",
+    "da": "Åbn opladningsklap",
+    "sv": "Öppna laddlucka",
+    "no": "Åpne ladeluke",
+    "pl": "Otwórz klapkę ładowania",
+    "ru": "Открыть лючок зарядки",
+    "ar": "فتح غطاء الشحن",
+    "ko": "충전구 열기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=measure_battery.health"
+    }
+  ]
 }

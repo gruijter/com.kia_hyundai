@@ -1,12 +1,24 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Flash lights"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": false,
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/flash_lights.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Flash lights",
+    "nl": "Lichten laten knipperen",
+    "de": "Lichter blinken lassen",
+    "fr": "Faire clignoter les phares",
+    "es": "Hacer parpadear las luces",
+    "it": "Lampeggiare i fari",
+    "da": "Blink med lygterne",
+    "sv": "Blinka med lyktorna",
+    "no": "Blink med lysene",
+    "pl": "Mignij światłami",
+    "ru": "Мигнуть фарами",
+    "ar": "وميض الأضواء",
+    "ko": "라이트 깜빡이기"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": false,
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/flash_lights.svg"
 }
