@@ -1,17 +1,53 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Battery alarm"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Battery alarm on"
-	},
-	"insightsTitleFalse": {
-		"en": "Battery alarm off"
-	},
-	"uiComponent": "sensor",
-	"icon": "./assets/battery_alarm.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Battery alarm",
+    "nl": "Accualarm",
+    "de": "Batteriealarm",
+    "fr": "Alarme batterie",
+    "es": "Alarma de batería",
+    "it": "Allarme batteria",
+    "da": "Batterialarm",
+    "sv": "Batterilarm",
+    "no": "Batterialarm",
+    "pl": "Alarm akumulatora",
+    "ru": "Тревога батареи",
+    "ar": "إنذار البطارية",
+    "ko": "배터리 경보"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Battery alarm on",
+    "nl": "Accualarm aan",
+    "de": "Batteriealarm ein",
+    "fr": "Alarme batterie activée",
+    "es": "Alarma de batería activada",
+    "it": "Allarme batteria attivato",
+    "da": "Batterialarm til",
+    "sv": "Batterilarm på",
+    "no": "Batterialarm på",
+    "pl": "Alarm akumulatora włączony",
+    "ru": "Тревога батареи включена",
+    "ar": "إنذار البطارية نشط",
+    "ko": "배터리 경보 켜짐"
+  },
+  "insightsTitleFalse": {
+    "en": "Battery alarm off",
+    "nl": "Accualarm uit",
+    "de": "Batteriealarm aus",
+    "fr": "Alarme batterie désactivée",
+    "es": "Alarma de batería desactivada",
+    "it": "Allarme batteria disattivato",
+    "da": "Batterialarm fra",
+    "sv": "Batterilarm av",
+    "no": "Batterialarm av",
+    "pl": "Alarm akumulatora wyłączony",
+    "ru": "Тревога батареи выключена",
+    "ar": "إنذار البطارية متوقف",
+    "ko": "배터리 경보 꺼짐"
+  },
+  "uiComponent": "sensor",
+  "icon": "./assets/battery_alarm.svg"
 }

@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The car !{{is|is not}} moving"
-    },
-    "titleFormatted": {
-        "en": "The car !{{is|is not}} moving"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The car !{{is|is not}} moving",
+    "nl": "De auto !{{rijdt|rijdt niet}}",
+    "de": "Das Fahrzeug !{{bewegt sich|bewegt sich nicht}}",
+    "fr": "La voiture !{{est|n'est pas}} en mouvement",
+    "es": "El coche !{{está|no está}} en movimiento",
+    "it": "L'auto !{{è|non è}} in movimento",
+    "da": "Bilen !{{kører|kører ikke}}",
+    "sv": "Bilen !{{rör sig|rör sig inte}}",
+    "no": "Bilen !{{beveger seg|beveger seg ikke}}",
+    "pl": "Samochód !{{jedzie|nie jedzie}}",
+    "ru": "Автомобиль !{{движется|не движется}}",
+    "ar": "السيارة !{{تتحرك|لا تتحرك}}",
+    "ko": "차량이 !{{이동 중|이동 중이 아님}}"
+  },
+  "titleFormatted": {
+    "en": "The car !{{is|is not}} moving",
+    "nl": "De auto !{{rijdt|rijdt niet}}",
+    "de": "Das Fahrzeug !{{bewegt sich|bewegt sich nicht}}",
+    "fr": "La voiture !{{est|n'est pas}} en mouvement",
+    "es": "El coche !{{está|no está}} en movimiento",
+    "it": "L'auto !{{è|non è}} in movimento",
+    "da": "Bilen !{{kører|kører ikke}}",
+    "sv": "Bilen !{{rör sig|rör sig inte}}",
+    "no": "Bilen !{{beveger seg|beveger seg ikke}}",
+    "pl": "Samochód !{{jedzie|nie jedzie}}",
+    "ru": "Автомобиль !{{движется|не движется}}",
+    "ar": "السيارة !{{تتحرك|لا تتحرك}}",
+    "ko": "차량이 !{{이동 중|이동 중이 아님}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

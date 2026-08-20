@@ -1,0 +1,35 @@
+{
+  "pair": {
+    "title": "Koppeln Sie Ihr Kia-Auto",
+    "subtitle": "Verwenden Sie Ihre Kia Connect-Zugangsdaten",
+    "region": "Wählen Sie Ihre Region",
+    "region_eu": "Europa",
+    "region_us": "USA",
+    "region_ca": "Kanada",
+    "region_au": "Australien",
+    "region_cn": "China",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "pin": "4-stellige PIN",
+    "validate": "Weiter",
+
+    "required": "Sie müssen alle Felder ausfüllen.",
+    "invalid_pin": "Ungültige PIN, geben Sie Ihre 4-stellige PIN ein.",
+    "no_vehicles": "Für dieses Konto wurden keine Fahrzeuge gefunden.",
+    "pairing_failed": "Kopplung fehlgeschlagen: __error__"
+
+  },
+  "migrating": "Gerät wird migriert, bitte warten...",
+  "device_no_vehicle": "Dieses Fahrzeug ist in diesem Konto nicht mehr verfügbar (FIN __vin__). Prüfen Sie, ob es noch mit diesem Konto geteilt/registriert ist.",
+  "device_auth_failed": "Anmeldung fehlgeschlagen. Überprüfen Sie Benutzername, Passwort und PIN in den Geräteeinstellungen.",
+  "device_otp_required": "Dieses Konto erfordert bei der Anmeldung einen zusätzlichen Verifizierungscode (OTP), den diese App noch nicht unterstützt.",
+  "device_quota_reached": "Tageslimit erreicht! 60 Minuten Wartezeit.",
+  "device_restarting": "Gerät wird neu gestartet. Bitte einige Minuten warten!",
+  "error_engine_on": "Steuerung nicht möglich; Motor läuft.",
+  "error_not_ev": "Steuerung nicht möglich; kein Elektrofahrzeug.",
+  "error_climate_control_off": "Klimasteuerung ist nicht eingeschaltet.",
+  "error_location_not_found": "Dieser Standort konnte nicht gefunden werden.",
+  "error_queue_full": "Für dieses Fahrzeug sind bereits zu viele Befehle in der Warteschlange. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+  "error_unknown_command": "Unbekannter Befehl: __command__",
+  "error_invalid_window_state": "Ungültiger Fensterstatus: __state__"
+}

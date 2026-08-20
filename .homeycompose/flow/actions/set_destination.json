@@ -1,25 +1,73 @@
 {
-    "title": {
-        "en": "Set navigation destination"
+  "title": {
+    "en": "Set navigation destination",
+    "nl": "Navigatiebestemming instellen",
+    "de": "Navigationsziel festlegen",
+    "fr": "Définir la destination de navigation",
+    "es": "Establecer destino de navegación",
+    "it": "Imposta la destinazione di navigazione",
+    "da": "Indstil navigationsdestination",
+    "sv": "Ställ in navigeringsdestination",
+    "no": "Angi navigasjonsdestinasjon",
+    "pl": "Ustaw cel nawigacji",
+    "ru": "Установить пункт назначения навигации",
+    "ar": "تعيين وجهة الملاحة",
+    "ko": "내비게이션 목적지 설정"
+  },
+  "titleFormatted": {
+    "en": "Set navigation destination:[[destination]]",
+    "nl": "Navigatiebestemming instellen:[[destination]]",
+    "de": "Navigationsziel festlegen:[[destination]]",
+    "fr": "Définir la destination de navigation:[[destination]]",
+    "es": "Establecer destino de navegación:[[destination]]",
+    "it": "Imposta la destinazione di navigazione:[[destination]]",
+    "da": "Indstil navigationsdestination:[[destination]]",
+    "sv": "Ställ in navigeringsdestination:[[destination]]",
+    "no": "Angi navigasjonsdestinasjon:[[destination]]",
+    "pl": "Ustaw cel nawigacji:[[destination]]",
+    "ru": "Установить пункт назначения навигации:[[destination]]",
+    "ar": "تعيين وجهة الملاحة:[[destination]]",
+    "ko": "내비게이션 목적지 설정:[[destination]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
     },
-    "titleFormatted": {
-        "en": "Set navigation destination:[[destination]]"
-    },
-    "args": [
-      {
-          "type": "device",
-          "name": "device",
-          "filter": "driver_id=car"
+    {
+      "type": "text",
+      "name": "destination",
+      "title": {
+        "en": "Destination",
+        "nl": "Bestemming",
+        "de": "Ziel",
+        "fr": "Destination",
+        "es": "Destino",
+        "it": "Destinazione",
+        "da": "Destination",
+        "sv": "Destination",
+        "no": "Destinasjon",
+        "pl": "Cel podróży",
+        "ru": "Пункт назначения",
+        "ar": "الوجهة",
+        "ko": "목적지"
       },
-      {
-          "type": "text",
-          "name": "destination",
-          "title": {
-            "en": "Destination"
-          },
-          "placeholder": {
-            "en": "address or lat,lon"
-          }
+      "placeholder": {
+        "en": "address or lat,lon",
+        "nl": "adres of breedtegraad,lengtegraad",
+        "de": "Adresse oder Breitengrad,Längengrad",
+        "fr": "adresse ou latitude,longitude",
+        "es": "dirección o latitud,longitud",
+        "it": "indirizzo o latitudine,longitudine",
+        "da": "adresse eller breddegrad,længdegrad",
+        "sv": "adress eller latitud,longitud",
+        "no": "adresse eller breddegrad,lengdegrad",
+        "pl": "adres lub szerokość,długość geograficzna",
+        "ru": "адрес или широта,долгота",
+        "ar": "عنوان أو خط العرض،خط الطول",
+        "ko": "주소 또는 위도,경도"
       }
+    }
   ]
 }

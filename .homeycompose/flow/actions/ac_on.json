@@ -1,15 +1,64 @@
 {
-    "title": {
-        "en": "Turn A/C on"
+  "title": {
+    "en": "Turn A/C on",
+    "nl": "Airco inschakelen",
+    "de": "Klimaanlage einschalten",
+    "fr": "Activer la climatisation",
+    "es": "Encender el aire acondicionado",
+    "it": "Accendi l'aria condizionata",
+    "da": "Tænd for klimaanlægget",
+    "sv": "Slå på klimatanläggningen",
+    "no": "Slå på klimaanlegget",
+    "pl": "Włącz klimatyzację",
+    "ru": "Включить кондиционер",
+    "ar": "تشغيل مكيف الهواء",
+    "ko": "에어컨 켜기"
+  },
+  "titleFormatted": {
+    "en": "Turn A/C on for [[duration]]",
+    "nl": "Airco inschakelen voor [[duration]]",
+    "de": "Klimaanlage einschalten für [[duration]]",
+    "fr": "Activer la climatisation pendant [[duration]]",
+    "es": "Encender el aire acondicionado durante [[duration]]",
+    "it": "Accendi l'aria condizionata per [[duration]]",
+    "da": "Tænd for klimaanlægget i [[duration]]",
+    "sv": "Slå på klimatanläggningen i [[duration]]",
+    "no": "Slå på klimaanlegget i [[duration]]",
+    "pl": "Włącz klimatyzację na [[duration]]",
+    "ru": "Включить кондиционер на [[duration]]",
+    "ar": "تشغيل مكيف الهواء لمدة [[duration]]",
+    "ko": "[[duration]] 동안 에어컨 켜기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
     },
-    "titleFormatted": {
-        "en": "Turn A/C on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+    {
+      "type": "range",
+      "name": "duration",
+      "title": {
+        "en": "Duration (minutes)",
+        "nl": "Duur (minuten)",
+        "de": "Dauer (Minuten)",
+        "fr": "Durée (minutes)",
+        "es": "Duración (minutos)",
+        "it": "Durata (minuti)",
+        "da": "Varighed (minutter)",
+        "sv": "Varaktighet (minuter)",
+        "no": "Varighet (minutter)",
+        "pl": "Czas trwania (minuty)",
+        "ru": "Продолжительность (минуты)",
+        "ar": "المدة (بالدقائق)",
+        "ko": "지속 시간(분)"
+      },
+      "min": 1,
+      "max": 10,
+      "value": 10,
+      "step": 1,
+      "label": "min",
+      "labelDecimals": 0
+    }
+  ]
 }

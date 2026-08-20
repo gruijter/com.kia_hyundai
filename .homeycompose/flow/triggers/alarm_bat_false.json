@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The battery alarm turned off"
-    },
-    "titleFormatted": {
-        "en": "The battery alarm turned off"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The battery alarm turned off",
+    "nl": "Het accualarm is uitgeschakeld",
+    "de": "Der Batteriealarm wurde ausgeschaltet",
+    "fr": "L'alarme batterie a été désactivée",
+    "es": "La alarma de batería se ha desactivado",
+    "it": "L'allarme batteria è stato disattivato",
+    "da": "Batterialarmen blev slukket",
+    "sv": "Batterilarmet stängdes av",
+    "no": "Batterialarmen ble slått av",
+    "pl": "Alarm akumulatora został wyłączony",
+    "ru": "Тревога батареи выключена",
+    "ar": "تم إيقاف إنذار البطارية",
+    "ko": "배터리 경보가 꺼짐"
+  },
+  "titleFormatted": {
+    "en": "The battery alarm turned off",
+    "nl": "Het accualarm is uitgeschakeld",
+    "de": "Der Batteriealarm wurde ausgeschaltet",
+    "fr": "L'alarme batterie a été désactivée",
+    "es": "La alarma de batería se ha desactivado",
+    "it": "L'allarme batteria è stato disattivato",
+    "da": "Batterialarmen blev slukket",
+    "sv": "Batterilarmet stängdes av",
+    "no": "Batterialarmen ble slått av",
+    "pl": "Alarm akumulatora został wyłączony",
+    "ru": "Тревога батареи выключена",
+    "ar": "تم إيقاف إنذار البطارية",
+    "ko": "배터리 경보가 꺼짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Close all windows"
-    },
-    "titleFormatted": {
-        "en": "Close all windows"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Close all windows",
+    "nl": "Alle ramen sluiten",
+    "de": "Alle Fenster schließen",
+    "fr": "Fermer toutes les fenêtres",
+    "es": "Cerrar todas las ventanas",
+    "it": "Chiudi tutti i finestrini",
+    "da": "Luk alle ruder",
+    "sv": "Stäng alla fönster",
+    "no": "Lukk alle vinduer",
+    "pl": "Zamknij wszystkie szyby",
+    "ru": "Закрыть все окна",
+    "ar": "إغلاق جميع النوافذ",
+    "ko": "모든 창문 닫기"
+  },
+  "titleFormatted": {
+    "en": "Close all windows",
+    "nl": "Alle ramen sluiten",
+    "de": "Alle Fenster schließen",
+    "fr": "Fermer toutes les fenêtres",
+    "es": "Cerrar todas las ventanas",
+    "it": "Chiudi tutti i finestrini",
+    "da": "Luk alle ruder",
+    "sv": "Stäng alla fönster",
+    "no": "Lukk alle vinduer",
+    "pl": "Zamknij wszystkie szyby",
+    "ru": "Закрыть все окна",
+    "ar": "إغلاق جميع النوافذ",
+    "ko": "모든 창문 닫기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=vent_windows"
+    }
+  ]
 }

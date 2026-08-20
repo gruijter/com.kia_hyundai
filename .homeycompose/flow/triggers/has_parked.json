@@ -1,37 +1,109 @@
 {
-    "title": {
-        "en": "The car has parked"
+  "title": {
+    "en": "The car has parked",
+    "nl": "De auto is geparkeerd",
+    "de": "Das Fahrzeug wurde geparkt",
+    "fr": "La voiture s'est garée",
+    "es": "El coche se ha aparcado",
+    "it": "L'auto si è parcheggiata",
+    "da": "Bilen er blevet parkeret",
+    "sv": "Bilen har parkerats",
+    "no": "Bilen har parkert",
+    "pl": "Samochód został zaparkowany",
+    "ru": "Автомобиль припаркован",
+    "ar": "تم ركن السيارة",
+    "ko": "차량이 주차됨"
+  },
+  "titleFormatted": {
+    "en": "The car has parked",
+    "nl": "De auto is geparkeerd",
+    "de": "Das Fahrzeug wurde geparkt",
+    "fr": "La voiture s'est garée",
+    "es": "El coche se ha aparcado",
+    "it": "L'auto si è parcheggiata",
+    "da": "Bilen er blevet parkeret",
+    "sv": "Bilen har parkerats",
+    "no": "Bilen har parkert",
+    "pl": "Samochód został zaparkowany",
+    "ru": "Автомобиль припаркован",
+    "ar": "تم ركن السيارة",
+    "ko": "차량이 주차됨"
+  },
+  "tokens": [
+    {
+      "name": "address",
+      "type": "string",
+      "title": {
+        "en": "Address",
+        "nl": "Adres",
+        "de": "Adresse",
+        "fr": "Adresse",
+        "es": "Dirección",
+        "it": "Indirizzo",
+        "da": "Adresse",
+        "sv": "Adress",
+        "no": "Adresse",
+        "pl": "Adres",
+        "ru": "Адрес",
+        "ar": "العنوان",
+        "ko": "주소"
+      },
+      "example": {
+        "en": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "nl": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "de": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "fr": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "es": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "it": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "da": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "sv": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "no": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "pl": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "ru": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "ar": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States",
+        "ko": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States"
+      }
     },
-    "titleFormatted": {
-        "en": "The car has parked"
-    },
-    "tokens": [
-        {
-            "name": "address",
-            "type": "string",
-            "title": {
-                "en": "Address"
-            },
-            "example": {
-                "en": "White House Meridian, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States"
-            }
-        },
-        {
-            "name": "map",
-            "type": "string",
-            "title": {
-                "en": "Map"
-            },
-            "example": {
-                "en": "https://www.google.com/maps?q=38.89734,-77.03655"
-            }
-        }
-    ],
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+    {
+      "name": "map",
+      "type": "string",
+      "title": {
+        "en": "Map",
+        "nl": "Kaart",
+        "de": "Karte",
+        "fr": "Carte",
+        "es": "Mapa",
+        "it": "Mappa",
+        "da": "Kort",
+        "sv": "Karta",
+        "no": "Kart",
+        "pl": "Mapa",
+        "ru": "Карта",
+        "ar": "الخريطة",
+        "ko": "지도"
+      },
+      "example": {
+        "en": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "nl": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "de": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "fr": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "es": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "it": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "da": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "sv": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "no": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "pl": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "ru": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "ar": "https://www.google.com/maps?q=38.89734,-77.03655",
+        "ko": "https://www.google.com/maps?q=38.89734,-77.03655"
+      }
+    }
+  ],
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

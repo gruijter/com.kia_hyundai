@@ -1,18 +1,54 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Defrost"
-	},
-	"getable": true,
-	"setable": true,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Defrost on"
-	},
-	"insightsTitleFalse": {
-		"en": "Defrost off"
-	},
-	"uiComponent": "button",
-	"uiQuickAction": false,
-	"icon": "./assets/defrost.svg"
+  "type": "boolean",
+  "title": {
+    "en": "Defrost",
+    "nl": "Ontdooien",
+    "de": "Enteisen",
+    "fr": "Dégivrage",
+    "es": "Descongelación",
+    "it": "Sbrinamento",
+    "da": "Afrimning",
+    "sv": "Avfrostning",
+    "no": "Avriming",
+    "pl": "Odszranianie",
+    "ru": "Разморозка",
+    "ar": "إزالة الصقيع",
+    "ko": "성에 제거"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Defrost on",
+    "nl": "Ontdooien aan",
+    "de": "Enteisen ein",
+    "fr": "Dégivrage activé",
+    "es": "Descongelación activada",
+    "it": "Sbrinamento attivato",
+    "da": "Afrimning til",
+    "sv": "Avfrostning på",
+    "no": "Avriming på",
+    "pl": "Odszranianie włączone",
+    "ru": "Разморозка включена",
+    "ar": "إزالة الصقيع نشطة",
+    "ko": "성에 제거 켜짐"
+  },
+  "insightsTitleFalse": {
+    "en": "Defrost off",
+    "nl": "Ontdooien uit",
+    "de": "Enteisen aus",
+    "fr": "Dégivrage désactivé",
+    "es": "Descongelación desactivada",
+    "it": "Sbrinamento disattivato",
+    "da": "Afrimning fra",
+    "sv": "Avfrostning av",
+    "no": "Avriming av",
+    "pl": "Odszranianie wyłączone",
+    "ru": "Разморозка выключена",
+    "ar": "إزالة الصقيع متوقفة",
+    "ko": "성에 제거 꺼짐"
+  },
+  "uiComponent": "button",
+  "uiQuickAction": false,
+  "icon": "./assets/defrost.svg"
 }

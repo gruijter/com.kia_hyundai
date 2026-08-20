@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Vent all windows"
-    },
-    "titleFormatted": {
-        "en": "Vent all windows"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Vent all windows",
+    "nl": "Alle ramen ventileren",
+    "de": "Alle Fenster lüften",
+    "fr": "Aérer toutes les fenêtres",
+    "es": "Ventilar todas las ventanas",
+    "it": "Ventila tutti i finestrini",
+    "da": "Udluft alle ruder",
+    "sv": "Vädra alla fönster",
+    "no": "Luft ut alle vinduer",
+    "pl": "Uchyl wszystkie szyby",
+    "ru": "Приоткрыть все окна",
+    "ar": "تهوية جميع النوافذ",
+    "ko": "모든 창문 환기"
+  },
+  "titleFormatted": {
+    "en": "Vent all windows",
+    "nl": "Alle ramen ventileren",
+    "de": "Alle Fenster lüften",
+    "fr": "Aérer toutes les fenêtres",
+    "es": "Ventilar todas las ventanas",
+    "it": "Ventila tutti i finestrini",
+    "da": "Udluft alle ruder",
+    "sv": "Vädra alla fönster",
+    "no": "Luft ut alle vinduer",
+    "pl": "Uchyl wszystkie szyby",
+    "ru": "Приоткрыть все окна",
+    "ar": "تهوية جميع النوافذ",
+    "ko": "모든 창문 환기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=vent_windows"
+    }
+  ]
 }

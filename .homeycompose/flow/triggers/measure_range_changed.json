@@ -1,23 +1,47 @@
 {
-	"title": { 
-		"en": "Range changed"
-	},
-	"highlight": true,
-	"args": [
-		{
-				"type": "device",
-				"name": "device",
-				"filter": "driver_id=car"
-		}
-	],
-	"tokens": [
-		{
-			"name": "measure_range",
-			"type": "number",
-			"title": { 
-				"en": "Range"
-			},
-			"example": 285
-		}
-	]
+  "title": {
+    "en": "Range changed",
+    "nl": "Actieradius gewijzigd",
+    "de": "Reichweite geändert",
+    "fr": "L'autonomie a changé",
+    "es": "La autonomía ha cambiado",
+    "it": "L'autonomia è cambiata",
+    "da": "Rækkevidde ændret",
+    "sv": "Räckvidden har ändrats",
+    "no": "Rekkevidde endret",
+    "pl": "Zasięg uległ zmianie",
+    "ru": "Запас хода изменился",
+    "ar": "تغيّر مدى القيادة",
+    "ko": "주행 가능 거리 변경됨"
+  },
+  "highlight": true,
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "measure_range",
+      "type": "number",
+      "title": {
+        "en": "Range",
+        "nl": "Actieradius",
+        "de": "Reichweite",
+        "fr": "Autonomie",
+        "es": "Autonomía",
+        "it": "Autonomia",
+        "da": "Rækkevidde",
+        "sv": "Räckvidd",
+        "no": "Rekkevidde",
+        "pl": "Zasięg",
+        "ru": "Запас хода",
+        "ar": "مدى القيادة",
+        "ko": "주행 가능 거리"
+      },
+      "example": 285
+    }
+  ]
 }

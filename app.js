@@ -43,13 +43,13 @@ module.exports = class MyApp extends Homey.App {
     acOff.registerRunListener((args) => args.device.acOnOff(false, 'flow'));
 
     const acOn = this.homey.flow.getActionCard('ac_on');
-    acOn.registerRunListener((args) => args.device.acOnOff(true, 'flow'));
+    acOn.registerRunListener((args) => args.device.acOnOff(true, 'flow', args));
 
     const defrostOff = this.homey.flow.getActionCard('defrost_off');
     defrostOff.registerRunListener((args) => args.device.defrostOnOff(false, 'flow'));
 
     const defrostOn = this.homey.flow.getActionCard('defrost_on');
-    defrostOn.registerRunListener((args) => args.device.defrostOnOff(true, 'flow'));
+    defrostOn.registerRunListener((args) => args.device.defrostOnOff(true, 'flow', args));
 
     const setTargetTemp = this.homey.flow.getActionCard('set_target_temp');
     setTargetTemp.registerRunListener((args) => args.device.setTargetTemp(args.temp, 'flow'));
@@ -99,6 +99,15 @@ module.exports = class MyApp extends Homey.App {
 
     const alarmTirePressure = this.homey.flow.getConditionCard('alarm_tire_pressure');
     alarmTirePressure.registerRunListener((args) => args.device.getCapabilityValue('alarm_tire_pressure'));
+
+    const alarmWasherFluid = this.homey.flow.getConditionCard('alarm_generic.washer_fluid');
+    alarmWasherFluid.registerRunListener((args) => args.device.getCapabilityValue('alarm_generic.washer_fluid'));
+
+    const alarmBrakeFluid = this.homey.flow.getConditionCard('alarm_generic.brake_fluid');
+    alarmBrakeFluid.registerRunListener((args) => args.device.getCapabilityValue('alarm_generic.brake_fluid'));
+
+    const alarmKeyFobBattery = this.homey.flow.getConditionCard('alarm_generic.key_fob_battery');
+    alarmKeyFobBattery.registerRunListener((args) => args.device.getCapabilityValue('alarm_generic.key_fob_battery'));
 
     const charging = this.homey.flow.getConditionCard('charge');
     charging.registerRunListener((args) => args.device.getCapabilityValue('charge'));

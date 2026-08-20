@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Car status updated"
-    },
-    "titleFormatted": {
-        "en": "Car status updated"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Car status updated",
+    "nl": "Autostatus bijgewerkt",
+    "de": "Fahrzeugstatus aktualisiert",
+    "fr": "Statut du véhicule mis à jour",
+    "es": "Estado del coche actualizado",
+    "it": "Stato dell'auto aggiornato",
+    "da": "Bilstatus opdateret",
+    "sv": "Bilstatus uppdaterad",
+    "no": "Bilstatus oppdatert",
+    "pl": "Stan samochodu został zaktualizowany",
+    "ru": "Статус автомобиля обновлён",
+    "ar": "تم تحديث حالة السيارة",
+    "ko": "차량 상태 업데이트됨"
+  },
+  "titleFormatted": {
+    "en": "Car status updated",
+    "nl": "Autostatus bijgewerkt",
+    "de": "Fahrzeugstatus aktualisiert",
+    "fr": "Statut du véhicule mis à jour",
+    "es": "Estado del coche actualizado",
+    "it": "Stato dell'auto aggiornato",
+    "da": "Bilstatus opdateret",
+    "sv": "Bilstatus uppdaterad",
+    "no": "Bilstatus oppdatert",
+    "pl": "Stan samochodu został zaktualizowany",
+    "ru": "Статус автомобиля обновлён",
+    "ar": "تم تحديث حالة السيارة",
+    "ko": "차량 상태 업데이트됨"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

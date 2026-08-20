@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Turn defrost off"
-    },
-    "titleFormatted": {
-        "en": "Turn defrost off"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Turn defrost off",
+    "nl": "Ontdooien uitschakelen",
+    "de": "Enteisen ausschalten",
+    "fr": "Désactiver le dégivrage",
+    "es": "Apagar la descongelación",
+    "it": "Disattiva lo sbrinamento",
+    "da": "Sluk for afrimning",
+    "sv": "Stäng av avfrostning",
+    "no": "Slå av avriming",
+    "pl": "Wyłącz odszranianie",
+    "ru": "Выключить разморозку",
+    "ar": "إيقاف إزالة الصقيع",
+    "ko": "성에 제거 끄기"
+  },
+  "titleFormatted": {
+    "en": "Turn defrost off",
+    "nl": "Ontdooien uitschakelen",
+    "de": "Enteisen ausschalten",
+    "fr": "Désactiver le dégivrage",
+    "es": "Apagar la descongelación",
+    "it": "Disattiva lo sbrinamento",
+    "da": "Sluk for afrimning",
+    "sv": "Stäng av avfrostning",
+    "no": "Slå av avriming",
+    "pl": "Wyłącz odszranianie",
+    "ru": "Выключить разморозку",
+    "ar": "إيقاف إزالة الصقيع",
+    "ko": "성에 제거 끄기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

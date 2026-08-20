@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Turn charging on"
-    },
-    "titleFormatted": {
-        "en": "Turn charging on"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Turn charging on",
+    "nl": "Opladen inschakelen",
+    "de": "Laden einschalten",
+    "fr": "Activer la charge",
+    "es": "Encender la carga",
+    "it": "Attiva la ricarica",
+    "da": "Tænd for opladning",
+    "sv": "Slå på laddning",
+    "no": "Slå på lading",
+    "pl": "Włącz ładowanie",
+    "ru": "Включить зарядку",
+    "ar": "تشغيل الشحن",
+    "ko": "충전 켜기"
+  },
+  "titleFormatted": {
+    "en": "Turn charging on",
+    "nl": "Opladen inschakelen",
+    "de": "Laden einschalten",
+    "fr": "Activer la charge",
+    "es": "Encender la carga",
+    "it": "Attiva la ricarica",
+    "da": "Tænd for opladning",
+    "sv": "Slå på laddning",
+    "no": "Slå på lading",
+    "pl": "Włącz ładowanie",
+    "ru": "Включить зарядку",
+    "ar": "تشغيل الشحن",
+    "ko": "충전 켜기"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=charge"
+    }
+  ]
 }

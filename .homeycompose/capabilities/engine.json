@@ -1,24 +1,60 @@
 {
-	"type": "boolean",
-	"title": {
-		"en": "Engine on"
-	},
-	"icon": "./assets/engine.svg",
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"insightsTitleTrue": {
-		"en": "Engine turned on"
-	},
-	"insightsTitleFalse": {
-		"en": "Engine turned off"
-	},
-	"options": {
-		"greyout": {
-			"type": "boolean",
-			"default": false
-		}
-	},
-	"uiComponent": "sensor",
-	"uiQuickAction": false
+  "type": "boolean",
+  "title": {
+    "en": "Engine on",
+    "nl": "Motor aan",
+    "de": "Motor ein",
+    "fr": "Moteur allumé",
+    "es": "Motor encendido",
+    "it": "Motore acceso",
+    "da": "Motor tændt",
+    "sv": "Motor på",
+    "no": "Motor på",
+    "pl": "Silnik włączony",
+    "ru": "Двигатель включен",
+    "ar": "المحرك يعمل",
+    "ko": "엔진 켜짐"
+  },
+  "icon": "./assets/engine.svg",
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Engine turned on",
+    "nl": "Motor ingeschakeld",
+    "de": "Motor eingeschaltet",
+    "fr": "Le moteur a été allumé",
+    "es": "El motor se ha encendido",
+    "it": "Il motore è stato acceso",
+    "da": "Motor tændt",
+    "sv": "Motorn påslagen",
+    "no": "Motor slått på",
+    "pl": "Silnik został włączony",
+    "ru": "Двигатель включен",
+    "ar": "تم تشغيل المحرك",
+    "ko": "엔진이 켜짐"
+  },
+  "insightsTitleFalse": {
+    "en": "Engine turned off",
+    "nl": "Motor uitgeschakeld",
+    "de": "Motor ausgeschaltet",
+    "fr": "Le moteur a été éteint",
+    "es": "El motor se ha apagado",
+    "it": "Il motore è stato spento",
+    "da": "Motor slukket",
+    "sv": "Motorn avstängd",
+    "no": "Motor slått av",
+    "pl": "Silnik został wyłączony",
+    "ru": "Двигатель выключен",
+    "ar": "تم إيقاف تشغيل المحرك",
+    "ko": "엔진이 꺼짐"
+  },
+  "options": {
+    "greyout": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false
 }

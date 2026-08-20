@@ -1,105 +1,297 @@
 {
-    "title": {
-        "en": "Set charge targets"
+  "title": {
+    "en": "Set charge targets",
+    "nl": "Oplaaddoelen instellen",
+    "de": "Ladeziele festlegen",
+    "fr": "Définir les objectifs de charge",
+    "es": "Establecer objetivos de carga",
+    "it": "Imposta gli obiettivi di ricarica",
+    "da": "Indstil opladningsmål",
+    "sv": "Ställ in laddningsmål",
+    "no": "Angi ladingsmål",
+    "pl": "Ustaw cele ładowania",
+    "ru": "Установить целевые уровни зарядки",
+    "ar": "تعيين أهداف الشحن",
+    "ko": "충전 목표 설정"
+  },
+  "titleFormatted": {
+    "en": "Set charge targets Slow:[[slow]] Fast:[[fast]]",
+    "nl": "Oplaaddoelen instellen Langzaam:[[slow]] Snel:[[fast]]",
+    "de": "Ladeziele festlegen Langsam:[[slow]] Schnell:[[fast]]",
+    "fr": "Définir les objectifs de charge Lent:[[slow]] Rapide:[[fast]]",
+    "es": "Establecer objetivos de carga Lenta:[[slow]] Rápida:[[fast]]",
+    "it": "Imposta gli obiettivi di ricarica Lenta:[[slow]] Veloce:[[fast]]",
+    "da": "Indstil opladningsmål Langsom:[[slow]] Hurtig:[[fast]]",
+    "sv": "Ställ in laddningsmål Långsam:[[slow]] Snabb:[[fast]]",
+    "no": "Angi ladingsmål Langsom:[[slow]] Rask:[[fast]]",
+    "pl": "Ustaw cele ładowania Wolne:[[slow]] Szybkie:[[fast]]",
+    "ru": "Установить целевые уровни зарядки Медленная:[[slow]] Быстрая:[[fast]]",
+    "ar": "تعيين أهداف الشحن بطيء:[[slow]] سريع:[[fast]]",
+    "ko": "충전 목표 설정 완속:[[slow]] 급속:[[fast]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=charge_target_slow"
     },
-    "titleFormatted": {
-        "en": "Set charge targets Slow:[[slow]] Fast:[[fast]]"
-    },
-    "args": [
+    {
+      "type": "dropdown",
+      "name": "slow",
+      "title": {
+        "en": "Slow (%)",
+        "nl": "Langzaam (%)",
+        "de": "Langsam (%)",
+        "fr": "Lent (%)",
+        "es": "Lenta (%)",
+        "it": "Lenta (%)",
+        "da": "Langsom (%)",
+        "sv": "Långsam (%)",
+        "no": "Sakte (%)",
+        "pl": "Wolne (%)",
+        "ru": "Медленная (%)",
+        "ar": "بطيء (%)",
+        "ko": "완속(%)"
+      },
+      "values": [
         {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
+          "id": "100",
+          "title": {
+            "en": "100%",
+            "nl": "100%",
+            "de": "100%",
+            "fr": "100 %",
+            "es": "100 %",
+            "it": "100%",
+            "da": "100%",
+            "sv": "100%",
+            "no": "100%",
+            "pl": "100%",
+            "ru": "100%",
+            "ar": "100%",
+            "ko": "100%"
+          }
         },
         {
-            "type": "dropdown",
-            "name": "slow",
-            "title": {
-                "en": "Slow (%)"
-            },
-            "values": [
-                {
-                  "id": "100",
-                  "title": {
-                    "en": "100%"
-                  }
-                },
-                {
-                  "id": "90",
-                  "title": {
-                    "en": "90%"
-                  }
-                },
-                {
-                  "id": "80",
-                  "title": {
-                    "en": "80%"
-                  }
-                },
-                {
-                  "id": "70",
-                  "title": {
-                    "en": "70%"
-                  }
-                },
-                {
-                  "id": "60",
-                  "title": {
-                    "en": "60%"
-                  }
-                },
-                {
-                  "id": "50",
-                  "title": {
-                    "en": "50%"
-                  }
-                }
-            ]
+          "id": "90",
+          "title": {
+            "en": "90%",
+            "nl": "90%",
+            "de": "90%",
+            "fr": "90 %",
+            "es": "90 %",
+            "it": "90%",
+            "da": "90%",
+            "sv": "90%",
+            "no": "90%",
+            "pl": "90%",
+            "ru": "90%",
+            "ar": "90%",
+            "ko": "90%"
+          }
         },
         {
-            "type": "dropdown",
-            "name": "fast",
-            "title": {
-                "en": "Fast (%)"
-            },
-            "values": [
-                {
-                  "id": "100",
-                  "title": {
-                    "en": "100%"
-                  }
-                },
-                {
-                  "id": "90",
-                  "title": {
-                    "en": "90%"
-                  }
-                },
-                {
-                  "id": "80",
-                  "title": {
-                    "en": "80%"
-                  }
-                },
-                {
-                  "id": "70",
-                  "title": {
-                    "en": "70%"
-                  }
-                },
-                {
-                  "id": "60",
-                  "title": {
-                    "en": "60%"
-                  }
-                },
-                {
-                  "id": "50",
-                  "title": {
-                    "en": "50%"
-                  }
-                }
-            ]
+          "id": "80",
+          "title": {
+            "en": "80%",
+            "nl": "80%",
+            "de": "80%",
+            "fr": "80 %",
+            "es": "80 %",
+            "it": "80%",
+            "da": "80%",
+            "sv": "80%",
+            "no": "80%",
+            "pl": "80%",
+            "ru": "80%",
+            "ar": "80%",
+            "ko": "80%"
+          }
+        },
+        {
+          "id": "70",
+          "title": {
+            "en": "70%",
+            "nl": "70%",
+            "de": "70%",
+            "fr": "70 %",
+            "es": "70 %",
+            "it": "70%",
+            "da": "70%",
+            "sv": "70%",
+            "no": "70%",
+            "pl": "70%",
+            "ru": "70%",
+            "ar": "70%",
+            "ko": "70%"
+          }
+        },
+        {
+          "id": "60",
+          "title": {
+            "en": "60%",
+            "nl": "60%",
+            "de": "60%",
+            "fr": "60 %",
+            "es": "60 %",
+            "it": "60%",
+            "da": "60%",
+            "sv": "60%",
+            "no": "60%",
+            "pl": "60%",
+            "ru": "60%",
+            "ar": "60%",
+            "ko": "60%"
+          }
+        },
+        {
+          "id": "50",
+          "title": {
+            "en": "50%",
+            "nl": "50%",
+            "de": "50%",
+            "fr": "50 %",
+            "es": "50 %",
+            "it": "50%",
+            "da": "50%",
+            "sv": "50%",
+            "no": "50%",
+            "pl": "50%",
+            "ru": "50%",
+            "ar": "50%",
+            "ko": "50%"
+          }
         }
-    ]
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "fast",
+      "title": {
+        "en": "Fast (%)",
+        "nl": "Snel (%)",
+        "de": "Schnell (%)",
+        "fr": "Rapide (%)",
+        "es": "Rápida (%)",
+        "it": "Veloce (%)",
+        "da": "Hurtig (%)",
+        "sv": "Snabb (%)",
+        "no": "Rask (%)",
+        "pl": "Szybkie (%)",
+        "ru": "Быстрая (%)",
+        "ar": "سريع (%)",
+        "ko": "급속(%)"
+      },
+      "values": [
+        {
+          "id": "100",
+          "title": {
+            "en": "100%",
+            "nl": "100%",
+            "de": "100%",
+            "fr": "100 %",
+            "es": "100 %",
+            "it": "100%",
+            "da": "100%",
+            "sv": "100%",
+            "no": "100%",
+            "pl": "100%",
+            "ru": "100%",
+            "ar": "100%",
+            "ko": "100%"
+          }
+        },
+        {
+          "id": "90",
+          "title": {
+            "en": "90%",
+            "nl": "90%",
+            "de": "90%",
+            "fr": "90 %",
+            "es": "90 %",
+            "it": "90%",
+            "da": "90%",
+            "sv": "90%",
+            "no": "90%",
+            "pl": "90%",
+            "ru": "90%",
+            "ar": "90%",
+            "ko": "90%"
+          }
+        },
+        {
+          "id": "80",
+          "title": {
+            "en": "80%",
+            "nl": "80%",
+            "de": "80%",
+            "fr": "80 %",
+            "es": "80 %",
+            "it": "80%",
+            "da": "80%",
+            "sv": "80%",
+            "no": "80%",
+            "pl": "80%",
+            "ru": "80%",
+            "ar": "80%",
+            "ko": "80%"
+          }
+        },
+        {
+          "id": "70",
+          "title": {
+            "en": "70%",
+            "nl": "70%",
+            "de": "70%",
+            "fr": "70 %",
+            "es": "70 %",
+            "it": "70%",
+            "da": "70%",
+            "sv": "70%",
+            "no": "70%",
+            "pl": "70%",
+            "ru": "70%",
+            "ar": "70%",
+            "ko": "70%"
+          }
+        },
+        {
+          "id": "60",
+          "title": {
+            "en": "60%",
+            "nl": "60%",
+            "de": "60%",
+            "fr": "60 %",
+            "es": "60 %",
+            "it": "60%",
+            "da": "60%",
+            "sv": "60%",
+            "no": "60%",
+            "pl": "60%",
+            "ru": "60%",
+            "ar": "60%",
+            "ko": "60%"
+          }
+        },
+        {
+          "id": "50",
+          "title": {
+            "en": "50%",
+            "nl": "50%",
+            "de": "50%",
+            "fr": "50 %",
+            "es": "50 %",
+            "it": "50%",
+            "da": "50%",
+            "sv": "50%",
+            "no": "50%",
+            "pl": "50%",
+            "ru": "50%",
+            "ar": "50%",
+            "ko": "50%"
+          }
+        }
+      ]
+    }
+  ]
 }

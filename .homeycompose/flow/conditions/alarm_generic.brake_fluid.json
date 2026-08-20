@@ -1,0 +1,39 @@
+{
+  "title": {
+    "en": "The brake fluid alarm is !{{on|off}}",
+    "nl": "Het remvloeistofalarm is !{{aan|uit}}",
+    "de": "Der Bremsflüssigkeitsalarm ist !{{ein|aus}}",
+    "fr": "L'alarme de liquide de frein est !{{activée|désactivée}}",
+    "es": "La alarma de líquido de frenos está !{{activada|desactivada}}",
+    "it": "L'allarme del liquido dei freni è !{{attivo|disattivo}}",
+    "da": "Bremsevæskealarmen er !{{til|fra}}",
+    "sv": "Bromsvätskelarmet är !{{på|av}}",
+    "no": "Bremsevæskealarmen er !{{på|av}}",
+    "pl": "Alarm płynu hamulcowego jest !{{włączony|wyłączony}}",
+    "ru": "Тревога тормозной жидкости !{{включена|выключена}}",
+    "ar": "إنذار سائل الفرامل !{{نشط|متوقف}}",
+    "ko": "브레이크 오일 경보가 !{{켜짐|꺼짐}}"
+  },
+  "titleFormatted": {
+    "en": "The brake fluid alarm is !{{on|off}}",
+    "nl": "Het remvloeistofalarm is !{{aan|uit}}",
+    "de": "Der Bremsflüssigkeitsalarm ist !{{ein|aus}}",
+    "fr": "L'alarme de liquide de frein est !{{activée|désactivée}}",
+    "es": "La alarma de líquido de frenos está !{{activada|desactivada}}",
+    "it": "L'allarme del liquido dei freni è !{{attivo|disattivo}}",
+    "da": "Bremsevæskealarmen er !{{til|fra}}",
+    "sv": "Bromsvätskelarmet är !{{på|av}}",
+    "no": "Bremsevæskealarmen er !{{på|av}}",
+    "pl": "Alarm płynu hamulcowego jest !{{włączony|wyłączony}}",
+    "ru": "Тревога тормозной жидкости !{{включена|выключена}}",
+    "ar": "إنذار سائل الفرامل !{{نشط|متوقف}}",
+    "ko": "브레이크 오일 경보가 !{{켜짐|꺼짐}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=alarm_generic.brake_fluid"
+    }
+  ]
+}

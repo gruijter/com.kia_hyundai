@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "Disable valet mode"
-    },
-    "titleFormatted": {
-        "en": "Disable valet mode"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "Disable valet mode",
+    "nl": "Valet-modus uitschakelen",
+    "de": "Valet-Modus deaktivieren",
+    "fr": "Désactiver le mode valet",
+    "es": "Desactivar el modo aparcacoches",
+    "it": "Disattiva la modalità valet",
+    "da": "Deaktiver valet-tilstand",
+    "sv": "Inaktivera valet-läge",
+    "no": "Deaktiver valet-modus",
+    "pl": "Wyłącz tryb parkingowego",
+    "ru": "Отключить режим парковщика",
+    "ar": "تعطيل وضع صف السيارات",
+    "ko": "발렛 모드 비활성화"
+  },
+  "titleFormatted": {
+    "en": "Disable valet mode",
+    "nl": "Valet-modus uitschakelen",
+    "de": "Valet-Modus deaktivieren",
+    "fr": "Désactiver le mode valet",
+    "es": "Desactivar el modo aparcacoches",
+    "it": "Disattiva la modalità valet",
+    "da": "Deaktiver valet-tilstand",
+    "sv": "Inaktivera valet-läge",
+    "no": "Deaktiver valet-modus",
+    "pl": "Wyłącz tryb parkingowego",
+    "ru": "Отключить режим парковщика",
+    "ar": "تعطيل وضع صف السيارات",
+    "ko": "발렛 모드 비활성화"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
+    }
+  ]
 }

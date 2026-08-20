@@ -1,28 +1,64 @@
 {
-    "title": {
-        "en": "Set target temperature"
+  "title": {
+    "en": "Set target temperature",
+    "nl": "Streeftemperatuur instellen",
+    "de": "Zieltemperatur festlegen",
+    "fr": "Définir la température cible",
+    "es": "Establecer temperatura objetivo",
+    "it": "Imposta la temperatura target",
+    "da": "Indstil måltemperatur",
+    "sv": "Ställ in måltemperatur",
+    "no": "Angi måltemperatur",
+    "pl": "Ustaw docelową temperaturę",
+    "ru": "Установить целевую температуру",
+    "ar": "تعيين درجة الحرارة المستهدفة",
+    "ko": "목표 온도 설정"
+  },
+  "titleFormatted": {
+    "en": "Set target temperature [[temp]]",
+    "nl": "Streeftemperatuur instellen [[temp]]",
+    "de": "Zieltemperatur festlegen [[temp]]",
+    "fr": "Définir la température cible [[temp]]",
+    "es": "Establecer temperatura objetivo [[temp]]",
+    "it": "Imposta la temperatura target [[temp]]",
+    "da": "Indstil måltemperatur [[temp]]",
+    "sv": "Ställ in måltemperatur [[temp]]",
+    "no": "Angi måltemperatur [[temp]]",
+    "pl": "Ustaw docelową temperaturę [[temp]]",
+    "ru": "Установить целевую температуру [[temp]]",
+    "ar": "تعيين درجة الحرارة المستهدفة [[temp]]",
+    "ko": "목표 온도 설정 [[temp]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car"
     },
-    "titleFormatted": {
-        "en": "Set target temperature [[temp]]"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        },
-        {
-            "type": "range",
-            "name": "temp",
-            "title": {
-                "en": "Temperature"
-            },
-            "min": 15,
-            "max": 30,
-            "value": 22,
-            "step": 0.5,
-            "label": "°C",
-            "labelDecimals": 1
-        }
-    ]
+    {
+      "type": "range",
+      "name": "temp",
+      "title": {
+        "en": "Temperature",
+        "nl": "Temperatuur",
+        "de": "Temperatur",
+        "fr": "Température",
+        "es": "Temperatura",
+        "it": "Temperatura",
+        "da": "Temperatur",
+        "sv": "Temperatur",
+        "no": "Temperatur",
+        "pl": "Temperatura",
+        "ru": "Температура",
+        "ar": "درجة الحرارة",
+        "ko": "온도"
+      },
+      "min": 15,
+      "max": 30,
+      "value": 22,
+      "step": 0.5,
+      "label": "°C",
+      "labelDecimals": 1
+    }
+  ]
 }

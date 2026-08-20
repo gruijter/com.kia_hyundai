@@ -1,15 +1,39 @@
 {
-    "title": {
-        "en": "The charger turned off"
-    },
-    "titleFormatted": {
-        "en": "The charger turned off"
-    },
-    "args": [
-        {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=car"
-        }
-    ]
+  "title": {
+    "en": "The charger turned off",
+    "nl": "De lader is uitgeschakeld",
+    "de": "Das Ladegerät wurde ausgeschaltet",
+    "fr": "Le chargeur a été désactivé",
+    "es": "El cargador se ha apagado",
+    "it": "Il caricabatterie è stato spento",
+    "da": "Opladeren blev slukket",
+    "sv": "Laddaren stängdes av",
+    "no": "Laderen ble slått av",
+    "pl": "Ładowarka została wyłączona",
+    "ru": "Зарядное устройство выключено",
+    "ar": "تم إيقاف تشغيل الشاحن",
+    "ko": "충전기가 꺼짐"
+  },
+  "titleFormatted": {
+    "en": "The charger turned off",
+    "nl": "De lader is uitgeschakeld",
+    "de": "Das Ladegerät wurde ausgeschaltet",
+    "fr": "Le chargeur a été désactivé",
+    "es": "El cargador se ha apagado",
+    "it": "Il caricabatterie è stato spento",
+    "da": "Opladeren blev slukket",
+    "sv": "Laddaren stängdes av",
+    "no": "Laderen ble slått av",
+    "pl": "Ładowarka została wyłączona",
+    "ru": "Зарядное устройство выключено",
+    "ar": "تم إيقاف تشغيل الشاحن",
+    "ko": "충전기가 꺼짐"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=charge"
+    }
+  ]
 }

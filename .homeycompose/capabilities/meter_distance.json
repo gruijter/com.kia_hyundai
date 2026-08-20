@@ -1,14 +1,38 @@
 {
-	"type": "number",
-	"title": {
-		"en": "Home distance"
-	},
-	"units": {
-		"en": "km"
-	},
-	"getable": true,
-	"setable": false,
-	"insights": true,
-	"uiComponent": "sensor",
-	"icon": "./assets/meter_distance.svg"
+  "type": "number",
+  "title": {
+    "en": "Home distance",
+    "nl": "Afstand tot thuis",
+    "de": "Entfernung zu Hause",
+    "fr": "Distance jusqu'au domicile",
+    "es": "Distancia hasta casa",
+    "it": "Distanza da casa",
+    "da": "Afstand til hjem",
+    "sv": "Avstånd till hemmet",
+    "no": "Avstand til hjemmet",
+    "pl": "Odległość od domu",
+    "ru": "Расстояние до дома",
+    "ar": "المسافة إلى المنزل",
+    "ko": "집까지 거리"
+  },
+  "units": {
+    "en": "km",
+    "nl": "km",
+    "de": "km",
+    "fr": "km",
+    "es": "km",
+    "it": "km",
+    "da": "km",
+    "sv": "km",
+    "no": "km",
+    "pl": "km",
+    "ru": "км",
+    "ar": "كم",
+    "ko": "km"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "icon": "./assets/meter_distance.svg"
 }
