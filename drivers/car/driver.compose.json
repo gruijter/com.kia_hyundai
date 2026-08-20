@@ -31,6 +31,9 @@
     "measure_odo",
     "alarm_tire_pressure",
     "alarm_bat",
+    "alarm_generic.washer_fluid",
+    "alarm_generic.brake_fluid",
+    "alarm_generic.key_fob_battery",
     "measure_battery",
     "measure_battery.12V",
     "measure_battery.health",
@@ -65,6 +68,21 @@
     "measure_battery.health": {
       "title": {
         "en": "Battery health (SoH)"
+      }
+    },
+    "alarm_generic.washer_fluid": {
+      "title": {
+        "en": "Washer fluid"
+      }
+    },
+    "alarm_generic.brake_fluid": {
+      "title": {
+        "en": "Brake fluid"
+      }
+    },
+    "alarm_generic.key_fob_battery": {
+      "title": {
+        "en": "Key fob battery"
       }
     }
   },

@@ -666,6 +666,12 @@ class CarDevice extends Homey.Device {
       map.engine = sts.engine;
       map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && Object.keys(sts.doorOpen).reduce((closedAccu, door) => closedAccu || !sts.doorOpen[door], true);
       map['alarm_tire_pressure'] = !!sts?.tirePressureLamp?.tirePressureLampAll;
+      // Legacy field names/casing (incl. Kia's own "break" typo for "brake")
+      // — only reported by some non-CCS2 models (e.g. Sorento PHEV), absent
+      // on others (e.g. Niro EV/HEV) where these just stay unset.
+      map['alarm_generic.washer_fluid'] = sts?.washerFluidStatus;
+      map['alarm_generic.brake_fluid'] = sts?.breakOilStatus;
+      map['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
       map['measure_battery.12V'] = sts?.battery?.batSoc;
       map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       map.measure_range = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.value || sts?.dte?.value;
@@ -750,6 +756,9 @@ class CarDevice extends Homey.Device {
         sts?.Chassis?.Axle?.Row2?.Right?.Tire,
       ].filter(Boolean);
       map['alarm_tire_pressure'] = !!sts?.Chassis?.Axle?.Tire?.PressureLow || tires.some((tire) => tire.PressureLow);
+      map['alarm_generic.washer_fluid'] = !!sts?.Body?.Windshield?.Front?.WasherFluid?.LevelLow;
+      map['alarm_generic.brake_fluid'] = !!sts?.Chassis?.Brake?.Fluid?.Warning;
+      map['alarm_generic.key_fob_battery'] = !!sts?.Electronics?.FOB?.LowBattery;
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
       map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;

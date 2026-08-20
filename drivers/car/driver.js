@@ -36,23 +36,24 @@ module.exports = class MyDriver extends Homey.Driver {
         'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk', 'vent_windows', 'valet_mode', 'locked',
         'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
         'measure_range', 'ev_charging_state', 'measure_power.charge', 'meter_power.fuel_economy', 'measure_odo',
-        'alarm_tire_pressure', 'alarm_bat', 'measure_battery', 'measure_battery.12V', 'measure_battery.health', 'latitude', 'longitude'],
+        'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery', 'measure_battery', 'measure_battery.12V', 'measure_battery.health', 'latitude', 'longitude'],
 
       'Full EV': ['target_temperature', 'charge_target_slow', 'charge_target_fast', 'refresh_status', 'charge',
         'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk', 'valet_mode', 'locked',
         'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
-        'measure_range', 'ev_charging_state', 'measure_odo', 'alarm_tire_pressure', 'alarm_bat',
+        'measure_range', 'ev_charging_state', 'measure_odo', 'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery',
         'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
       PHEV: ['target_temperature', 'refresh_status', 'charge', 'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk', 'valet_mode', 'locked',
         'last_refresh', 'engine', 'closed_locked',
         'location', 'meter_distance', 'measure_speed', 'measure_range', 'ev_charging_state', 'measure_odo',
-        'alarm_tire_pressure', 'alarm_bat', 'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
+        'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery', 'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
       'HEV/ICE': ['target_temperature', 'refresh_status', 'defrost', 'climate_control', 'flash_lights',
         'flash_lights_and_honk', 'valet_mode', 'locked', 'last_refresh', 'engine',
         'closed_locked', 'location', 'meter_distance', 'measure_speed', 'measure_range', 'measure_odo', 'alarm_tire_pressure',
-        'alarm_bat', 'measure_battery.12V', 'latitude', 'longitude'],
+        'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery',
+        'measure_battery.12V', 'latitude', 'longitude'],
     };
 
     this.log('Driver has been initialized');
