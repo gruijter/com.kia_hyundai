@@ -56,7 +56,72 @@ module.exports = class MyDriver extends Homey.Driver {
         'measure_battery.12V', 'latitude', 'longitude'],
     };
 
+    // capabilitiesMap only distinguishes by engine type (EV/PHEV/HEV/ICE,
+    // CCS2 vs legacy) but a handful of capabilities also depend on
+    // vehicle-specific equipment/firmware that varies *within* one engine
+    // bucket and can't be known from the engine type alone. mapStatus()
+    // (device.js) leaves these fields `undefined` rather than coercing them
+    // to `false`/`0`/`null` exactly when the raw vehicle status has no data
+    // for them, so `undefined` (or NaN, for the one arithmetic field) is
+    // used as the "this car doesn't report it" signal — see
+    // extractCheckableStatus() / filterSupportedCapabilities() below, called
+    // from onPair() here and from Device#migrate().
+    this.capabilitiesToCheck = [
+      // Confirmed: only reported by some (legacy/non-CCS2) models, absent
+      // and permanently unset on others regardless of engine type — see the
+      // comment above the `alarm_generic.washer_fluid` line in
+      // device.js#mapStatus().
+      'alarm_generic.washer_fluid',
+      'alarm_generic.brake_fluid',
+      'alarm_generic.key_fob_battery',
+      // Battery State-of-Health isn't reported by every EV/firmware
+      // generation, even within the 'Full EV ccuCCS2' bucket.
+      'measure_battery.health',
+      // CCS2-only; when unsupported this currently computes as
+      // `undefined * 1000` = NaN instead of staying unset, which throws in
+      // setCapabilityValue() every poll cycle — pruning the capability here
+      // fixes that too.
+      'measure_power.charge',
+    ];
+
     this.log('Driver has been initialized');
+  }
+
+  // Pulls just the capabilitiesToCheck fields out of a raw vehicle status
+  // response (either the legacy `sts.time` shape or the CCS2 `sts.Date`
+  // shape — mirrors the equivalent lines in device.js#mapStatus(), kept in
+  // sync manually since mapStatus() itself needs a live Device instance
+  // (settings/getCapabilityValue) for the fields not covered here).
+  extractCheckableStatus(rawStatus) {
+    const result = {};
+    if (!rawStatus) return result;
+    let sts = { ...rawStatus };
+    if (sts.vehicleStatus) sts = { ...sts.vehicleStatus };
+    if (sts.time) { // legacy/simple status
+      result['alarm_generic.washer_fluid'] = sts?.washerFluidStatus;
+      result['alarm_generic.brake_fluid'] = sts?.breakOilStatus;
+      result['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
+      result['measure_battery.health'] = sts?.evStatus?.batterySoh;
+      result['measure_power.charge'] = undefined; // never reported on legacy status
+    }
+    if (sts.Date) { // CCS2 status
+      result['alarm_generic.washer_fluid'] = sts?.Body?.Windshield?.Front?.WasherFluid?.LevelLow;
+      result['alarm_generic.brake_fluid'] = sts?.Chassis?.Brake?.Fluid?.Warning;
+      result['alarm_generic.key_fob_battery'] = sts?.Electronics?.FOB?.LowBattery;
+      result['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
+      result['measure_power.charge'] = sts?.Green?.Electric?.SmartGrid?.RealTimePower;
+    }
+    return result;
+  }
+
+  // Drops any capability listed in capabilitiesToCheck that `status` shows
+  // no data for. `status` can be either extractCheckableStatus()'s output
+  // (pairing, raw status) or a device's already-mapped stored `lastStatus`
+  // (migration) — both key the checked fields by the same capability names.
+  filterSupportedCapabilities(correctCaps, status) {
+    if (!status) return correctCaps;
+    const isUnsupported = (value) => value === undefined || value === null || Number.isNaN(value);
+    return correctCaps.filter((cap) => !this.capabilitiesToCheck.includes(cap) || !isUnsupported(status[cap]));
   }
 
   onPair(session) {
@@ -149,7 +214,10 @@ module.exports = class MyDriver extends Homey.Driver {
               lat: Math.round(this.homey.geolocation.getLatitude() * 100000000) / 100000000,
               lon: Math.round(this.homey.geolocation.getLongitude() * 100000000) / 100000000,
             },
-            capabilities: this.capabilitiesMap[engine],
+            capabilities: this.filterSupportedCapabilities(
+              this.capabilitiesMap[engine],
+              this.extractCheckableStatus(status),
+            ),
           };
         });
         // console.log(await Promise.all(devices));

@@ -100,7 +100,19 @@ class CarDevice extends Homey.Device {
       const state = {};
       existingCaps.forEach((cap) => { state[cap] = this.getCapabilityValue(cap); });
       // check and repair incorrect capability(order)
-      const correctCaps = this.driver.capabilitiesMap[this.getSettings().engine];
+      // Drop capabilities the car has never actually reported data for (see
+      // driver.js#capabilitiesToCheck) — sourced from the device's own
+      // last-stored status rather than a live fetch, so migration doesn't
+      // add an extra vehicle-API call on every app restart. This reliably
+      // catches the confirmed legacy/non-CCS2 gap (see the comment above
+      // `alarm_generic.washer_fluid` in mapStatus() below); it can't catch a
+      // hypothetical CCS2-side version of the same gap, since those fields
+      // are coerced to a boolean before being stored.
+      const lastStatus = this.getStoreValue('lastStatus');
+      const correctCaps = this.driver.filterSupportedCapabilities(
+        this.driver.capabilitiesMap[this.getSettings().engine],
+        lastStatus,
+      );
       for (let index = 0; index <= correctCaps.length; index += 1) {
         const caps = this.getCapabilities();
         const newCap = correctCaps[index];
