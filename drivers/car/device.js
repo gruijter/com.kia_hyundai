@@ -619,14 +619,10 @@ class CarDevice extends Homey.Device {
     const map = {};
     if (!status) return map;
     let sts = { ...status }; // clone status
-    // Both API schemas tag distance fields with their own unit code (see
-    // lib/distance_convert.js) — legacy on odometer/range, CCS2 only on
-    // Drivetrain.FuelSystem.DTE.Unit (odometer itself has no per-field unit
-    // on CCS2 in any capture we have, so it's assumed to follow the same
-    // unit as DTE — matching hyundai_kia_connect_api's own CCS2 parsing,
-    // which hardcodes odometer to km rather than reading a unit for it).
-    // Read before the odometer value below is used, and exposed on `this`
-    // for doPoll() to sync capability units against after mapStatus resolves.
+    // Legacy tags distance fields per-field on odometer/range; CCS2 only on
+    // Drivetrain.FuelSystem.DTE.Unit — CCS2 odometer has no per-field unit,
+    // so it's assumed to follow DTE's. Must run before the odometer value
+    // below is read, and stays on `this` for doPoll()'s post-mapStatus sync.
     this.imperialDistance = isImperialUnit(
       status?.odometer?.unit
       ?? status?.vehicleStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.unit
@@ -710,15 +706,9 @@ class CarDevice extends Homey.Device {
 
       // determine chargeState
       map['measure_power.charge'] = sts?.Green?.Electric?.SmartGrid?.RealTimePower * 1000;
-      // AverageFuelEconomy.Unit: 4 = km/kWh (reasonably confirmed — cross-checked
-      // against DTE range ÷ battery kWh across 4 EV captures, ~20-30% margin
-      // consistent with range-estimate methodology). 1 = L/100km and 5 = kWh/100km
-      // are single-capture inferences (see lib/DeviceMigrator.js's
-      // FUEL_ECONOMY_UNITS comment) — NEEDS CONFIRMATION from a second real
-      // capture before treating as settled. Only unit 4 gets numeric conversion
-      // (same km→mi factor as distance, via this.imperialDistance) since that's
-      // the one with a confirmed-enough basis; 1/5 are only relabeled, not
-      // converted, to avoid compounding an unconfirmed guess with more math.
+      // Only unit 4 (km/kWh) is confirmed enough to convert numerically for
+      // imperial (see lib/DeviceMigrator.js's FUEL_ECONOMY_UNITS comment);
+      // other units are relabeled only, via syncFuelEconomyUnits().
       this.fuelEconomyUnit = sts?.Drivetrain?.FuelSystem?.AverageFuelEconomy?.Unit;
       let fuelEconomy = sts?.Drivetrain?.FuelSystem?.AverageFuelEconomy?.Drive;
       if (typeof fuelEconomy === 'number' && this.fuelEconomyUnit === 4 && this.imperialDistance) {
