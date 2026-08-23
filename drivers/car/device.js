@@ -674,8 +674,8 @@ class CarDevice extends Homey.Device {
       map['measure_battery.12V'] = sts?.battery?.batSoc;
       map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       map.measure_range = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.value || sts?.dte?.value;
-      if (map.measure_range === undefined || map.measure_range < 0) map.measure_range = null; // Sorento weird server response
-      else map.measure_range = Math.round(map.measure_range * 10) / 10;
+      if (typeof map.measure_range === 'number' && map.measure_range >= 0) map.measure_range = Math.round(map.measure_range * 10) / 10;
+      else map.measure_range = null; // Sorento weird server response
       map.measure_battery = sts?.evStatus?.batteryStatus;
       map['measure_power.charge'] = null;
       map['meter_power.fuel_economy'] = null;

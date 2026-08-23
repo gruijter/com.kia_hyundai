@@ -26,10 +26,10 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
  * vehicleConfig + status/odometer, so you can check the field names are
  * correct before pairing a real vehicle.
  *
- * Credentials come from env.json (already gitignored, see .gitignore) or
- * from the environment. Usage:
+ * Credentials come from zzz_test/env.json (already gitignored, see
+ * .gitignore) or from the environment. Usage:
  *
- *   cp env.json.example env.json   # once, then fill it in
+ *   cp zzz_test/env.json.example zzz_test/env.json   # once, then fill it in
  *   node zzz_test/test-eu-connect.js kia
  *   node zzz_test/test-eu-connect.js hyundai
  */
