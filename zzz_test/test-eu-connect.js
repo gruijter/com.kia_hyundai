@@ -21,23 +21,23 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 
 /* eslint-disable no-console, no-process-exit */
 /*
- * Standalone validatiescript voor lib/connect (EU-implementatie), buiten de
- * Homey-runtime om. Logt in, haalt de auto's op en print raw vehicleConfig +
- * status/odometer, zodat je kunt controleren of de veldnamen kloppen voordat
- * je met een echte auto gaat pairen.
+ * Standalone validation script for lib/connect (EU implementation), outside
+ * the Homey runtime. Logs in, fetches the vehicles, and prints the raw
+ * vehicleConfig + status/odometer, so you can check the field names are
+ * correct before pairing a real vehicle.
  *
- * Credentials komen uit env.json (al genegeerd door git, zie .gitignore) of
- * uit de omgeving. Gebruik:
+ * Credentials come from env.json (already gitignored, see .gitignore) or
+ * from the environment. Usage:
  *
- *   cp env.json.example env.json   # eenmalig, en vul 'm in
- *   node scripts/test-eu-connect.js kia
- *   node scripts/test-eu-connect.js hyundai
+ *   cp env.json.example env.json   # once, then fill it in
+ *   node zzz_test/test-eu-connect.js kia
+ *   node zzz_test/test-eu-connect.js hyundai
  */
 
 let env = {};
 try {
   // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require, node/no-unpublished-require
-  env = require('../env.json');
+  env = require('./env.json');
 } catch (error) {
   env = process.env;
 }

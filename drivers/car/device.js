@@ -26,6 +26,8 @@ const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
+const { isImperialUnit, kmToMi } = require('../../lib/distance_convert');
+const DeviceMigrator = require('../../lib/DeviceMigrator');
 
 const {
   CHARGE_PORT_ACTION, VALET_MODE_ACTION, WINDOW_STATE, SEAT_STATUS, HEAT_STATUS,
@@ -94,12 +96,6 @@ class CarDevice extends Homey.Device {
 
   async migrate() {
     try {
-      this.log(`checking device migration for ${this.getName()}`);
-      // store the capability states before migration
-      const existingCaps = this.getCapabilities();
-      const state = {};
-      existingCaps.forEach((cap) => { state[cap] = this.getCapabilityValue(cap); });
-      // check and repair incorrect capability(order)
       // Drop capabilities the car has never actually reported data for (see
       // driver.js#capabilitiesToCheck) — sourced from the device's own
       // last-stored status rather than a live fetch, so migration doesn't
@@ -113,30 +109,7 @@ class CarDevice extends Homey.Device {
         this.driver.capabilitiesMap[this.getSettings().engine],
         lastStatus,
       );
-      for (let index = 0; index <= correctCaps.length; index += 1) {
-        const caps = this.getCapabilities();
-        const newCap = correctCaps[index];
-        if (caps[index] !== newCap) {
-          this.setUnavailable(this.homey.__('migrating')).catch(() => null);
-          // remove all caps from here
-          for (let i = index; i < caps.length; i += 1) {
-            this.log(`removing capability ${caps[i]} for ${this.getName()}`);
-            await this.removeCapability(caps[i])
-              .catch((error) => this.log(error));
-            await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
-          }
-          // add the new cap
-          if (newCap !== undefined) {
-            this.log(`adding capability ${newCap} for ${this.getName()}`);
-            await this.addCapability(newCap);
-            // restore capability state
-            if (state[newCap]) this.log(`${this.getName()} restoring value ${newCap} to ${state[newCap]}`);
-            // else this.log(`${this.getName()} has gotten a new capability ${newCap}!`);
-            if (state[newCap] !== undefined) this.setCapability(newCap, state[newCap]);
-            await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
-          }
-        }
-      }
+      await DeviceMigrator.migrateCapabilities(this, correctCaps);
     } catch (error) {
       this.error(error);
     }
@@ -545,6 +518,8 @@ class CarDevice extends Homey.Device {
       }
       // console.dir(fullStatus, { depth: null, colors: true, showHidden: true });
       const stsMapped = await this.mapStatus(fullStatus);
+      await DeviceMigrator.syncDistanceUnits(this, this.imperialDistance).catch((error) => this.error(error));
+      await DeviceMigrator.syncFuelEconomyUnits(this, this.fuelEconomyUnit, this.imperialDistance).catch((error) => this.error(error));
       if (stsMapped.Date !== this.lastStatus?.Date) {
         this.log(`${this.getName()} Server info changed. ${this.lastStatus?.Date} ${stsMapped.Date}`);
         // console.dir(fullStatus, { depth: null });
@@ -644,14 +619,30 @@ class CarDevice extends Homey.Device {
     const map = {};
     if (!status) return map;
     let sts = { ...status }; // clone status
+    // Both API schemas tag distance fields with their own unit code (see
+    // lib/distance_convert.js) — legacy on odometer/range, CCS2 only on
+    // Drivetrain.FuelSystem.DTE.Unit (odometer itself has no per-field unit
+    // on CCS2 in any capture we have, so it's assumed to follow the same
+    // unit as DTE — matching hyundai_kia_connect_api's own CCS2 parsing,
+    // which hardcodes odometer to km rather than reading a unit for it).
+    // Read before the odometer value below is used, and exposed on `this`
+    // for doPoll() to sync capability units against after mapStatus resolves.
+    this.imperialDistance = isImperialUnit(
+      status?.odometer?.unit
+      ?? status?.vehicleStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.unit
+      ?? status?.Drivetrain?.FuelSystem?.DTE?.Unit,
+    );
     // is old type full status
     if (sts.vehicleStatus) {
       map.measure_odo = sts?.odometer?.value;
+      if (typeof map.measure_odo === 'number') map.measure_odo = Math.round(map.measure_odo * 10) / 10;
       map.latitude = sts?.vehicleLocation?.coord?.lat;
       map.longitude = sts?.vehicleLocation?.coord?.lon;
       const speed = sts?.vehicleLocation?.speed?.value;
       map.measure_speed = speed > 255 ? 0 : speed;
-      map.meter_distance = Math.round(this.distance(map) * 10) / 10;
+      let meterDistance = this.distance(map); // always km, computed from lat/lon
+      if (this.imperialDistance) meterDistance = kmToMi(meterDistance);
+      map.meter_distance = Math.round(meterDistance * 10) / 10;
       const carLocString = await geo.getCarLocString(map).catch((error) => this.error(error)); // ReverseGeocoding
       map.location = carLocString?.local;
       map.address = carLocString?.address;
@@ -688,6 +679,7 @@ class CarDevice extends Homey.Device {
       map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       map.measure_range = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.value || sts?.dte?.value;
       if (map.measure_range === undefined || map.measure_range < 0) map.measure_range = null; // Sorento weird server response
+      else map.measure_range = Math.round(map.measure_range * 10) / 10;
       map.measure_battery = sts?.evStatus?.batteryStatus;
       map['measure_power.charge'] = null;
       map['meter_power.fuel_economy'] = null;
@@ -704,18 +696,35 @@ class CarDevice extends Homey.Device {
     // is new type status
     if (sts.Date) {
       map.measure_odo = sts?.Drivetrain?.Odometer;
+      if (typeof map.measure_odo === 'number') map.measure_odo = Math.round(map.measure_odo * 10) / 10;
       map.latitude = sts?.Location?.GeoCoord?.Latitude;
       map.longitude = sts?.Location?.GeoCoord?.Longitude;
       const speed = sts?.Location?.Speed?.Value;
       map.measure_speed = speed > 255 ? 0 : speed;
-      map.meter_distance = Math.round(this.distance(map) * 10) / 10;
+      let ccs2MeterDistance = this.distance(map); // always km, computed from lat/lon
+      if (this.imperialDistance) ccs2MeterDistance = kmToMi(ccs2MeterDistance);
+      map.meter_distance = Math.round(ccs2MeterDistance * 10) / 10;
       const carLocString = await geo.getCarLocString(map).catch((error) => this.error(error)); // ReverseGeocoding
       map.location = carLocString?.local;
       map.address = carLocString?.address;
 
       // determine chargeState
       map['measure_power.charge'] = sts?.Green?.Electric?.SmartGrid?.RealTimePower * 1000;
-      map['meter_power.fuel_economy'] = sts?.Drivetrain?.FuelSystem?.AverageFuelEconomy?.Drive;
+      // AverageFuelEconomy.Unit: 4 = km/kWh (reasonably confirmed — cross-checked
+      // against DTE range ÷ battery kWh across 4 EV captures, ~20-30% margin
+      // consistent with range-estimate methodology). 1 = L/100km and 5 = kWh/100km
+      // are single-capture inferences (see lib/DeviceMigrator.js's
+      // FUEL_ECONOMY_UNITS comment) — NEEDS CONFIRMATION from a second real
+      // capture before treating as settled. Only unit 4 gets numeric conversion
+      // (same km→mi factor as distance, via this.imperialDistance) since that's
+      // the one with a confirmed-enough basis; 1/5 are only relabeled, not
+      // converted, to avoid compounding an unconfirmed guess with more math.
+      this.fuelEconomyUnit = sts?.Drivetrain?.FuelSystem?.AverageFuelEconomy?.Unit;
+      let fuelEconomy = sts?.Drivetrain?.FuelSystem?.AverageFuelEconomy?.Drive;
+      if (typeof fuelEconomy === 'number' && this.fuelEconomyUnit === 4 && this.imperialDistance) {
+        fuelEconomy = kmToMi(fuelEconomy);
+      }
+      map['meter_power.fuel_economy'] = fuelEconomy;
       const charge = !!sts?.Green?.ChargingInformation?.Charging?.RemainTime;
       let charger = sts?.Green?.ChargingInformation?.ConnectorFastening?.State; // 0=none 1=fast 2=slow/normal
       if (charger && !charge) charger += 2; // 3= fast off, 4 = slow off
@@ -728,9 +737,11 @@ class CarDevice extends Homey.Device {
         evChargingState = 'plugged_out';
       }
       let targetTemp = sts?.Cabin?.HVAC?.Row1?.Driver?.Temperature?.Value;
+      const targetTempUnit = sts?.Cabin?.HVAC?.Row1?.Driver?.Temperature?.Unit; // 0=C, 1=F
       if (typeof targetTemp === 'string' && !Number.isNaN(Number(targetTemp))) {
         targetTemp = Number(targetTemp);
       }
+      if (typeof targetTemp === 'number' && targetTempUnit === 1) targetTemp = convert.fahrenheitToCelsius(targetTemp);
       map.climate_control = !(targetTemp === 'OFF');
       map.target_temperature = targetTemp === 'OFF' ? this.getCapabilityValue('target_temperature') : targetTemp;
       map.defrost = !!sts?.Body?.Windshield?.Front?.Defog?.State || !!sts?.Body?.Windshield?.Rear?.Defog?.State;
@@ -774,6 +785,7 @@ class CarDevice extends Homey.Device {
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
       map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
+      if (typeof map.measure_range === 'number') map.measure_range = Math.round(map.measure_range * 10) / 10;
       map.measure_battery = sts?.Green?.BatteryManagement?.BatteryRemain.Ratio;
       map.charge = charge;
       map.charge_target_slow = sts?.Green?.ChargingInformation?.TargetSoC?.Standard.toString();

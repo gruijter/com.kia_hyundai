@@ -5412,6 +5412,7 @@
       "getable": true,
       "setable": false,
       "insights": true,
+      "decimals": 1,
       "uiComponent": "sensor",
       "icon": "./assets/odometer.svg"
     },
@@ -5450,6 +5451,7 @@
       "getable": true,
       "setable": false,
       "insights": true,
+      "decimals": 1,
       "uiComponent": "sensor",
       "icon": "./assets/range.svg"
     },
@@ -5488,6 +5490,7 @@
       "getable": true,
       "setable": false,
       "insights": true,
+      "decimals": 1,
       "uiComponent": "sensor",
       "icon": "./assets/meter_distance.svg"
     },

@@ -88,7 +88,7 @@ the adapter layer that used to translate this API into bluelinky's shape
 (`native/Vehicle.js`, and `index.js#createClient()`'s `EventEmitter`/
 `'ready'`/`'error'` constructor). `drivers/car/driver.js` and `device.js` now
 call `VehicleManager` methods directly, the same way `VehicleManager.py` is
-used upstream and the same way `scripts/test-eu-connect.js` already did:
+used upstream and the same way `zzz_test/test-eu-connect.js` already did:
 
 - `index.js#createClient(options)` maps Homey-side option names (`region:
   'EU'`, `brand: 'kia'`) to the Python project's region/brand enums and
