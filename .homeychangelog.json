@@ -36,6 +36,6 @@
     "en": "Added capabilities and flows for SoH, Flash, Honk, Vent, Chargeport, Valet mode, Break fluid, Washer fluid and Key fob. Improved flows for LimitAC, A/C and Defrost. Fix speed for CCS2. Auto-remove unsupported flows and capabilities. Add all translations."
   },
   "2.3.1": {
-    "en": "Implement unit aware handling of car data. Cleanup inline comments. Remove HP2016/19 warning."
+    "en": "Implement unit aware handling of car data. Improve capability migrations. Cleanup inline comments. Remove HP2016/19 warning."
   }
 }
