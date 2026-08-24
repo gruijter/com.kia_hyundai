@@ -31,5 +31,6 @@
   "error_location_not_found": "Kon die locatie niet vinden.",
   "error_queue_full": "Er staan al te veel commando's in de wachtrij voor deze auto. Wacht even en probeer het opnieuw.",
   "error_unknown_command": "Onbekend commando: __command__",
-  "error_invalid_window_state": "Ongeldige raamstatus: __state__"
+  "error_invalid_window_state": "Ongeldige raamstatus: __state__",
+  "error_battery_too_low_for_refresh": "Kan geen geforceerde vernieuwing uitvoeren: 12V-accu is te laag of onbekend (__batSoc__%, moet boven __level__% zijn)."
 }

@@ -31,5 +31,6 @@
   "error_location_not_found": "Impossible de trouver cet emplacement.",
   "error_queue_full": "Trop de commandes sont déjà en file d'attente pour cette voiture. Veuillez patienter un instant et réessayer.",
   "error_unknown_command": "Commande inconnue : __command__",
-  "error_invalid_window_state": "État de fenêtre invalide : __state__"
+  "error_invalid_window_state": "État de fenêtre invalide : __state__",
+  "error_battery_too_low_for_refresh": "Actualisation forcée impossible : batterie 12V trop faible ou inconnue (__batSoc__ %, doit être supérieure à __level__ %)."
 }

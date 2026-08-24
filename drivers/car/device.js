@@ -1019,8 +1019,17 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command, args });
   }
 
-  refreshStatus(refresh, source) {
+  async refreshStatus(refresh, source) {
     if (!refresh) return true;
+    // Same guard doPoll() applies to an auto/forced poll (see forcePollInterval
+    // there) - but a user explicitly pressing this button/flow action deserves a
+    // real error instead of doPoll() silently downgrading to a cached-only read.
+    const batSoc = this.lastStatus?.['measure_battery.12V'];
+    const level = this.settings.batteryAlarmLevel;
+    if (!(batSoc > level)) {
+      this.log(`Refusing forced refresh via ${source}: 12V battery too low or unknown (${batSoc}% <= ${level}%)`);
+      throw Error(this.homey.__('error_battery_too_low_for_refresh', { batSoc: batSoc ?? '?', level }));
+    }
     this.setCapability('refresh_status', true);
     this.log(`Forcing status refresh via ${source}`);
     if (source === 'app' || source === 'cloud') this.carLastActive = Date.now();

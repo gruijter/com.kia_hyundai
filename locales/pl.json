@@ -31,5 +31,6 @@
   "error_location_not_found": "Nie można znaleźć tej lokalizacji.",
   "error_queue_full": "W kolejce dla tego samochodu jest już zbyt wiele poleceń. Poczekaj chwilę i spróbuj ponownie.",
   "error_unknown_command": "Nieznane polecenie: __command__",
-  "error_invalid_window_state": "Nieprawidłowy stan szyby: __state__"
+  "error_invalid_window_state": "Nieprawidłowy stan szyby: __state__",
+  "error_battery_too_low_for_refresh": "Nie można wymusić odświeżenia: akumulator 12V jest zbyt niski lub nieznany (__batSoc__%, musi przekraczać __level__%)."
 }

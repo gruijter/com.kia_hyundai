@@ -31,5 +31,6 @@
   "error_location_not_found": "Kunne ikke finde den placering.",
   "error_queue_full": "Der er allerede for mange kommandoer i køen til denne bil. Vent et øjeblik, og prøv igen.",
   "error_unknown_command": "Ukendt kommando: __command__",
-  "error_invalid_window_state": "Ugyldig rudetilstand: __state__"
+  "error_invalid_window_state": "Ugyldig rudetilstand: __state__",
+  "error_battery_too_low_for_refresh": "Kan ikke gennemtvinge en opdatering: 12V-batteriet er for lavt eller ukendt (__batSoc__%, skal være over __level__%)."
 }

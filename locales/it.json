@@ -31,5 +31,6 @@
   "error_location_not_found": "Impossibile trovare quella posizione.",
   "error_queue_full": "Ci sono già troppi comandi in coda per questa auto. Attendi un momento e riprova.",
   "error_unknown_command": "Comando sconosciuto: __command__",
-  "error_invalid_window_state": "Stato del finestrino non valido: __state__"
+  "error_invalid_window_state": "Stato del finestrino non valido: __state__",
+  "error_battery_too_low_for_refresh": "Impossibile forzare l'aggiornamento: batteria a 12V troppo bassa o sconosciuta (__batSoc__%, deve essere superiore a __level__%)."
 }

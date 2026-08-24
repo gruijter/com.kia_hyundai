@@ -31,5 +31,6 @@
   "error_location_not_found": "No se pudo encontrar esa ubicación.",
   "error_queue_full": "Ya hay demasiados comandos en cola para este coche. Espera un momento y vuelve a intentarlo.",
   "error_unknown_command": "Comando desconocido: __command__",
-  "error_invalid_window_state": "Estado de ventana no válido: __state__"
+  "error_invalid_window_state": "Estado de ventana no válido: __state__",
+  "error_battery_too_low_for_refresh": "No se puede forzar una actualización: la batería de 12V es demasiado baja o desconocida (__batSoc__ %, debe superar el __level__ %)."
 }

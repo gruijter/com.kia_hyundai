@@ -31,5 +31,6 @@
   "error_location_not_found": "Dieser Standort konnte nicht gefunden werden.",
   "error_queue_full": "Für dieses Fahrzeug sind bereits zu viele Befehle in der Warteschlange. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
   "error_unknown_command": "Unbekannter Befehl: __command__",
-  "error_invalid_window_state": "Ungültiger Fensterstatus: __state__"
+  "error_invalid_window_state": "Ungültiger Fensterstatus: __state__",
+  "error_battery_too_low_for_refresh": "Erzwungene Aktualisierung nicht möglich: 12V-Batterie ist zu niedrig oder unbekannt (__batSoc__%, muss über __level__% liegen)."
 }
