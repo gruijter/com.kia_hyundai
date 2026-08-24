@@ -26,7 +26,7 @@ const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
-const { isImperialUnit, kmToMi } = require('../../lib/distance_convert');
+const { isImperialUnit, kmToMi, miToKm } = require('../../lib/distance_convert');
 const DeviceMigrator = require('../../lib/DeviceMigrator');
 
 const {
@@ -615,22 +615,41 @@ class CarDevice extends Homey.Device {
   }
 
   // helper functions
+  // Converts a per-field distance value to this.imperialDistance's target
+  // unit using that field's OWN reported unit code, so a field whose tag
+  // disagrees with the account's detected unit (e.g. odometer tagged km
+  // while range is tagged mi within the same status response, seen on some
+  // UK accounts) still displays correctly instead of a mislabeled raw value.
+  normalizeDistance(value, unitCode) {
+    if (typeof value !== 'number') return value;
+    const fieldIsImperial = isImperialUnit(unitCode);
+    if (this.imperialDistance && !fieldIsImperial) return kmToMi(value);
+    if (!this.imperialDistance && fieldIsImperial) return miToKm(value);
+    return value;
+  }
+
   async mapStatus(status) {
     const map = {};
     if (!status) return map;
     let sts = { ...status }; // clone status
     // Legacy tags distance fields per-field on odometer/range; CCS2 only on
     // Drivetrain.FuelSystem.DTE.Unit — CCS2 odometer has no per-field unit,
-    // so it's assumed to follow DTE's. Must run before the odometer value
-    // below is read, and stays on `this` for doPoll()'s post-mapStatus sync.
+    // so it's assumed to follow DTE's. Range is checked before odometer: on
+    // some UK accounts (e.g. Inster) the odometer field's own unit tag is
+    // unreliably km while range is consistently mi (matching what the
+    // Hyundai/Kia app itself shows) — every other known sample has both
+    // fields agree, so this ordering is a no-op elsewhere. Must run before
+    // the odometer value below is read, and stays on `this` for doPoll()'s
+    // post-mapStatus sync. normalizeDistance() below then numerically
+    // corrects any single field whose own tag still disagrees with this.
     this.imperialDistance = isImperialUnit(
-      status?.odometer?.unit
-      ?? status?.vehicleStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.unit
+      status?.vehicleStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.unit
+      ?? status?.odometer?.unit
       ?? status?.Drivetrain?.FuelSystem?.DTE?.Unit,
     );
     // is old type full status
     if (sts.vehicleStatus) {
-      map.measure_odo = sts?.odometer?.value;
+      map.measure_odo = this.normalizeDistance(sts?.odometer?.value, sts?.odometer?.unit);
       if (typeof map.measure_odo === 'number') map.measure_odo = Math.round(map.measure_odo * 10) / 10;
       map.latitude = sts?.vehicleLocation?.coord?.lat;
       map.longitude = sts?.vehicleLocation?.coord?.lon;
@@ -673,7 +692,10 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
       map['measure_battery.12V'] = sts?.battery?.batSoc;
       map['measure_battery.health'] = sts?.evStatus?.batterySoh;
-      map.measure_range = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange?.value || sts?.dte?.value;
+      const rangeField = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange;
+      const rangeValue = rangeField?.value || sts?.dte?.value;
+      const rangeUnit = rangeField?.value ? rangeField?.unit : sts?.dte?.unit;
+      map.measure_range = this.normalizeDistance(rangeValue, rangeUnit);
       if (typeof map.measure_range === 'number' && map.measure_range >= 0) map.measure_range = Math.round(map.measure_range * 10) / 10;
       else map.measure_range = null; // Sorento weird server response
       map.measure_battery = sts?.evStatus?.batteryStatus;
