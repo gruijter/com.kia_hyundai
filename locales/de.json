@@ -11,6 +11,7 @@
     "username": "Benutzername",
     "password": "Passwort",
     "pin": "4-stellige PIN",
+    "pin_hint": "Die PIN, die Sie in der Kia-Connect-App für die Fernsteuerung festgelegt haben — nicht Ihr Kontopasswort.",
     "validate": "Weiter",
 
     "required": "Sie müssen alle Felder ausfüllen.",

@@ -11,6 +11,7 @@
     "username": "Nazwa użytkownika",
     "password": "Hasło",
     "pin": "4-cyfrowy kod PIN",
+    "pin_hint": "PIN ustawiony w aplikacji Kia Connect do zdalnego sterowania — nie hasło do konta.",
     "validate": "Kontynuuj",
 
     "required": "Musisz wypełnić wszystkie pola.",

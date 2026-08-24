@@ -11,6 +11,7 @@
     "username": "Användarnamn",
     "password": "Lösenord",
     "pin": "4-siffrig PIN-kod",
+    "pin_hint": "Den PIN-kod du angett i Kia Connect-appen för fjärrstyrning — inte ditt kontolösenord.",
     "validate": "Fortsätt",
 
     "required": "Du måste fylla i alla fält.",

@@ -11,6 +11,7 @@
     "username": "Gebruikersnaam",
     "password": "Wachtwoord",
     "pin": "4-cijferige pincode",
+    "pin_hint": "De pincode die u in de Kia Connect-app heeft ingesteld voor bediening op afstand — niet uw accountwachtwoord.",
     "validate": "Doorgaan",
 
     "required": "U moet alle velden invullen.",
