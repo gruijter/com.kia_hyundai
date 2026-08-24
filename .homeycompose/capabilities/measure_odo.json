@@ -33,6 +33,7 @@
   "getable": true,
   "setable": false,
   "insights": true,
+  "decimals": 1,
   "uiComponent": "sensor",
   "icon": "./assets/odometer.svg"
 }
