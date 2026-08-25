@@ -861,7 +861,7 @@ class CarDevice extends Homey.Device {
       this.log(`A/C on via ${source}`); // app or flow
       command = 'start';
       args = {
-        setTemp: this.getCapabilityValue('target_temperature') || 22,
+        setTemp: this.toApiSetTemp(this.getCapabilityValue('target_temperature') || 22),
         duration: flowArgs.duration ?? 10,
         defrost: false,
         steeringWheel: 0,
@@ -900,7 +900,7 @@ class CarDevice extends Homey.Device {
         rearLeftSeat: SEAT_STATUS.MEDIUM_HEAT,
         rearRightSeat: SEAT_STATUS.MEDIUM_HEAT,
         duration: flowArgs.duration ?? 10,
-        setTemp: this.getCapabilityValue('target_temperature') || 22,
+        setTemp: this.toApiSetTemp(this.getCapabilityValue('target_temperature') || 22),
       };
     } else {
       this.log(`defrost off via ${source}`);
@@ -946,11 +946,22 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command });
   }
 
+  // KiaUvoApiUSA.js / HyundaiBlueLinkApiUSA.js's startClimate() (ported
+  // faithfully from upstream, which has the same assumption - its caller,
+  // Home Assistant, supplies Fahrenheit there) expects options.setTemp
+  // already in Fahrenheit for the 'US' region. Every other region's
+  // startClimate() expects Celsius, matching target_temperature (Homey's
+  // stock capability - always Celsius, per Homey's platform contract), so
+  // only 'US' needs converting here before a command is sent.
+  toApiSetTemp(celsius) {
+    return this.settings.region === 'US' ? convert.celsiusToFahrenheit(celsius) : celsius;
+  }
+
   setTargetTemp(temp, source) {
     if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
     if (!this.getCapabilityValue('climate_control')) throw Error(this.homey.__('error_climate_control_off'));
     this.log(`Temperature set by ${source} to ${temp}`);
-    const args = { setTemp: temp || 22 };
+    const args = { setTemp: this.toApiSetTemp(temp || 22) };
     const command = 'start';
     return this.enQueue({ command, args });
   }
