@@ -11,6 +11,7 @@
     "username": "Användarnamn",
     "password": "Lösenord",
     "pin": "4-siffrig PIN-kod",
+    "pin_hint": "Den PIN-kod du angett i Kia Connect-appen för fjärrstyrning — inte ditt kontolösenord.",
     "validate": "Fortsätt",
 
     "required": "Du måste fylla i alla fält.",
@@ -31,5 +32,6 @@
   "error_location_not_found": "Det gick inte att hitta den platsen.",
   "error_queue_full": "Det finns redan för många kommandon i kö för den här bilen. Vänta en stund och försök igen.",
   "error_unknown_command": "Okänt kommando: __command__",
-  "error_invalid_window_state": "Ogiltigt fönstertillstånd: __state__"
+  "error_invalid_window_state": "Ogiltigt fönstertillstånd: __state__",
+  "error_battery_too_low_for_refresh": "Det går inte att tvinga fram en uppdatering: 12V-batteriet är för lågt eller okänt (__batSoc__%, måste vara över __level__%)."
 }

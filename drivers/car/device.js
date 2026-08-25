@@ -519,6 +519,7 @@ class CarDevice extends Homey.Device {
       // console.dir(fullStatus, { depth: null, colors: true, showHidden: true });
       const stsMapped = await this.mapStatus(fullStatus);
       await DeviceMigrator.syncDistanceUnits(this, this.imperialDistance).catch((error) => this.error(error));
+      await DeviceMigrator.syncSpeedUnits(this, this.imperialDistance).catch((error) => this.error(error));
       await DeviceMigrator.syncFuelEconomyUnits(this, this.fuelEconomyUnit, this.imperialDistance).catch((error) => this.error(error));
       if (stsMapped.Date !== this.lastStatus?.Date) {
         this.log(`${this.getName()} Server info changed. ${this.lastStatus?.Date} ${stsMapped.Date}`);
@@ -654,7 +655,13 @@ class CarDevice extends Homey.Device {
       map.latitude = sts?.vehicleLocation?.coord?.lat;
       map.longitude = sts?.vehicleLocation?.coord?.lon;
       const speed = sts?.vehicleLocation?.speed?.value;
-      map.measure_speed = speed > 255 ? 0 : speed;
+      // Same {value, unit} shape as odometer/range. Only unit codes 0/1 seen
+      // live so far (never 2/3, i.e. never an actual mph speed reading) - but
+      // it's the same API family/field shape as the confirmed odometer/range
+      // unit table (see normalizeDistance() above), so treated as the same
+      // convention by analogy rather than left unconverted. km/h<->mph is the
+      // same ratio as km<->mi, so normalizeDistance() applies unchanged.
+      map.measure_speed = this.normalizeDistance(speed > 255 ? 0 : speed, sts?.vehicleLocation?.speed?.unit);
       let meterDistance = this.distance(map); // always km, computed from lat/lon
       if (this.imperialDistance) meterDistance = kmToMi(meterDistance);
       map.meter_distance = Math.round(meterDistance * 10) / 10;
@@ -718,7 +725,10 @@ class CarDevice extends Homey.Device {
       map.latitude = sts?.Location?.GeoCoord?.Latitude;
       map.longitude = sts?.Location?.GeoCoord?.Longitude;
       const speed = sts?.Location?.Speed?.Value;
-      map.measure_speed = speed > 255 ? 0 : speed;
+      // Same reasoning as the legacy vehicleLocation.speed handling above -
+      // Location.Speed.Unit is only ever seen as 0 live so far, treated as
+      // the same km/mi unit-code convention by analogy.
+      map.measure_speed = this.normalizeDistance(speed > 255 ? 0 : speed, sts?.Location?.Speed?.Unit);
       let ccs2MeterDistance = this.distance(map); // always km, computed from lat/lon
       if (this.imperialDistance) ccs2MeterDistance = kmToMi(ccs2MeterDistance);
       map.meter_distance = Math.round(ccs2MeterDistance * 10) / 10;
@@ -851,7 +861,7 @@ class CarDevice extends Homey.Device {
       this.log(`A/C on via ${source}`); // app or flow
       command = 'start';
       args = {
-        setTemp: this.getCapabilityValue('target_temperature') || 22,
+        setTemp: this.toApiSetTemp(this.getCapabilityValue('target_temperature') || 22),
         duration: flowArgs.duration ?? 10,
         defrost: false,
         steeringWheel: 0,
@@ -890,7 +900,7 @@ class CarDevice extends Homey.Device {
         rearLeftSeat: SEAT_STATUS.MEDIUM_HEAT,
         rearRightSeat: SEAT_STATUS.MEDIUM_HEAT,
         duration: flowArgs.duration ?? 10,
-        setTemp: this.getCapabilityValue('target_temperature') || 22,
+        setTemp: this.toApiSetTemp(this.getCapabilityValue('target_temperature') || 22),
       };
     } else {
       this.log(`defrost off via ${source}`);
@@ -936,11 +946,22 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command });
   }
 
+  // KiaUvoApiUSA.js / HyundaiBlueLinkApiUSA.js's startClimate() (ported
+  // faithfully from upstream, which has the same assumption - its caller,
+  // Home Assistant, supplies Fahrenheit there) expects options.setTemp
+  // already in Fahrenheit for the 'US' region. Every other region's
+  // startClimate() expects Celsius, matching target_temperature (Homey's
+  // stock capability - always Celsius, per Homey's platform contract), so
+  // only 'US' needs converting here before a command is sent.
+  toApiSetTemp(celsius) {
+    return this.settings.region === 'US' ? convert.celsiusToFahrenheit(celsius) : celsius;
+  }
+
   setTargetTemp(temp, source) {
     if (this.getCapabilityValue('engine')) throw Error(this.homey.__('error_engine_on'));
     if (!this.getCapabilityValue('climate_control')) throw Error(this.homey.__('error_climate_control_off'));
     this.log(`Temperature set by ${source} to ${temp}`);
-    const args = { setTemp: temp || 22 };
+    const args = { setTemp: this.toApiSetTemp(temp || 22) };
     const command = 'start';
     return this.enQueue({ command, args });
   }
@@ -1019,8 +1040,17 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command, args });
   }
 
-  refreshStatus(refresh, source) {
+  async refreshStatus(refresh, source) {
     if (!refresh) return true;
+    // Same guard doPoll() applies to an auto/forced poll (see forcePollInterval
+    // there) - but a user explicitly pressing this button/flow action deserves a
+    // real error instead of doPoll() silently downgrading to a cached-only read.
+    const batSoc = this.lastStatus?.['measure_battery.12V'];
+    const level = this.settings.batteryAlarmLevel;
+    if (!(batSoc > level)) {
+      this.log(`Refusing forced refresh via ${source}: 12V battery too low or unknown (${batSoc}% <= ${level}%)`);
+      throw Error(this.homey.__('error_battery_too_low_for_refresh', { batSoc: batSoc ?? '?', level }));
+    }
     this.setCapability('refresh_status', true);
     this.log(`Forcing status refresh via ${source}`);
     if (source === 'app' || source === 'cloud') this.carLastActive = Date.now();
