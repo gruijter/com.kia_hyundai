@@ -519,6 +519,7 @@ class CarDevice extends Homey.Device {
       // console.dir(fullStatus, { depth: null, colors: true, showHidden: true });
       const stsMapped = await this.mapStatus(fullStatus);
       await DeviceMigrator.syncDistanceUnits(this, this.imperialDistance).catch((error) => this.error(error));
+      await DeviceMigrator.syncSpeedUnits(this, this.imperialDistance).catch((error) => this.error(error));
       await DeviceMigrator.syncFuelEconomyUnits(this, this.fuelEconomyUnit, this.imperialDistance).catch((error) => this.error(error));
       if (stsMapped.Date !== this.lastStatus?.Date) {
         this.log(`${this.getName()} Server info changed. ${this.lastStatus?.Date} ${stsMapped.Date}`);
@@ -654,7 +655,13 @@ class CarDevice extends Homey.Device {
       map.latitude = sts?.vehicleLocation?.coord?.lat;
       map.longitude = sts?.vehicleLocation?.coord?.lon;
       const speed = sts?.vehicleLocation?.speed?.value;
-      map.measure_speed = speed > 255 ? 0 : speed;
+      // Same {value, unit} shape as odometer/range. Only unit codes 0/1 seen
+      // live so far (never 2/3, i.e. never an actual mph speed reading) - but
+      // it's the same API family/field shape as the confirmed odometer/range
+      // unit table (see normalizeDistance() above), so treated as the same
+      // convention by analogy rather than left unconverted. km/h<->mph is the
+      // same ratio as km<->mi, so normalizeDistance() applies unchanged.
+      map.measure_speed = this.normalizeDistance(speed > 255 ? 0 : speed, sts?.vehicleLocation?.speed?.unit);
       let meterDistance = this.distance(map); // always km, computed from lat/lon
       if (this.imperialDistance) meterDistance = kmToMi(meterDistance);
       map.meter_distance = Math.round(meterDistance * 10) / 10;
@@ -718,7 +725,10 @@ class CarDevice extends Homey.Device {
       map.latitude = sts?.Location?.GeoCoord?.Latitude;
       map.longitude = sts?.Location?.GeoCoord?.Longitude;
       const speed = sts?.Location?.Speed?.Value;
-      map.measure_speed = speed > 255 ? 0 : speed;
+      // Same reasoning as the legacy vehicleLocation.speed handling above -
+      // Location.Speed.Unit is only ever seen as 0 live so far, treated as
+      // the same km/mi unit-code convention by analogy.
+      map.measure_speed = this.normalizeDistance(speed > 255 ? 0 : speed, sts?.Location?.Speed?.Unit);
       let ccs2MeterDistance = this.distance(map); // always km, computed from lat/lon
       if (this.imperialDistance) ccs2MeterDistance = kmToMi(ccs2MeterDistance);
       map.meter_distance = Math.round(ccs2MeterDistance * 10) / 10;
