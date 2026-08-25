@@ -11,6 +11,7 @@
     "username": "Brukernavn",
     "password": "Passord",
     "pin": "4-sifret PIN-kode",
+    "pin_hint": "PIN-koden du har angitt i Kia Connect-appen for fjernstyring — ikke passordet til kontoen din.",
     "validate": "Fortsett",
 
     "required": "Du må fylle ut alle feltene.",
@@ -31,5 +32,6 @@
   "error_location_not_found": "Fant ikke den plasseringen.",
   "error_queue_full": "Det er allerede for mange kommandoer i køen for denne bilen. Vent litt og prøv igjen.",
   "error_unknown_command": "Ukjent kommando: __command__",
-  "error_invalid_window_state": "Ugyldig vindustilstand: __state__"
+  "error_invalid_window_state": "Ugyldig vindustilstand: __state__",
+  "error_battery_too_low_for_refresh": "Kan ikke tvinge frem en oppdatering: 12V-batteriet er for lavt eller ukjent (__batSoc__%, må være over __level__%)."
 }

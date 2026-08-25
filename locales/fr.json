@@ -11,6 +11,7 @@
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
     "pin": "Code PIN à 4 chiffres",
+    "pin_hint": "Le code PIN défini dans l'application Kia Connect pour le contrôle à distance — pas votre mot de passe de compte.",
     "validate": "Continuer",
 
     "required": "Vous devez remplir tous les champs.",
@@ -31,5 +32,6 @@
   "error_location_not_found": "Impossible de trouver cet emplacement.",
   "error_queue_full": "Trop de commandes sont déjà en file d'attente pour cette voiture. Veuillez patienter un instant et réessayer.",
   "error_unknown_command": "Commande inconnue : __command__",
-  "error_invalid_window_state": "État de fenêtre invalide : __state__"
+  "error_invalid_window_state": "État de fenêtre invalide : __state__",
+  "error_battery_too_low_for_refresh": "Actualisation forcée impossible : batterie 12V trop faible ou inconnue (__batSoc__ %, doit être supérieure à __level__ %)."
 }
