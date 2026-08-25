@@ -37,5 +37,8 @@
   },
   "2.3.1": {
     "en": "Implement unit aware handling of car data. Improve capability migrations. Cleanup inline comments. Remove HP2016/19 warning."
+  },
+  "2.3.2": {
+    "en": "Add PIN hint. Show error on refresh when 12V battery is tool low. Fix speed for non-ccs2. Convert speed to Mi/h when range is reported in Miles. Fix Celcius and Fahrenheit handling (untested). Cleanup code."
   }
 }
