@@ -11,7 +11,7 @@
     "username": "Username",
     "password": "Password",
     "pin": "4-digit PIN",
-    "pin_hint": "The PIN set in the Kia Connect app for remote control — not your account password.",
+    "pin_hint": "The PIN set in the Hyundai Bluelink app for remote control — not your account password.",
     "validate": "Continue",
 
     "required": "You need to fill in all fields.",

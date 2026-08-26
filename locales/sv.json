@@ -1,7 +1,7 @@
 {
   "pair": {
-    "title": "Anslut din Kia-bil",
-    "subtitle": "Använd dina Kia Connect-uppgifter",
+    "title": "Anslut din Hyundai-bil",
+    "subtitle": "Använd dina Hyundai Bluelink-uppgifter",
     "region": "Välj din region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -11,7 +11,7 @@
     "username": "Användarnamn",
     "password": "Lösenord",
     "pin": "4-siffrig PIN-kod",
-    "pin_hint": "Den PIN-kod du angett i Kia Connect-appen för fjärrstyrning — inte ditt kontolösenord.",
+    "pin_hint": "Den PIN-kod du angett i Hyundai Bluelink-appen för fjärrstyrning — inte ditt kontolösenord.",
     "validate": "Fortsätt",
 
     "required": "Du måste fylla i alla fält.",

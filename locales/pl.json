@@ -1,7 +1,7 @@
 {
   "pair": {
-    "title": "Sparuj swój samochód Kia",
-    "subtitle": "Użyj danych logowania Kia Connect",
+    "title": "Sparuj swój samochód Hyundai",
+    "subtitle": "Użyj danych logowania Hyundai Bluelink",
     "region": "Wybierz swój region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -11,7 +11,7 @@
     "username": "Nazwa użytkownika",
     "password": "Hasło",
     "pin": "4-cyfrowy kod PIN",
-    "pin_hint": "PIN ustawiony w aplikacji Kia Connect do zdalnego sterowania — nie hasło do konta.",
+    "pin_hint": "PIN ustawiony w aplikacji Hyundai Bluelink do zdalnego sterowania — nie hasło do konta.",
     "validate": "Kontynuuj",
 
     "required": "Musisz wypełnić wszystkie pola.",

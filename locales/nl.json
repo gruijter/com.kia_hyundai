@@ -1,7 +1,7 @@
 {
   "pair": {
-    "title": "Koppel uw Kia-auto",
-    "subtitle": "Gebruik uw Kia Connect-gegevens",
+    "title": "Koppel uw Hyundai-auto",
+    "subtitle": "Gebruik uw Hyundai Bluelink-gegevens",
     "region": "Selecteer uw regio",
     "region_eu": "Europa",
     "region_us": "VS",
@@ -11,7 +11,7 @@
     "username": "Gebruikersnaam",
     "password": "Wachtwoord",
     "pin": "4-cijferige pincode",
-    "pin_hint": "De pincode die u in de Kia Connect-app heeft ingesteld voor bediening op afstand — niet uw accountwachtwoord.",
+    "pin_hint": "De pincode die u in de Hyundai Bluelink-app heeft ingesteld voor bediening op afstand — niet uw accountwachtwoord.",
     "validate": "Doorgaan",
 
     "required": "U moet alle velden invullen.",

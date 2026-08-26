@@ -1,7 +1,7 @@
 {
   "pair": {
-    "title": "Vincula tu coche Kia",
-    "subtitle": "Usa tus credenciales de Kia Connect",
+    "title": "Vincula tu coche Hyundai",
+    "subtitle": "Usa tus credenciales de Hyundai Bluelink",
     "region": "Selecciona tu región",
     "region_eu": "Europa",
     "region_us": "EE. UU.",
@@ -11,7 +11,7 @@
     "username": "Nombre de usuario",
     "password": "Contraseña",
     "pin": "PIN de 4 dígitos",
-    "pin_hint": "El PIN configurado en la aplicación Kia Connect para el control remoto — no la contraseña de tu cuenta.",
+    "pin_hint": "El PIN configurado en la aplicación Hyundai Bluelink para el control remoto — no la contraseña de tu cuenta.",
     "validate": "Continuar",
 
     "required": "Debes rellenar todos los campos.",

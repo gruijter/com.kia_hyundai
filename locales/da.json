@@ -1,7 +1,7 @@
 {
   "pair": {
-    "title": "Tilkobl din Kia-bil",
-    "subtitle": "Brug dine Kia Connect-legitimationsoplysninger",
+    "title": "Tilkobl din Hyundai-bil",
+    "subtitle": "Brug dine Hyundai Bluelink-legitimationsoplysninger",
     "region": "Vælg din region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -11,7 +11,7 @@
     "username": "Brugernavn",
     "password": "Adgangskode",
     "pin": "4-cifret PIN-kode",
-    "pin_hint": "Den PIN-kode, du har angivet i Kia Connect-appen til fjernbetjening — ikke din kontoadgangskode.",
+    "pin_hint": "Den PIN-kode, du har angivet i Hyundai Bluelink-appen til fjernbetjening — ikke din kontoadgangskode.",
     "validate": "Fortsæt",
 
     "required": "Du skal udfylde alle felter.",

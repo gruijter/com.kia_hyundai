@@ -1,7 +1,7 @@
 {
   "pair": {
-    "title": "Koppeln Sie Ihr Kia-Auto",
-    "subtitle": "Verwenden Sie Ihre Kia Connect-Zugangsdaten",
+    "title": "Koppeln Sie Ihr Hyundai-Auto",
+    "subtitle": "Verwenden Sie Ihre Hyundai Bluelink-Zugangsdaten",
     "region": "Wählen Sie Ihre Region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -11,7 +11,7 @@
     "username": "Benutzername",
     "password": "Passwort",
     "pin": "4-stellige PIN",
-    "pin_hint": "Die PIN, die Sie in der Kia-Connect-App für die Fernsteuerung festgelegt haben — nicht Ihr Kontopasswort.",
+    "pin_hint": "Die PIN, die Sie in der Hyundai Bluelink-App für die Fernsteuerung festgelegt haben — nicht Ihr Kontopasswort.",
     "validate": "Weiter",
 
     "required": "Sie müssen alle Felder ausfüllen.",
