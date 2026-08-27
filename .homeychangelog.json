@@ -43,5 +43,8 @@
   },
   "2.3.3": {
     "en": "Fixed leftover Kia branding in the pairing screen text, the app store search tags and the translated store descriptions."
+  },
+  "2.3.4": {
+    "en": "Fixed an app crash that could occur when a remote command failed with a telematics timeout."
   }
 }
