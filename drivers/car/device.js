@@ -1091,7 +1091,7 @@ class CarDevice extends Homey.Device {
         const slow = Number(values.charge_target_slow) || Number(this.getCapabilityValue('charge_target_slow'));
         const fast = Number(values.charge_target_fast) || Number(this.getCapabilityValue('charge_target_fast'));
         const targets = { slow, fast };
-        this.setChargeTargets(targets, 'app');
+        return this.setChargeTargets(targets, 'app');
       }, 10000);
       this.listenersSet = true;
     }
