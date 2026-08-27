@@ -43,5 +43,8 @@
   },
   "2.3.3": {
     "en": "Version bump for release parity with the Hyundai app. No functional changes."
+  },
+  "2.3.4": {
+    "en": "Fixed an app crash that could occur when a remote command failed with a telematics timeout."
   }
 }
