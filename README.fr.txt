@@ -1,2 +1,2 @@
-KIA est guidée par sa vision de créer des solutions de mobilité durable qui inspirent le mouvement et la connexion. Avec l'application KIA pour Homey, intégrez facilement votre véhicule KIA à votre maison connectée, avec des fonctionnalités telles que la surveillance de l'état, les commandes à distance et des automatisations adaptées à votre routine quotidienne
+Hyundai s'engage pour le progrès de l'humanité en proposant des solutions de mobilité intelligentes qui enrichissent la vie. Avec l'application Hyundai pour Homey, intégrez votre véhicule Hyundai en toute transparence à votre maison connectée, afin de surveiller son état, d'exécuter des commandes à distance et de créer des automatisations adaptées à votre mode de vie.
 
