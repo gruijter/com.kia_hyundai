@@ -1,6 +1,6 @@
 {
   "id": "com.kia",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "compatibility": ">=12.4.5",
   "sdk": 3,
   "platforms": [

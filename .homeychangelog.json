@@ -46,5 +46,8 @@
   },
   "2.3.4": {
     "en": "Fixed an app crash that could occur when a remote command failed with a telematics timeout."
+  },
+  "2.4.0": {
+    "en": "Add next departure capability. Add enable/disable departure schedule buttons and flows. Fix refresh timezone. Improve server unavailable error."
   }
 }
