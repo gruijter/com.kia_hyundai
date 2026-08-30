@@ -579,8 +579,9 @@ class CarDevice extends Homey.Device {
       }
       if (this.lastRefresh) {
         const ds = new Date(this.lastRefresh);
-        const date = ds.toString().substring(4, 11);
-        const time = ds.toLocaleTimeString('nl-NL', { hour12: false, timeZone: this.homey.clock.getTimezone() }).substring(0, 5);
+        const timeZone = this.homey.clock.getTimezone();
+        const date = ds.toLocaleDateString('en-US', { month: 'short', day: '2-digit', timeZone });
+        const time = ds.toLocaleTimeString('nl-NL', { hour12: false, timeZone }).substring(0, 5);
         this.setCapability('last_refresh', `${date} ${time}`);
       }
 
