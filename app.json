@@ -3609,6 +3609,8 @@
         "charge",
         "defrost",
         "climate_control",
+        "departure_schedule.1",
+        "departure_schedule.2",
         "flash_lights",
         "flash_lights_and_honk",
         "vent_windows",
@@ -3787,6 +3789,40 @@
             "ru": "Батарея брелока",
             "ar": "بطارية جهاز التحكم عن بعد",
             "ko": "키 포브 배터리"
+          }
+        },
+        "departure_schedule.1": {
+          "title": {
+            "en": "Departure schedule 1",
+            "nl": "Vertrekschema 1",
+            "de": "Abfahrtsplan 1",
+            "fr": "Programme de départ 1",
+            "es": "Programa de salida 1",
+            "it": "Programma di partenza 1",
+            "da": "Afgangsplan 1",
+            "sv": "Avfärdsschema 1",
+            "no": "Avreiseplan 1",
+            "pl": "Harmonogram wyjazdu 1",
+            "ru": "Расписание отправления 1",
+            "ar": "جدول المغادرة 1",
+            "ko": "출발 일정 1"
+          }
+        },
+        "departure_schedule.2": {
+          "title": {
+            "en": "Departure schedule 2",
+            "nl": "Vertrekschema 2",
+            "de": "Abfahrtsplan 2",
+            "fr": "Programme de départ 2",
+            "es": "Programa de salida 2",
+            "it": "Programma di partenza 2",
+            "da": "Afgangsplan 2",
+            "sv": "Avfärdsschema 2",
+            "no": "Avreiseplan 2",
+            "pl": "Harmonogram wyjazdu 2",
+            "ru": "Расписание отправления 2",
+            "ar": "جدول المغادرة 2",
+            "ko": "출발 일정 2"
           }
         }
       },
@@ -5409,6 +5445,60 @@
       "uiComponent": "button",
       "uiQuickAction": false,
       "icon": "./assets/defrost.svg"
+    },
+    "departure_schedule": {
+      "type": "boolean",
+      "title": {
+        "en": "Departure schedule",
+        "nl": "Vertrekschema",
+        "de": "Abfahrtsplan",
+        "fr": "Programme de départ",
+        "es": "Programa de salida",
+        "it": "Programma di partenza",
+        "da": "Afgangsplan",
+        "sv": "Avfärdsschema",
+        "no": "Avreiseplan",
+        "pl": "Harmonogram wyjazdu",
+        "ru": "Расписание отправления",
+        "ar": "جدول المغادرة",
+        "ko": "출발 일정"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Departure schedule enabled",
+        "nl": "Vertrekschema ingeschakeld",
+        "de": "Abfahrtsplan aktiviert",
+        "fr": "Programme de départ activé",
+        "es": "Programa de salida activado",
+        "it": "Programma di partenza attivato",
+        "da": "Afgangsplan aktiveret",
+        "sv": "Avfärdsschema aktiverat",
+        "no": "Avreiseplan aktivert",
+        "pl": "Harmonogram wyjazdu włączony",
+        "ru": "Расписание отправления включено",
+        "ar": "تم تفعيل جدول المغادرة",
+        "ko": "출발 일정 켜짐"
+      },
+      "insightsTitleFalse": {
+        "en": "Departure schedule disabled",
+        "nl": "Vertrekschema uitgeschakeld",
+        "de": "Abfahrtsplan deaktiviert",
+        "fr": "Programme de départ désactivé",
+        "es": "Programa de salida desactivado",
+        "it": "Programma di partenza disattivato",
+        "da": "Afgangsplan deaktiveret",
+        "sv": "Avfärdsschema inaktiverat",
+        "no": "Avreiseplan deaktivert",
+        "pl": "Harmonogram wyjazdu wyłączony",
+        "ru": "Расписание отправления выключено",
+        "ar": "تم تعطيل جدول المغادرة",
+        "ko": "출발 일정 꺼짐"
+      },
+      "uiComponent": "button",
+      "uiQuickAction": false,
+      "icon": "./assets/departure_time.svg"
     },
     "departure_time": {
       "type": "string",
