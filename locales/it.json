@@ -20,6 +20,7 @@
     "pairing_failed": "Associazione non riuscita: __error__",
     "network_error": "Server Kia/Hyundai non raggiungibile. Riprova più tardi."
   },
+  "departure_not_set": "Non impostato",
   "migrating": "Migrazione del dispositivo in corso, attendere...",
   "device_no_vehicle": "Questa auto non è più disponibile in questo account (VIN __vin__). Verifica se è ancora condivisa/registrata a questo account.",
   "device_auth_failed": "Accesso non riuscito. Controlla nome utente, password e PIN nelle impostazioni del dispositivo.",

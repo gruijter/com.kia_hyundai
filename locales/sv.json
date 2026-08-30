@@ -20,6 +20,7 @@
     "pairing_failed": "Anslutning misslyckades: __error__",
     "network_error": "Kia/Hyundai-servern kan inte nås. Försök igen senare."
   },
+  "departure_not_set": "Inte inställd",
   "migrating": "Migrerar enhet, vänta...",
   "device_no_vehicle": "Den här bilen är inte längre tillgänglig på det här kontot (VIN __vin__). Kontrollera om den fortfarande är delad/registrerad till det här kontot.",
   "device_auth_failed": "Inloggningen misslyckades. Kontrollera ditt användarnamn, lösenord och PIN-kod i enhetsinställningarna.",

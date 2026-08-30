@@ -39,6 +39,7 @@
     "measure_speed",
     "measure_range",
     "ev_charging_state",
+    "departure_time",
     "meter_power.fuel_economy",
     "measure_odo",
     "alarm_tire_pressure",

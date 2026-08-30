@@ -20,6 +20,7 @@
     "pairing_failed": "Error de vinculación: __error__",
     "network_error": "Servidor Kia/Hyundai no accesible. Inténtalo más tarde."
   },
+  "departure_not_set": "Sin definir",
   "migrating": "Migrando dispositivo, espera un momento...",
   "device_no_vehicle": "Este coche ya no está disponible en esta cuenta (VIN __vin__). Comprueba si sigue compartido/registrado en esta cuenta.",
   "device_auth_failed": "Error al iniciar sesión. Comprueba tu nombre de usuario, contraseña y PIN en los ajustes del dispositivo.",

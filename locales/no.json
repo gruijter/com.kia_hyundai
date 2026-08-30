@@ -20,6 +20,7 @@
     "pairing_failed": "Sammenkobling mislyktes: __error__",
     "network_error": "Kia/Hyundai-serveren er ikke tilgjengelig. Prøv igjen senere."
   },
+  "departure_not_set": "Ikke angitt",
   "migrating": "Migrerer enhet, vennligst vent...",
   "device_no_vehicle": "Denne bilen er ikke lenger tilgjengelig på denne kontoen (VIN __vin__). Sjekk om den fortsatt er delt/registrert til denne kontoen.",
   "device_auth_failed": "Pålogging mislyktes. Sjekk brukernavn, passord og PIN-kode i enhetsinnstillingene.",

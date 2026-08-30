@@ -20,6 +20,7 @@
     "pairing_failed": "Kopplung fehlgeschlagen: __error__",
     "network_error": "Kia/Hyundai-Server nicht erreichbar. Später erneut versuchen."
   },
+  "departure_not_set": "Nicht eingestellt",
   "migrating": "Gerät wird migriert, bitte warten...",
   "device_no_vehicle": "Dieses Fahrzeug ist in diesem Konto nicht mehr verfügbar (FIN __vin__). Prüfen Sie, ob es noch mit diesem Konto geteilt/registriert ist.",
   "device_auth_failed": "Anmeldung fehlgeschlagen. Überprüfen Sie Benutzername, Passwort und PIN in den Geräteeinstellungen.",

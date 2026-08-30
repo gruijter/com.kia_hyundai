@@ -977,6 +977,54 @@
       },
       {
         "title": {
+          "en": "Departure time changed",
+          "nl": "Vertrektijd gewijzigd",
+          "de": "Abfahrtszeit geändert",
+          "fr": "L'heure de départ a changé",
+          "es": "La hora de salida ha cambiado",
+          "it": "L'orario di partenza è cambiato",
+          "da": "Afgangstid ændret",
+          "sv": "Avfärdstiden har ändrats",
+          "no": "Avreisetidspunkt endret",
+          "pl": "Godzina wyjazdu uległa zmianie",
+          "ru": "Время отправления изменилось",
+          "ar": "تغيّر وقت المغادرة",
+          "ko": "출발 시간 변경됨"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=car"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "departure_time",
+            "type": "string",
+            "title": {
+              "en": "Departure time",
+              "nl": "Vertrektijd",
+              "de": "Abfahrtszeit",
+              "fr": "Heure de départ",
+              "es": "Hora de salida",
+              "it": "Orario di partenza",
+              "da": "Afgangstid",
+              "sv": "Avfärdstid",
+              "no": "Avreisetidspunkt",
+              "pl": "Godzina wyjazdu",
+              "ru": "Время отправления",
+              "ar": "وقت المغادرة",
+              "ko": "출발 시간"
+            },
+            "example": "07:30"
+          }
+        ],
+        "id": "departure_time_changed"
+      },
+      {
+        "title": {
           "en": "The engine turned off",
           "nl": "De motor is uitgeschakeld",
           "de": "Der Motor wurde ausgeschaltet",
@@ -3350,6 +3398,7 @@
         "measure_speed",
         "measure_range",
         "ev_charging_state",
+        "departure_time",
         "meter_power.fuel_economy",
         "measure_odo",
         "alarm_tire_pressure",
@@ -5136,6 +5185,27 @@
       "uiComponent": "button",
       "uiQuickAction": false,
       "icon": "./assets/defrost.svg"
+    },
+    "departure_time": {
+      "type": "string",
+      "title": {
+        "en": "Departure",
+        "nl": "Vertrek",
+        "de": "Abfahrt",
+        "fr": "Départ",
+        "es": "Salida",
+        "it": "Partenza",
+        "da": "Afgang",
+        "sv": "Avfärd",
+        "no": "Avreise",
+        "pl": "Wyjazd",
+        "ru": "Отправление",
+        "ar": "المغادرة",
+        "ko": "출발"
+      },
+      "getable": true,
+      "setable": false,
+      "icon": "./assets/last_refresh.svg"
     },
     "engine": {
       "type": "boolean",

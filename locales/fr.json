@@ -20,6 +20,7 @@
     "pairing_failed": "Échec de l'association : __error__",
     "network_error": "Serveur Kia/Hyundai injoignable. Réessayez plus tard."
   },
+  "departure_not_set": "Non défini",
   "migrating": "Migration de l'appareil, veuillez patienter...",
   "device_no_vehicle": "Cette voiture n'est plus disponible sur ce compte (VIN __vin__). Vérifiez si elle est toujours partagée/enregistrée sur ce compte.",
   "device_auth_failed": "Échec de la connexion. Vérifiez votre nom d'utilisateur, mot de passe et code PIN dans les paramètres de l'appareil.",

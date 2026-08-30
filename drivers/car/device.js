@@ -23,6 +23,7 @@ const Homey = require('homey');
 const util = require('util');
 const { createClient, exceptions, constants } = require('../../lib/connect');
 const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
+const { ccs2ReservationTimeOrNone, legacyReservationTimeOrNone } = require('../../lib/connect/native/utils');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
@@ -716,6 +717,27 @@ class CarDevice extends Homey.Device {
         map.charge_target_fast = targetSOClist.find((list) => list.plugType === 0)?.targetSOClevel.toString();
       }
       map.ev_charging_state = evChargingState;
+      // Scheduled departure (issue #24). Legacy reservChargeInfos exposes two
+      // slots — reservChargeInfo + reserveChargeInfo2 (upstream's "reserve"
+      // typo). Times are 12-hour "HHMM" + AM/PM timeSection, already local
+      // car time.
+      const reserv = sts?.evStatus?.reservChargeInfos;
+      map.departure_time = this.formatDeparture([
+        {
+          enabled: reserv?.reservChargeInfo?.reservChargeInfoDetail?.reservChargeSet,
+          time: legacyReservationTimeOrNone(
+            reserv?.reservChargeInfo?.reservChargeInfoDetail?.reservInfo?.time?.time,
+            reserv?.reservChargeInfo?.reservChargeInfoDetail?.reservInfo?.time?.timeSection,
+          ),
+        },
+        {
+          enabled: reserv?.reserveChargeInfo2?.reservChargeInfoDetail?.reservChargeSet,
+          time: legacyReservationTimeOrNone(
+            reserv?.reserveChargeInfo2?.reservChargeInfoDetail?.reservInfo?.time?.time,
+            reserv?.reserveChargeInfo2?.reservChargeInfoDetail?.reservInfo?.time?.timeSection,
+          ),
+        },
+      ]);
       map['alarm_bat'] = (sts?.battery?.batSoc < this.settings.batteryAlarmLevel) || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.time;
     }
@@ -814,10 +836,31 @@ class CarDevice extends Homey.Device {
       map.charge_target_slow = sts?.Green?.ChargingInformation?.TargetSoC?.Standard.toString();
       map.charge_target_fast = sts?.Green?.ChargingInformation?.TargetSoC?.Quick.toString();
       map.ev_charging_state = evChargingState;
+      // Scheduled departure (issue #24). CCS2 exposes two slots under
+      // Green.Reservation.Departure; Schedule={"Enable": false} with no
+      // Hour/Min (EV9) and the 31:70 sentinel (ccNC EVs) both resolve to
+      // no time. Times are already local car time.
+      const departure = sts?.Green?.Reservation?.Departure;
+      map.departure_time = this.formatDeparture([
+        { enabled: departure?.Schedule1?.Enable, time: ccs2ReservationTimeOrNone(departure?.Schedule1?.Hour, departure?.Schedule1?.Min) },
+        { enabled: departure?.Schedule2?.Enable, time: ccs2ReservationTimeOrNone(departure?.Schedule2?.Hour, departure?.Schedule2?.Min) },
+      ]);
       map['alarm_bat'] = (map['measure_battery.12V'] < this.settings.batteryAlarmLevel) || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.Date;
     }
     return map;
+  }
+
+  // Formats the first enabled departure slot as local "HH:MM", or the
+  // localized "not set" text when no slot is active / the time is a sentinel
+  // (issue #24). Homey never translates a capability's value, so the
+  // "not set" string is built here via this.homey.__(), same idea as
+  // last_refresh's hand-formatted value.
+  formatDeparture(slots) {
+    const active = slots.find((slot) => slot.enabled && slot.time);
+    if (!active) return this.homey.__('departure_not_set');
+    const { hours, minutes } = active.time;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
   isMoving(info) {

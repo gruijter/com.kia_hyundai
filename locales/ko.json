@@ -20,6 +20,7 @@
     "pairing_failed": "페어링 실패: __error__",
     "network_error": "Kia/Hyundai 서버에 연결할 수 없습니다. 나중에 다시 시도하세요."
   },
+  "departure_not_set": "설정 안 됨",
   "migrating": "장치를 마이그레이션하는 중입니다. 잠시 기다려 주세요...",
   "device_no_vehicle": "이 차량은 더 이상 이 계정에서 사용할 수 없습니다(VIN __vin__). 이 계정에 여전히 공유/등록되어 있는지 확인하세요.",
   "device_auth_failed": "로그인에 실패했습니다. 장치 설정에서 사용자 이름, 비밀번호, PIN을 확인하세요.",
