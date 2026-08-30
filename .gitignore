@@ -1,4 +1,4 @@
-/node_modules/
+/node_modules
 /.homeybuild/
 /env.json
 /.vscode/
