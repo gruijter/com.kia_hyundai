@@ -1,0 +1,21 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Departure",
+    "nl": "Vertrek",
+    "de": "Abfahrt",
+    "fr": "Départ",
+    "es": "Salida",
+    "it": "Partenza",
+    "da": "Afgang",
+    "sv": "Avfärd",
+    "no": "Avreise",
+    "pl": "Wyjazd",
+    "ru": "Отправление",
+    "ar": "المغادرة",
+    "ko": "출발"
+  },
+  "getable": true,
+  "setable": false,
+  "icon": "./assets/departure_time.svg"
+}

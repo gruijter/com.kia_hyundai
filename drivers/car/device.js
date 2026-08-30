@@ -23,6 +23,9 @@ const Homey = require('homey');
 const util = require('util');
 const { createClient, exceptions, constants } = require('../../lib/connect');
 const { buildVehicleDebugDump } = require('../../lib/connect/native/debugDump');
+const {
+  ccs2ReservationTimeOrNone, legacyReservationTimeOrNone, ccs2DepartureDays, nextDepartureOccurrence,
+} = require('../../lib/connect/native/utils');
 const geo = require('../../lib/nomatim');
 const convert = require('../../lib/temp_convert');
 const { distanceKm } = require('../../lib/geo_distance');
@@ -291,6 +294,7 @@ class CarDevice extends Homey.Device {
       case 'setV2LDischargeLimit': return this.client.setVehicleToLoadDischargeLimit(vc, args);
       case 'enableValetMode': return this.client.valetModeAction(vc, VALET_MODE_ACTION.ACTIVATE);
       case 'disableValetMode': return this.client.valetModeAction(vc, VALET_MODE_ACTION.DEACTIVATE);
+      case 'scheduleChargingAndClimate': return this.client.scheduleChargingAndClimate(vc, args);
       default: return Promise.reject(Error(this.homey.__('error_unknown_command', { command })));
     }
   }
@@ -579,8 +583,9 @@ class CarDevice extends Homey.Device {
       }
       if (this.lastRefresh) {
         const ds = new Date(this.lastRefresh);
-        const date = ds.toString().substring(4, 11);
-        const time = ds.toLocaleTimeString('nl-NL', { hour12: false, timeZone: this.homey.clock.getTimezone() }).substring(0, 5);
+        const timeZone = this.homey.clock.getTimezone();
+        const date = ds.toLocaleDateString('en-US', { month: 'short', day: '2-digit', timeZone });
+        const time = ds.toLocaleTimeString('nl-NL', { hour12: false, timeZone }).substring(0, 5);
         this.setCapability('last_refresh', `${date} ${time}`);
       }
 
@@ -715,6 +720,20 @@ class CarDevice extends Homey.Device {
         map.charge_target_fast = targetSOClist.find((list) => list.plugType === 0)?.targetSOClevel.toString();
       }
       map.ev_charging_state = evChargingState;
+      // Scheduled departure (issue #24). Legacy reservChargeInfos exposes two
+      // slots — reservChargeInfo + reserveChargeInfo2 (upstream's "reserve"
+      // typo). Times are 12-hour "HHMM" + AM/PM timeSection, already local
+      // car time; reservInfo.day is a 0-6 weekday list (Sun=0, matching the
+      // write side and Date#getDay), or the [9] "unset" sentinel.
+      const reserv = sts?.evStatus?.reservChargeInfos;
+      // Kept raw for the departure_schedule.* toggles / enable_departure_schedule_*
+      // flow cards — the API has no per-slot toggle, so enabling/disabling one
+      // slot means re-POSTing the whole schedule (see buildScheduleOptions()).
+      this.rawReservation = reserv ? { kind: 'legacy', data: reserv } : null;
+      const departureSlots = this.departureSlots();
+      map.departure_time = this.formatDeparture(departureSlots);
+      map['departure_schedule.1'] = !!departureSlots[0]?.enabled;
+      map['departure_schedule.2'] = !!departureSlots[1]?.enabled;
       map['alarm_bat'] = (sts?.battery?.batSoc < this.settings.batteryAlarmLevel) || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.time;
     }
@@ -813,10 +832,176 @@ class CarDevice extends Homey.Device {
       map.charge_target_slow = sts?.Green?.ChargingInformation?.TargetSoC?.Standard.toString();
       map.charge_target_fast = sts?.Green?.ChargingInformation?.TargetSoC?.Quick.toString();
       map.ev_charging_state = evChargingState;
+      // Scheduled departure (issue #24). CCS2 exposes two slots under
+      // Green.Reservation.Departure; Schedule={"Enable": false} with no
+      // Hour/Min (EV9) and the 31:70 sentinel (ccNC EVs) both resolve to
+      // no time. Times are already local car time.
+      // Kept raw for the departure_schedule.* toggles, see the legacy branch
+      // above and buildScheduleOptions().
+      this.rawReservation = sts?.Green?.Reservation ? { kind: 'ccs2', data: sts.Green.Reservation } : null;
+      const ccs2DepartureSlots = this.departureSlots();
+      map.departure_time = this.formatDeparture(ccs2DepartureSlots);
+      map['departure_schedule.1'] = !!ccs2DepartureSlots[0]?.enabled;
+      map['departure_schedule.2'] = !!ccs2DepartureSlots[1]?.enabled;
       map['alarm_bat'] = (map['measure_battery.12V'] < this.settings.batteryAlarmLevel) || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.Date;
     }
     return map;
+  }
+
+  // The two departure slots as { enabled, time: {hours,minutes}|null, days }
+  // from this.rawReservation (legacy or CCS2), for formatDeparture() and the
+  // departure_schedule.* toggles. Empty when there's no reservation data.
+  departureSlots() {
+    const raw = this.rawReservation;
+    if (!raw?.data) return [];
+    if (raw.kind === 'legacy') {
+      const d = raw.data;
+      const slot = (detail) => ({
+        enabled: !!detail?.reservChargeSet,
+        time: legacyReservationTimeOrNone(detail?.reservInfo?.time?.time, detail?.reservInfo?.time?.timeSection),
+        days: detail?.reservInfo?.day,
+      });
+      return [slot(d.reservChargeInfo?.reservChargeInfoDetail), slot(d.reserveChargeInfo2?.reservChargeInfoDetail)];
+    }
+    const dep = raw.data.Departure;
+    const slot = (s) => ({
+      enabled: s?.Enable === 1 || s?.Enable === true,
+      time: ccs2ReservationTimeOrNone(s?.Hour, s?.Min),
+      days: ccs2DepartureDays(s),
+    });
+    return [slot(dep?.Schedule1), slot(dep?.Schedule2)];
+  }
+
+  // Formats the soonest upcoming departure across all enabled slots as its
+  // next concrete occurrence ("Aug 31 07:00"), same format as last_refresh,
+  // or the localized "not set" text when no slot is active / every time is a
+  // sentinel (issue #24). Both slots can be enabled with different times
+  // (e.g. 07:00 and 17:00) — the one that comes first wins, which flips
+  // through the day. Homey never translates a capability's value, so the
+  // "not set" string is built here via this.homey.__(). nextDepartureOccurrence
+  // returns a Date carrying the local wall-clock in its UTC fields — hence
+  // timeZone: 'UTC' below.
+  formatDeparture(slots) {
+    const timeZone = this.homey.clock.getTimezone();
+    const [next] = slots
+      .filter((slot) => slot.enabled && slot.time)
+      .map((slot) => nextDepartureOccurrence(slot.time, slot.days, timeZone))
+      .filter(Boolean)
+      .sort((a, b) => a - b);
+    if (!next) return this.homey.__('departure_not_set');
+    const date = next.toLocaleDateString('en-US', { month: 'short', day: '2-digit', timeZone: 'UTC' });
+    const time = next.toLocaleTimeString('nl-NL', { hour12: false, timeZone: 'UTC' }).substring(0, 5);
+    return `${date} ${time}`;
+  }
+
+  // Rebuilds the full scheduleChargingAndClimate() options object from the
+  // last polled reservation data (this.rawReservation, stashed in mapStatus).
+  // The API has no per-slot toggle — enabling/disabling one departure means
+  // re-POSTing the whole schedule, so every other field (both slots' time +
+  // days, off-peak window, scheduled-charging flag, preheat) has to be echoed
+  // back unchanged. Returns null when there's no reservation data yet.
+  // Known lossiness (upstream's write model): preheat is one setting shared by
+  // both slots (per-slot climate can't be expressed), and the off-peak flag is
+  // written as 1/2 so a car reporting the "unconfigured" 0 becomes 2.
+  buildScheduleOptions() {
+    const r = this.rawReservation;
+    if (!r || !r.data) return null;
+    const pad = (n) => String(n).padStart(2, '0');
+    const asHHMM = (t) => (t ? `${pad(t.hours)}:${pad(t.minutes)}` : '00:00');
+
+    if (r.kind === 'legacy') {
+      const d = r.data;
+      const slot = (detail) => {
+        const day = Array.isArray(detail?.reservInfo?.day) ? detail.reservInfo.day : [];
+        return {
+          enabled: !!detail?.reservChargeSet,
+          days: day.length ? day : [0],
+          time: asHHMM(legacyReservationTimeOrNone(detail?.reservInfo?.time?.time, detail?.reservInfo?.time?.timeSection)),
+          // A never-configured slot reports day: [9] + a sentinel time — not a
+          // real schedule to turn on. A configured one has weekdays in 0-6.
+          configured: day.some((d) => d >= 0 && d <= 6),
+        };
+      };
+      const fatc = d.reservChargeInfo?.reservChargeInfoDetail?.reservFatcSet;
+      let temperature = 21;
+      try {
+        const celsius = convert.getTempFromCode(fatc?.airTemp?.value);
+        if (typeof celsius === 'number') temperature = celsius;
+      } catch (error) { this.log('departure preheat temp out of range, using 21', error.message); }
+      const op = d.offpeakPowerInfo?.offPeakPowerTime1;
+      return {
+        firstDeparture: slot(d.reservChargeInfo?.reservChargeInfoDetail),
+        secondDeparture: slot(d.reserveChargeInfo2?.reservChargeInfoDetail),
+        chargingEnabled: d.reservFlag === 1,
+        offPeakChargeOnlyEnabled: d.offpeakPowerInfo?.offPeakPowerFlag === 1,
+        offPeakStartTime: asHHMM(legacyReservationTimeOrNone(op?.starttime?.time, op?.starttime?.timeSection)),
+        offPeakEndTime: asHHMM(legacyReservationTimeOrNone(op?.endtime?.time, op?.endtime?.timeSection)),
+        climateEnabled: fatc?.airCtrl === 1,
+        temperature,
+        temperatureUnit: fatc?.airTemp?.unit ?? 0,
+        defrost: !!fatc?.defrost,
+      };
+    }
+
+    // CCS2 (Green.Reservation)
+    const dep = r.data.Departure;
+    if (!dep) return null;
+    const slot = (s) => {
+      const days = ccs2DepartureDays(s);
+      return {
+        enabled: s?.Enable === 1 || s?.Enable === true,
+        days,
+        time: asHHMM(ccs2ReservationTimeOrNone(s?.Hour, s?.Min)),
+        configured: days.length > 0,
+      };
+    };
+    const clim = dep.Climate || {};
+    const temp = Number(clim.Temperature);
+    const op = r.data.OffPeakTime || {};
+    const opHHMM = (h, m) => ((Number.isInteger(h) && h >= 0 && h <= 23) ? `${pad(h)}:${pad(m || 0)}` : '00:00');
+    return {
+      firstDeparture: slot(dep.Schedule1),
+      secondDeparture: slot(dep.Schedule2),
+      chargingEnabled: op.Mode === 2 || op.Mode === 3,
+      offPeakChargeOnlyEnabled: op.Mode === 3,
+      offPeakStartTime: opHHMM(op.StartHour, op.StartMin),
+      offPeakEndTime: opHHMM(op.EndHour, op.EndMin),
+      climateEnabled: clim.Activation === 1,
+      temperature: Number.isFinite(temp) && temp > 0 ? temp : 21,
+      temperatureUnit: clim.TemperatureUnit ?? 0,
+      defrost: clim.Defrost === 1,
+    };
+  }
+
+  // Enable/disable one departure slot (index 1 or 2) — the departure_schedule.*
+  // toggles and enable_departure_schedule_* flow cards. Reconstructs the whole
+  // schedule and flips just that slot's flag (the API has no per-slot toggle).
+  enableDepartureSchedule(index, enabled, source) {
+    if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
+    const options = this.buildScheduleOptions();
+    if (!options) throw Error(this.homey.__('error_no_schedule'));
+    const key = index === 2 ? 'secondDeparture' : 'firstDeparture';
+    if (enabled && !options[key].configured) throw Error(this.homey.__('error_schedule_not_configured'));
+    options[key].enabled = enabled;
+    delete options.firstDeparture.configured;
+    delete options.secondDeparture.configured;
+    this.log(`Departure schedule ${index} ${enabled ? 'enabled' : 'disabled'} via ${source}`);
+    // Reflect it right away in the toggle + departure_time (a flow card sets
+    // no capability itself, and even the tile toggle would otherwise sit
+    // ahead of departure_time). The forced poll after the command re-derives
+    // both from real status once the server catches up.
+    const raw = this.rawReservation;
+    if (raw?.kind === 'legacy') {
+      const detail = (index === 2 ? raw.data.reserveChargeInfo2 : raw.data.reservChargeInfo)?.reservChargeInfoDetail;
+      if (detail) detail.reservChargeSet = enabled;
+    } else if (raw?.kind === 'ccs2') {
+      const schedule = raw.data.Departure?.[`Schedule${index}`];
+      if (schedule) schedule.Enable = enabled ? 1 : 0;
+    }
+    this.setCapability(`departure_schedule.${index}`, enabled);
+    this.setCapability('departure_time', this.formatDeparture(this.departureSlots()));
+    return this.enQueue({ command: 'scheduleChargingAndClimate', args: options });
   }
 
   isMoving(info) {
@@ -1073,6 +1258,10 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
+      if (this.hasCapability('departure_schedule.1')) {
+        this.registerCapabilityListener('departure_schedule.1', (enabled) => this.enableDepartureSchedule(1, enabled, 'app'));
+        this.registerCapabilityListener('departure_schedule.2', (enabled) => this.enableDepartureSchedule(2, enabled, 'app'));
+      }
       // Momentary buttons — self-reset back to false after the command
       // completes (or the enQueue timeout races it), matching refresh_status.
       this.registerCapabilityListener('vent_windows', (pressed) => {

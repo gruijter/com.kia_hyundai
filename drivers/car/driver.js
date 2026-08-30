@@ -20,7 +20,7 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const { createClient } = require('../../lib/connect');
+const { createClient, exceptions } = require('../../lib/connect');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
@@ -33,20 +33,20 @@ module.exports = class MyDriver extends Homey.Driver {
   async onInit() {
     this.capabilitiesMap = {
       'Full EV ccuCCS2': ['target_temperature', 'charge_target_slow', 'charge_target_fast', 'refresh_status', 'charge',
-        'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk', 'vent_windows', 'valet_mode', 'locked',
+        'defrost', 'climate_control', 'departure_schedule.1', 'departure_schedule.2', 'flash_lights', 'flash_lights_and_honk', 'vent_windows', 'valet_mode', 'locked',
         'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
-        'measure_range', 'ev_charging_state', 'measure_power.charge', 'meter_power.fuel_economy', 'measure_odo',
+        'measure_range', 'ev_charging_state', 'departure_time', 'measure_power.charge', 'meter_power.fuel_economy', 'measure_odo',
         'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery', 'measure_battery', 'measure_battery.12V', 'measure_battery.health', 'latitude', 'longitude'],
 
       'Full EV': ['target_temperature', 'charge_target_slow', 'charge_target_fast', 'refresh_status', 'charge',
-        'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk', 'valet_mode', 'locked',
+        'defrost', 'climate_control', 'departure_schedule.1', 'departure_schedule.2', 'flash_lights', 'flash_lights_and_honk', 'valet_mode', 'locked',
         'last_refresh', 'engine', 'closed_locked', 'location', 'meter_distance', 'measure_speed',
-        'measure_range', 'ev_charging_state', 'measure_odo', 'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery',
+        'measure_range', 'ev_charging_state', 'departure_time', 'measure_odo', 'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery',
         'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
-      PHEV: ['target_temperature', 'refresh_status', 'charge', 'defrost', 'climate_control', 'flash_lights', 'flash_lights_and_honk', 'valet_mode', 'locked',
+      PHEV: ['target_temperature', 'refresh_status', 'charge', 'defrost', 'climate_control', 'departure_schedule.1', 'departure_schedule.2', 'flash_lights', 'flash_lights_and_honk', 'valet_mode', 'locked',
         'last_refresh', 'engine', 'closed_locked',
-        'location', 'meter_distance', 'measure_speed', 'measure_range', 'ev_charging_state', 'measure_odo',
+        'location', 'meter_distance', 'measure_speed', 'measure_range', 'ev_charging_state', 'departure_time', 'measure_odo',
         'alarm_tire_pressure', 'alarm_bat', 'alarm_generic.washer_fluid', 'alarm_generic.brake_fluid', 'alarm_generic.key_fob_battery', 'measure_battery', 'measure_battery.12V', 'latitude', 'longitude'],
 
       'HEV/ICE': ['target_temperature', 'refresh_status', 'defrost', 'climate_control', 'flash_lights',
@@ -164,6 +164,9 @@ module.exports = class MyDriver extends Homey.Driver {
           veh = await Promise.race([manager.login(), timeout(LOGIN_TIMEOUT_MS)]);
         } catch (error) {
           this.error(error);
+          if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
+            throw Error(this.homey.__('pair.network_error'));
+          }
           throw Error(this.homey.__('pair.pairing_failed', { error: error.message || error }));
         }
         if (!veh || !Array.isArray(veh) || veh.length < 1) {

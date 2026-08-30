@@ -1,0 +1,111 @@
+{
+  "title": {
+    "en": "Departure schedule 1",
+    "nl": "Vertrekschema 1",
+    "de": "Abfahrtsplan 1",
+    "fr": "Programme de départ 1",
+    "es": "Programa de salida 1",
+    "it": "Programma di partenza 1",
+    "da": "Afgangsplan 1",
+    "sv": "Avfärdsschema 1",
+    "no": "Avreiseplan 1",
+    "pl": "Harmonogram wyjazdu 1",
+    "ru": "Расписание отправления 1",
+    "ar": "جدول المغادرة 1",
+    "ko": "출발 일정 1"
+  },
+  "titleFormatted": {
+    "en": "Departure schedule 1: [[state]]",
+    "nl": "Vertrekschema 1: [[state]]",
+    "de": "Abfahrtsplan 1: [[state]]",
+    "fr": "Programme de départ 1: [[state]]",
+    "es": "Programa de salida 1: [[state]]",
+    "it": "Programma di partenza 1: [[state]]",
+    "da": "Afgangsplan 1: [[state]]",
+    "sv": "Avfärdsschema 1: [[state]]",
+    "no": "Avreiseplan 1: [[state]]",
+    "pl": "Harmonogram wyjazdu 1: [[state]]",
+    "ru": "Расписание отправления 1: [[state]]",
+    "ar": "جدول المغادرة 1: [[state]]",
+    "ko": "출발 일정 1: [[state]]"
+  },
+  "hint": {
+    "en": "Turns the first departure timer on or off. Its time and days are kept.",
+    "nl": "Zet de eerste vertrektimer aan of uit. Tijd en dagen blijven behouden.",
+    "de": "Schaltet den ersten Abfahrtstimer ein oder aus. Uhrzeit und Tage bleiben erhalten.",
+    "fr": "Active ou désactive le premier minuteur de départ. L'heure et les jours sont conservés.",
+    "es": "Activa o desactiva el primer temporizador de salida. Se conservan la hora y los días.",
+    "it": "Attiva o disattiva il primo timer di partenza. Ora e giorni vengono mantenuti.",
+    "da": "Slår den første afgangstimer til eller fra. Tidspunkt og dage bevares.",
+    "sv": "Slår på eller av den första avfärdstimern. Tid och dagar behålls.",
+    "no": "Slår den første avreisetimeren på eller av. Tid og dager beholdes.",
+    "pl": "Włącza lub wyłącza pierwszy harmonogram wyjazdu. Godzina i dni pozostają bez zmian.",
+    "ru": "Включает или выключает первый таймер отправления. Время и дни сохраняются.",
+    "ar": "يشغّل أو يوقف مؤقّت المغادرة الأول. يتم الاحتفاظ بالوقت والأيام.",
+    "ko": "첫 번째 출발 타이머를 켜거나 끕니다. 시간과 요일은 유지됩니다."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=departure_time"
+    },
+    {
+      "type": "dropdown",
+      "name": "state",
+      "title": {
+        "en": "State",
+        "nl": "Status",
+        "de": "Status",
+        "fr": "État",
+        "es": "Estado",
+        "it": "Stato",
+        "da": "Tilstand",
+        "sv": "Läge",
+        "no": "Tilstand",
+        "pl": "Stan",
+        "ru": "Состояние",
+        "ar": "الحالة",
+        "ko": "상태"
+      },
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "On",
+            "nl": "Aan",
+            "de": "Ein",
+            "fr": "Activé",
+            "es": "Activado",
+            "it": "Attivo",
+            "da": "Til",
+            "sv": "På",
+            "no": "På",
+            "pl": "Wł.",
+            "ru": "Вкл.",
+            "ar": "تشغيل",
+            "ko": "켜짐"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "Off",
+            "nl": "Uit",
+            "de": "Aus",
+            "fr": "Désactivé",
+            "es": "Desactivado",
+            "it": "Disattivo",
+            "da": "Fra",
+            "sv": "Av",
+            "no": "Av",
+            "pl": "Wył.",
+            "ru": "Выкл.",
+            "ar": "إيقاف",
+            "ko": "꺼짐"
+          }
+        }
+      ]
+    }
+  ]
+}
