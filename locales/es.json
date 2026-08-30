@@ -13,19 +13,21 @@
     "pin": "PIN de 4 dígitos",
     "pin_hint": "El PIN configurado en la aplicación Hyundai Bluelink para el control remoto — no la contraseña de tu cuenta.",
     "validate": "Continuar",
-
     "required": "Debes rellenar todos los campos.",
     "invalid_pin": "PIN no válido, introduce tu PIN de 4 dígitos.",
     "no_vehicles": "No se han encontrado vehículos para esta cuenta.",
-    "pairing_failed": "Error de vinculación: __error__"
-
+    "pairing_failed": "Error de vinculación: __error__",
+    "network_error": "Servidor Hyundai no accesible. Inténtalo más tarde."
   },
+  "departure_not_set": "Sin definir",
   "migrating": "Migrando dispositivo, espera un momento...",
   "device_no_vehicle": "Este coche ya no está disponible en esta cuenta (VIN __vin__). Comprueba si sigue compartido/registrado en esta cuenta.",
   "device_auth_failed": "Error al iniciar sesión. Comprueba tu nombre de usuario, contraseña y PIN en los ajustes del dispositivo.",
   "device_otp_required": "Esta cuenta requiere un código de verificación adicional (OTP) al iniciar sesión, algo que esta aplicación aún no admite.",
   "device_quota_reached": "¡Cuota diaria alcanzada! Esperando 60 minutos.",
   "device_restarting": "El dispositivo se está reiniciando. ¡Espera unos minutos!",
+  "error_schedule_not_configured": "El programa aún no está configurado: establece su hora en la app de Bluelink primero.",
+  "error_no_schedule": "Aún no hay datos del programa de salida: inténtalo de nuevo tras la próxima actualización de estado.",
   "error_engine_on": "No es posible controlar; el motor está encendido.",
   "error_not_ev": "No es posible controlar; no es un vehículo eléctrico.",
   "error_climate_control_off": "La climatización no está activada.",

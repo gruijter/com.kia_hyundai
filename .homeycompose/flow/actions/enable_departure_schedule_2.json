@@ -1,0 +1,111 @@
+{
+  "title": {
+    "en": "Departure schedule 2",
+    "nl": "Vertrekschema 2",
+    "de": "Abfahrtsplan 2",
+    "fr": "Programme de départ 2",
+    "es": "Programa de salida 2",
+    "it": "Programma di partenza 2",
+    "da": "Afgangsplan 2",
+    "sv": "Avfärdsschema 2",
+    "no": "Avreiseplan 2",
+    "pl": "Harmonogram wyjazdu 2",
+    "ru": "Расписание отправления 2",
+    "ar": "جدول المغادرة 2",
+    "ko": "출발 일정 2"
+  },
+  "titleFormatted": {
+    "en": "Departure schedule 2: [[state]]",
+    "nl": "Vertrekschema 2: [[state]]",
+    "de": "Abfahrtsplan 2: [[state]]",
+    "fr": "Programme de départ 2: [[state]]",
+    "es": "Programa de salida 2: [[state]]",
+    "it": "Programma di partenza 2: [[state]]",
+    "da": "Afgangsplan 2: [[state]]",
+    "sv": "Avfärdsschema 2: [[state]]",
+    "no": "Avreiseplan 2: [[state]]",
+    "pl": "Harmonogram wyjazdu 2: [[state]]",
+    "ru": "Расписание отправления 2: [[state]]",
+    "ar": "جدول المغادرة 2: [[state]]",
+    "ko": "출발 일정 2: [[state]]"
+  },
+  "hint": {
+    "en": "Turns the second departure timer on or off. Its time and days are kept.",
+    "nl": "Zet de tweede vertrektimer aan of uit. Tijd en dagen blijven behouden.",
+    "de": "Schaltet den zweiten Abfahrtstimer ein oder aus. Uhrzeit und Tage bleiben erhalten.",
+    "fr": "Active ou désactive le second minuteur de départ. L'heure et les jours sont conservés.",
+    "es": "Activa o desactiva el segundo temporizador de salida. Se conservan la hora y los días.",
+    "it": "Attiva o disattiva il secondo timer di partenza. Ora e giorni vengono mantenuti.",
+    "da": "Slår den anden afgangstimer til eller fra. Tidspunkt og dage bevares.",
+    "sv": "Slår på eller av den andra avfärdstimern. Tid och dagar behålls.",
+    "no": "Slår den andre avreisetimeren på eller av. Tid og dager beholdes.",
+    "pl": "Włącza lub wyłącza drugi harmonogram wyjazdu. Godzina i dni pozostają bez zmian.",
+    "ru": "Включает или выключает второй таймер отправления. Время и дни сохраняются.",
+    "ar": "يشغّل أو يوقف مؤقّت المغادرة الثاني. يتم الاحتفاظ بالوقت والأيام.",
+    "ko": "두 번째 출발 타이머를 켜거나 끕니다. 시간과 요일은 유지됩니다."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=car&capabilities=departure_time"
+    },
+    {
+      "type": "dropdown",
+      "name": "state",
+      "title": {
+        "en": "State",
+        "nl": "Status",
+        "de": "Status",
+        "fr": "État",
+        "es": "Estado",
+        "it": "Stato",
+        "da": "Tilstand",
+        "sv": "Läge",
+        "no": "Tilstand",
+        "pl": "Stan",
+        "ru": "Состояние",
+        "ar": "الحالة",
+        "ko": "상태"
+      },
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "On",
+            "nl": "Aan",
+            "de": "Ein",
+            "fr": "Activé",
+            "es": "Activado",
+            "it": "Attivo",
+            "da": "Til",
+            "sv": "På",
+            "no": "På",
+            "pl": "Wł.",
+            "ru": "Вкл.",
+            "ar": "تشغيل",
+            "ko": "켜짐"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "Off",
+            "nl": "Uit",
+            "de": "Aus",
+            "fr": "Désactivé",
+            "es": "Desactivado",
+            "it": "Disattivo",
+            "da": "Fra",
+            "sv": "Av",
+            "no": "Av",
+            "pl": "Wył.",
+            "ru": "Выкл.",
+            "ar": "إيقاف",
+            "ko": "꺼짐"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -13,19 +13,21 @@
     "pin": "4-cifret PIN-kode",
     "pin_hint": "Den PIN-kode, du har angivet i Hyundai Bluelink-appen til fjernbetjening — ikke din kontoadgangskode.",
     "validate": "Fortsæt",
-
     "required": "Du skal udfylde alle felter.",
     "invalid_pin": "Ugyldig PIN-kode, indtast din 4-cifrede PIN-kode.",
     "no_vehicles": "Ingen køretøjer fundet for denne konto.",
-    "pairing_failed": "Tilkobling mislykkedes: __error__"
-
+    "pairing_failed": "Tilkobling mislykkedes: __error__",
+    "network_error": "Hyundai-serveren kan ikke nås. Prøv igen senere."
   },
+  "departure_not_set": "Ikke angivet",
   "migrating": "Migrerer enhed, vent venligst...",
   "device_no_vehicle": "Denne bil er ikke længere tilgængelig på denne konto (VIN __vin__). Kontroller, om den stadig er delt/registreret til denne konto.",
   "device_auth_failed": "Login mislykkedes. Kontroller dit brugernavn, adgangskode og PIN-kode i enhedsindstillingerne.",
   "device_otp_required": "Denne konto kræver en ekstra bekræftelseskode (OTP) ved login, hvilket denne app endnu ikke understøtter.",
   "device_quota_reached": "Dagligt kvote nået! Venter 60 minutter.",
   "device_restarting": "Enheden genstarter. Vent et par minutter!",
+  "error_schedule_not_configured": "Planen er ikke konfigureret endnu — indstil dens tidspunkt i Bluelink-appen først.",
+  "error_no_schedule": "Ingen data om afgangsplan endnu — prøv igen efter næste statusopdatering.",
   "error_engine_on": "Styring ikke mulig; motoren kører.",
   "error_not_ev": "Styring ikke mulig; ikke en elbil.",
   "error_climate_control_off": "Klimastyring er ikke tændt.",

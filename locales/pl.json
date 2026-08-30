@@ -13,19 +13,21 @@
     "pin": "4-cyfrowy kod PIN",
     "pin_hint": "PIN ustawiony w aplikacji Hyundai Bluelink do zdalnego sterowania — nie hasło do konta.",
     "validate": "Kontynuuj",
-
     "required": "Musisz wypełnić wszystkie pola.",
     "invalid_pin": "Nieprawidłowy kod PIN, wprowadź swój 4-cyfrowy kod PIN.",
     "no_vehicles": "Nie znaleziono pojazdów dla tego konta.",
-    "pairing_failed": "Parowanie nie powiodło się: __error__"
-
+    "pairing_failed": "Parowanie nie powiodło się: __error__",
+    "network_error": "Serwer Hyundai niedostępny. Spróbuj ponownie później."
   },
+  "departure_not_set": "Nie ustawiono",
   "migrating": "Migracja urządzenia, proszę czekać...",
   "device_no_vehicle": "Ten samochód nie jest już dostępny na tym koncie (VIN __vin__). Sprawdź, czy jest nadal udostępniony/zarejestrowany na tym koncie.",
   "device_auth_failed": "Logowanie nie powiodło się. Sprawdź nazwę użytkownika, hasło i kod PIN w ustawieniach urządzenia.",
   "device_otp_required": "To konto wymaga dodatkowego kodu weryfikacyjnego (OTP) przy logowaniu, którego ta aplikacja jeszcze nie obsługuje.",
   "device_quota_reached": "Osiągnięto dzienny limit! Oczekiwanie 60 minut.",
   "device_restarting": "Urządzenie się uruchamia ponownie. Poczekaj kilka minut!",
+  "error_schedule_not_configured": "Harmonogram nie został jeszcze skonfigurowany — najpierw ustaw jego godzinę w aplikacji Bluelink.",
+  "error_no_schedule": "Brak danych harmonogramu wyjazdu — spróbuj ponownie po następnej aktualizacji stanu.",
   "error_engine_on": "Sterowanie niemożliwe; silnik jest włączony.",
   "error_not_ev": "Sterowanie niemożliwe; to nie jest pojazd elektryczny.",
   "error_climate_control_off": "Klimatyzacja nie jest włączona.",
