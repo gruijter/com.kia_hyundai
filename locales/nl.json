@@ -17,8 +17,8 @@
     "required": "U moet alle velden invullen.",
     "invalid_pin": "Ongeldige pincode, voer uw 4-cijferige pincode in.",
     "no_vehicles": "Geen voertuigen gevonden voor dit account.",
-    "pairing_failed": "Koppelen mislukt: __error__"
-
+    "pairing_failed": "Koppelen mislukt: __error__",
+    "network_error": "Kia/Hyundai-server niet bereikbaar. Probeer het later opnieuw."
   },
   "migrating": "Apparaat wordt gemigreerd, even geduld...",
   "device_no_vehicle": "Deze auto is niet meer beschikbaar in dit account (VIN __vin__). Controleer of deze nog gedeeld/geregistreerd is bij dit account.",

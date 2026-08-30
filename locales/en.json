@@ -17,8 +17,8 @@
     "required": "You need to fill in all fields.",
     "invalid_pin": "Invalid PIN, enter your 4-digit PIN.",
     "no_vehicles": "No vehicles found for this account.",
-    "pairing_failed": "Pairing failed: __error__"
-
+    "pairing_failed": "Pairing failed: __error__",
+    "network_error": "Kia/Hyundai server not reachable. Try again later."
   },
   "migrating": "Migrating device, please wait...",
   "device_no_vehicle": "This car is no longer available in this account (VIN __vin__). Check if it is still shared/registered to this account.",

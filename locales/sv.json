@@ -17,8 +17,8 @@
     "required": "Du måste fylla i alla fält.",
     "invalid_pin": "Ogiltig PIN-kod, ange din 4-siffriga PIN-kod.",
     "no_vehicles": "Inga fordon hittades för det här kontot.",
-    "pairing_failed": "Anslutning misslyckades: __error__"
-
+    "pairing_failed": "Anslutning misslyckades: __error__",
+    "network_error": "Kia/Hyundai-servern kan inte nås. Försök igen senare."
   },
   "migrating": "Migrerar enhet, vänta...",
   "device_no_vehicle": "Den här bilen är inte längre tillgänglig på det här kontot (VIN __vin__). Kontrollera om den fortfarande är delad/registrerad till det här kontot.",

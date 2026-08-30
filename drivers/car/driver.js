@@ -20,7 +20,7 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const { createClient } = require('../../lib/connect');
+const { createClient, exceptions } = require('../../lib/connect');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
@@ -164,6 +164,9 @@ module.exports = class MyDriver extends Homey.Driver {
           veh = await Promise.race([manager.login(), timeout(LOGIN_TIMEOUT_MS)]);
         } catch (error) {
           this.error(error);
+          if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
+            throw Error(this.homey.__('pair.network_error'));
+          }
           throw Error(this.homey.__('pair.pairing_failed', { error: error.message || error }));
         }
         if (!veh || !Array.isArray(veh) || veh.length < 1) {

@@ -17,8 +17,8 @@
     "required": "Sie müssen alle Felder ausfüllen.",
     "invalid_pin": "Ungültige PIN, geben Sie Ihre 4-stellige PIN ein.",
     "no_vehicles": "Für dieses Konto wurden keine Fahrzeuge gefunden.",
-    "pairing_failed": "Kopplung fehlgeschlagen: __error__"
-
+    "pairing_failed": "Kopplung fehlgeschlagen: __error__",
+    "network_error": "Kia/Hyundai-Server nicht erreichbar. Später erneut versuchen."
   },
   "migrating": "Gerät wird migriert, bitte warten...",
   "device_no_vehicle": "Dieses Fahrzeug ist in diesem Konto nicht mehr verfügbar (FIN __vin__). Prüfen Sie, ob es noch mit diesem Konto geteilt/registriert ist.",

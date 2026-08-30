@@ -17,8 +17,8 @@
     "required": "Du må fylle ut alle feltene.",
     "invalid_pin": "Ugyldig PIN-kode, angi din 4-sifrede PIN-kode.",
     "no_vehicles": "Ingen kjøretøy funnet for denne kontoen.",
-    "pairing_failed": "Sammenkobling mislyktes: __error__"
-
+    "pairing_failed": "Sammenkobling mislyktes: __error__",
+    "network_error": "Kia/Hyundai-serveren er ikke tilgjengelig. Prøv igjen senere."
   },
   "migrating": "Migrerer enhet, vennligst vent...",
   "device_no_vehicle": "Denne bilen er ikke lenger tilgjengelig på denne kontoen (VIN __vin__). Sjekk om den fortsatt er delt/registrert til denne kontoen.",

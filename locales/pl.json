@@ -17,8 +17,8 @@
     "required": "Musisz wypełnić wszystkie pola.",
     "invalid_pin": "Nieprawidłowy kod PIN, wprowadź swój 4-cyfrowy kod PIN.",
     "no_vehicles": "Nie znaleziono pojazdów dla tego konta.",
-    "pairing_failed": "Parowanie nie powiodło się: __error__"
-
+    "pairing_failed": "Parowanie nie powiodło się: __error__",
+    "network_error": "Serwer Kia/Hyundai niedostępny. Spróbuj ponownie później."
   },
   "migrating": "Migracja urządzenia, proszę czekać...",
   "device_no_vehicle": "Ten samochód nie jest już dostępny na tym koncie (VIN __vin__). Sprawdź, czy jest nadal udostępniony/zarejestrowany na tym koncie.",
