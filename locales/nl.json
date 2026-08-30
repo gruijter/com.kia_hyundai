@@ -27,6 +27,8 @@
   "device_otp_required": "Dit account vereist een extra verificatiecode (OTP) bij het inloggen, wat deze app nog niet ondersteunt.",
   "device_quota_reached": "Dagelijkse limiet bereikt! 60 minuten wachten.",
   "device_restarting": "Apparaat wordt opnieuw gestart. Wacht enkele minuten!",
+  "error_schedule_not_configured": "Schema nog niet ingesteld — stel eerst de tijd in de Kia-app in.",
+  "error_no_schedule": "Nog geen vertrekschema-gegevens — probeer het opnieuw na de volgende statusupdate.",
   "error_engine_on": "Bediening niet mogelijk; motor staat aan.",
   "error_not_ev": "Bediening niet mogelijk; geen EV.",
   "error_climate_control_off": "Klimaatregeling staat niet aan.",

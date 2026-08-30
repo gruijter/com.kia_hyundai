@@ -27,6 +27,8 @@
   "device_otp_required": "Det här kontot kräver en extra verifieringskod (OTP) vid inloggning, vilket den här appen ännu inte stöder.",
   "device_quota_reached": "Daglig kvot uppnådd! Väntar 60 minuter.",
   "device_restarting": "Enheten startar om. Vänta några minuter!",
+  "error_schedule_not_configured": "Schemat är inte konfigurerat än — ställ in dess tid i Kia-appen först.",
+  "error_no_schedule": "Inga data om avfärdsschema än — försök igen efter nästa statusuppdatering.",
   "error_engine_on": "Styrning ej möjlig; motorn är igång.",
   "error_not_ev": "Styrning ej möjlig; inte en elbil.",
   "error_climate_control_off": "Klimatstyrningen är inte på.",

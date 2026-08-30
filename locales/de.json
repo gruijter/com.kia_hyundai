@@ -27,6 +27,8 @@
   "device_otp_required": "Dieses Konto erfordert bei der Anmeldung einen zusätzlichen Verifizierungscode (OTP), den diese App noch nicht unterstützt.",
   "device_quota_reached": "Tageslimit erreicht! 60 Minuten Wartezeit.",
   "device_restarting": "Gerät wird neu gestartet. Bitte einige Minuten warten!",
+  "error_schedule_not_configured": "Plan noch nicht eingerichtet — Uhrzeit zuerst in der Kia-App festlegen.",
+  "error_no_schedule": "Noch keine Abfahrtsplan-Daten — nach der nächsten Statusaktualisierung erneut versuchen.",
   "error_engine_on": "Steuerung nicht möglich; Motor läuft.",
   "error_not_ev": "Steuerung nicht möglich; kein Elektrofahrzeug.",
   "error_climate_control_off": "Klimasteuerung ist nicht eingeschaltet.",

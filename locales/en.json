@@ -27,6 +27,8 @@
   "device_otp_required": "This account requires an extra verification code (OTP) on login, which this app does not support yet.",
   "device_quota_reached": "Daily quota reached! Waiting 60 minutes.",
   "device_restarting": "Device is restarting. Wait a few minutes!",
+  "error_schedule_not_configured": "Schedule not set up yet — set its time in the Kia app first.",
+  "error_no_schedule": "No departure schedule data yet — try again after the next status update.",
   "error_engine_on": "Control not possible; engine is on.",
   "error_not_ev": "Control not possible; not an EV.",
   "error_climate_control_off": "Climate control is not on.",

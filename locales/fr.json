@@ -27,6 +27,8 @@
   "device_otp_required": "Ce compte nécessite un code de vérification supplémentaire (OTP) lors de la connexion, que cette application ne prend pas encore en charge.",
   "device_quota_reached": "Quota quotidien atteint ! Attente de 60 minutes.",
   "device_restarting": "L'appareil redémarre. Veuillez patienter quelques minutes !",
+  "error_schedule_not_configured": "Programme pas encore configuré — réglez d'abord son heure dans l'app Kia.",
+  "error_no_schedule": "Aucune donnée de programme de départ — réessayez après la prochaine mise à jour du statut.",
   "error_engine_on": "Contrôle impossible ; le moteur est allumé.",
   "error_not_ev": "Contrôle impossible ; ce n'est pas un véhicule électrique.",
   "error_climate_control_off": "La climatisation n'est pas activée.",

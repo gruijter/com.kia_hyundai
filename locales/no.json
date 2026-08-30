@@ -27,6 +27,8 @@
   "device_otp_required": "Denne kontoen krever en ekstra bekreftelseskode (OTP) ved pålogging, noe denne appen ikke støtter ennå.",
   "device_quota_reached": "Daglig kvote nådd! Venter i 60 minutter.",
   "device_restarting": "Enheten starter på nytt. Vent noen minutter!",
+  "error_schedule_not_configured": "Planen er ikke satt opp ennå — angi tidspunktet i Kia-appen først.",
+  "error_no_schedule": "Ingen data om avreiseplan ennå — prøv igjen etter neste statusoppdatering.",
   "error_engine_on": "Styring ikke mulig; motoren er på.",
   "error_not_ev": "Styring ikke mulig; ikke en elbil.",
   "error_climate_control_off": "Klimastyring er ikke på.",

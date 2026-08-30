@@ -93,6 +93,12 @@ module.exports = class MyApp extends Homey.App {
     const valetModeOff = this.homey.flow.getActionCard('valet_mode_off');
     valetModeOff.registerRunListener((args) => args.device.setValetMode(false, 'flow'));
 
+    const enableDepartureSchedule1 = this.homey.flow.getActionCard('enable_departure_schedule_1');
+    enableDepartureSchedule1.registerRunListener((args) => args.device.enableDepartureSchedule(1, args.state === 'on', 'flow'));
+
+    const enableDepartureSchedule2 = this.homey.flow.getActionCard('enable_departure_schedule_2');
+    enableDepartureSchedule2.registerRunListener((args) => args.device.enableDepartureSchedule(2, args.state === 'on', 'flow'));
+
     // condition cards
     const alarmBattery = this.homey.flow.getConditionCard('alarm_bat');
     alarmBattery.registerRunListener((args) => args.device.getCapabilityValue('alarm_bat'));
