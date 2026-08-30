@@ -17,5 +17,5 @@
   },
   "getable": true,
   "setable": false,
-  "icon": "./assets/last_refresh.svg"
+  "icon": "./assets/departure_time.svg"
 }
