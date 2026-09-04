@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "Doors closed and locked",
     "nl": "Deuren gesloten en vergrendeld",

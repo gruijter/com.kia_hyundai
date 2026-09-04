@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "Limit AC charging current",
     "nl": "AC-laadstroom beperken",

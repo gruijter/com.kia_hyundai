@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The engine turned on",
     "nl": "De motor is ingeschakeld",

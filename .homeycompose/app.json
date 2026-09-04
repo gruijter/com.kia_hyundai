@@ -4,7 +4,8 @@
   "compatibility": ">=12.4.5",
   "sdk": 3,
   "platforms": [
-    "local"
+    "local",
+    "cloud"
   ],
   "name": {
     "en": "Kia",

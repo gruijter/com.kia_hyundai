@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The tire pressure alarm turned on",
     "nl": "Het bandenspanningsalarm is ingeschakeld",

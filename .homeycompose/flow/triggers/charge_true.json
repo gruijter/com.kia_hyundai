@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The charger turned on",
     "nl": "De lader is ingeschakeld",

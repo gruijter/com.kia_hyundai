@@ -5,7 +5,8 @@
   "compatibility": ">=12.4.5",
   "sdk": 3,
   "platforms": [
-    "local"
+    "local",
+    "cloud"
   ],
   "name": {
     "en": "Kia",
@@ -256,6 +257,10 @@
   "flow": {
     "triggers": [
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The battery alarm turned off",
           "nl": "Het accualarm is uitgeschakeld",
@@ -296,6 +301,10 @@
         "id": "alarm_bat_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The battery alarm turned on",
           "nl": "Het accualarm is ingeschakeld",
@@ -336,6 +345,10 @@
         "id": "alarm_bat_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The brake fluid alarm turned off",
           "nl": "Het remvloeistofalarm is uitgeschakeld",
@@ -376,6 +389,10 @@
         "id": "alarm_generic.brake_fluid_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The brake fluid alarm turned on",
           "nl": "Het remvloeistofalarm is ingeschakeld",
@@ -416,6 +433,10 @@
         "id": "alarm_generic.brake_fluid_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The key fob battery alarm turned off",
           "nl": "Het batterijalarm van de sleutelhanger is uitgeschakeld",
@@ -456,6 +477,10 @@
         "id": "alarm_generic.key_fob_battery_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The key fob battery alarm turned on",
           "nl": "Het batterijalarm van de sleutelhanger is ingeschakeld",
@@ -496,6 +521,10 @@
         "id": "alarm_generic.key_fob_battery_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The washer fluid alarm turned off",
           "nl": "Het ruitensproeiervloeistofalarm is uitgeschakeld",
@@ -536,6 +565,10 @@
         "id": "alarm_generic.washer_fluid_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The washer fluid alarm turned on",
           "nl": "Het ruitensproeiervloeistofalarm is ingeschakeld",
@@ -576,6 +609,10 @@
         "id": "alarm_generic.washer_fluid_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The tire pressure alarm turned off",
           "nl": "Het bandenspanningsalarm is uitgeschakeld",
@@ -616,6 +653,10 @@
         "id": "alarm_tire_pressure_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The tire pressure alarm turned on",
           "nl": "Het bandenspanningsalarm is ingeschakeld",
@@ -656,6 +697,10 @@
         "id": "alarm_tire_pressure_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The charger turned off",
           "nl": "De lader is uitgeschakeld",
@@ -696,6 +741,10 @@
         "id": "charge_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The charger turned on",
           "nl": "De lader is ingeschakeld",
@@ -736,6 +785,10 @@
         "id": "charge_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The A/C turned off",
           "nl": "De airco is uitgeschakeld",
@@ -776,6 +829,10 @@
         "id": "climate_control_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The A/C turned on",
           "nl": "De airco is ingeschakeld",
@@ -816,6 +873,10 @@
         "id": "climate_control_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Doors closed and locked",
           "nl": "Deuren gesloten en vergrendeld",
@@ -856,6 +917,10 @@
         "id": "closed_locked_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Doors opened or unlocked",
           "nl": "Deuren geopend of ontgrendeld",
@@ -896,6 +961,10 @@
         "id": "closed_locked_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Defrosting turned off",
           "nl": "Ontdooien uitgeschakeld",
@@ -936,6 +1005,10 @@
         "id": "defrost_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Defrosting turned on",
           "nl": "Ontdooien ingeschakeld",
@@ -976,6 +1049,10 @@
         "id": "defrost_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Departure time changed",
           "nl": "Vertrektijd gewijzigd",
@@ -1024,6 +1101,10 @@
         "id": "departure_time_changed"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The engine turned off",
           "nl": "De motor is uitgeschakeld",
@@ -1064,6 +1145,10 @@
         "id": "engine_false"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The engine turned on",
           "nl": "De motor is ingeschakeld",
@@ -1104,6 +1189,10 @@
         "id": "engine_true"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The car has moved",
           "nl": "De auto is gaan rijden",
@@ -1144,6 +1233,10 @@
         "id": "has_moved"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The car has parked",
           "nl": "De auto is geparkeerd",
@@ -1254,6 +1347,10 @@
         "id": "has_parked"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "12V battery level changed",
           "nl": "12V-accuniveau gewijzigd",
@@ -1302,6 +1399,10 @@
         "id": "measure_battery.12V_changed"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Battery health (SoH) changed",
           "nl": "Accuconditie (SoH) gewijzigd",
@@ -1350,6 +1451,10 @@
         "id": "measure_battery.health_changed"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Odometer changed",
           "nl": "Kilometerstand gewijzigd",
@@ -1398,6 +1503,10 @@
         "id": "measure_odo_changed"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Range changed",
           "nl": "Actieradius gewijzigd",
@@ -1446,6 +1555,10 @@
         "id": "measure_range_changed"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Distance changed",
           "nl": "Afstand gewijzigd",
@@ -1494,6 +1607,10 @@
         "id": "meter_distance_changed"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Car status updated",
           "nl": "Autostatus bijgewerkt",
@@ -1536,6 +1653,10 @@
     ],
     "conditions": [
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The battery alarm is !{{on|off}}",
           "nl": "Het accualarm is !{{aan|uit}}",
@@ -1576,6 +1697,10 @@
         "id": "alarm_bat"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The brake fluid alarm is !{{on|off}}",
           "nl": "Het remvloeistofalarm is !{{aan|uit}}",
@@ -1616,6 +1741,10 @@
         "id": "alarm_generic.brake_fluid"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The key fob battery alarm is !{{on|off}}",
           "nl": "Het batterijalarm van de sleutelhanger is !{{aan|uit}}",
@@ -1656,6 +1785,10 @@
         "id": "alarm_generic.key_fob_battery"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The washer fluid alarm is !{{on|off}}",
           "nl": "Het ruitensproeiervloeistofalarm is !{{aan|uit}}",
@@ -1696,6 +1829,10 @@
         "id": "alarm_generic.washer_fluid"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The tire pressure alarm is !{{on|off}}",
           "nl": "Het bandenspanningsalarm is !{{aan|uit}}",
@@ -1736,6 +1873,10 @@
         "id": "alarm_tire_pressure"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The charger is !{{on|off}}",
           "nl": "De lader is !{{aan|uit}}",
@@ -1776,6 +1917,10 @@
         "id": "charge"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The A/C is !{{on|off}}",
           "nl": "De airco is !{{aan|uit}}",
@@ -1816,6 +1961,10 @@
         "id": "climate_control"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The car !{{is|is not}} closed and locked",
           "nl": "De auto !{{is|is niet}} gesloten en vergrendeld",
@@ -1856,6 +2005,10 @@
         "id": "closed_locked"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Defrosting is !{{on|off}}",
           "nl": "Ontdooien is !{{aan|uit}}",
@@ -1896,6 +2049,10 @@
         "id": "defrost"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The engine is !{{on|off}}",
           "nl": "De motor is !{{aan|uit}}",
@@ -1936,6 +2093,10 @@
         "id": "engine"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The car !{{is|is not}} moving",
           "nl": "De auto !{{rijdt|rijdt niet}}",
@@ -1976,6 +2137,10 @@
         "id": "moving"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "The car !{{is|is not}} parked",
           "nl": "De auto !{{staat|staat niet}} geparkeerd",
@@ -2018,6 +2183,10 @@
     ],
     "actions": [
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Turn A/C off",
           "nl": "Airco uitschakelen",
@@ -2058,6 +2227,10 @@
         "id": "ac_off"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Turn A/C on",
           "nl": "Airco inschakelen",
@@ -2123,6 +2296,10 @@
         "id": "ac_on"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Turn charging off",
           "nl": "Opladen uitschakelen",
@@ -2163,6 +2340,10 @@
         "id": "charge_off"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Turn charging on",
           "nl": "Opladen inschakelen",
@@ -2203,6 +2384,10 @@
         "id": "charge_on"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Close charge port",
           "nl": "Laadklep sluiten",
@@ -2243,6 +2428,10 @@
         "id": "charge_port_close"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Open charge port",
           "nl": "Laadklep openen",
@@ -2283,6 +2472,10 @@
         "id": "charge_port_open"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Turn defrost off",
           "nl": "Ontdooien uitschakelen",
@@ -2323,6 +2516,10 @@
         "id": "defrost_off"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Turn defrost on",
           "nl": "Ontdooien inschakelen",
@@ -2388,6 +2585,10 @@
         "id": "defrost_on"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Departure schedule 1",
           "nl": "Vertrekschema 1",
@@ -2500,6 +2701,10 @@
         "id": "enable_departure_schedule_1"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Departure schedule 2",
           "nl": "Vertrekschema 2",
@@ -2612,6 +2817,10 @@
         "id": "enable_departure_schedule_2"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Flash lights (find my car)",
           "nl": "Lichten laten knipperen (mijn auto zoeken)",
@@ -2652,6 +2861,10 @@
         "id": "flash_lights"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Flash lights + honk (find my car)",
           "nl": "Lichten laten knipperen + claxon (mijn auto zoeken)",
@@ -2692,6 +2905,10 @@
         "id": "flash_lights_and_honk"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Force status refresh (once)",
           "nl": "Status geforceerd vernieuwen (eenmalig)",
@@ -2732,6 +2949,10 @@
         "id": "force_refresh"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Set charge targets",
           "nl": "Oplaaddoelen instellen",
@@ -3030,6 +3251,10 @@
         "id": "set_charge_targets"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Limit AC charging current",
           "nl": "AC-laadstroom beperken",
@@ -3160,6 +3385,10 @@
         "id": "set_charging_current"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Set navigation destination",
           "nl": "Navigatiebestemming instellen",
@@ -3234,6 +3463,10 @@
         "id": "set_destination"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Set target temperature",
           "nl": "Streeftemperatuur instellen",
@@ -3299,6 +3532,10 @@
         "id": "set_target_temp"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Set V2L discharge limit",
           "nl": "V2L-ontlaadlimiet instellen",
@@ -3379,6 +3616,10 @@
         "id": "set_v2l_discharge_limit"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Disable valet mode",
           "nl": "Valet-modus uitschakelen",
@@ -3419,6 +3660,10 @@
         "id": "valet_mode_off"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Enable valet mode",
           "nl": "Valet-modus inschakelen",
@@ -3459,6 +3704,10 @@
         "id": "valet_mode_on"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Close all windows",
           "nl": "Alle ramen sluiten",
@@ -3499,6 +3748,10 @@
         "id": "windows_close"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Open all windows",
           "nl": "Alle ramen openen",
@@ -3539,6 +3792,10 @@
         "id": "windows_open"
       },
       {
+        "platforms": [
+          "local",
+          "cloud"
+        ],
         "title": {
           "en": "Vent all windows",
           "nl": "Alle ramen ventileren",
@@ -3827,7 +4084,8 @@
         }
       },
       "platforms": [
-        "local"
+        "local",
+        "cloud"
       ],
       "connectivity": [
         "cloud"

@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "Set navigation destination",
     "nl": "Navigatiebestemming instellen",
