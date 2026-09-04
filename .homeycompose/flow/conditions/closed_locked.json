@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The car !{{is|is not}} closed and locked",
     "nl": "De auto !{{is|is niet}} gesloten en vergrendeld",

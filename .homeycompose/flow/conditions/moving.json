@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The car !{{is|is not}} moving",
     "nl": "De auto !{{rijdt|rijdt niet}}",

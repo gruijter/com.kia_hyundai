@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "Vent all windows",
     "nl": "Alle ramen ventileren",

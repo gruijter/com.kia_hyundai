@@ -2,6 +2,7 @@
   "pair": {
     "title": "Koppel uw Hyundai-auto",
     "subtitle": "Gebruik uw Hyundai Bluelink-gegevens",
+    "repair_title": "Koppel uw Hyundai-auto opnieuw",
     "region": "Selecteer uw regio",
     "region_eu": "Europa",
     "region_us": "VS",
@@ -17,7 +18,8 @@
     "invalid_pin": "Ongeldige pincode, voer uw 4-cijferige pincode in.",
     "no_vehicles": "Geen voertuigen gevonden voor dit account.",
     "pairing_failed": "Koppelen mislukt: __error__",
-    "network_error": "Hyundai-server niet bereikbaar. Probeer het later opnieuw."
+    "network_error": "Hyundai-server niet bereikbaar. Probeer het later opnieuw.",
+    "repair_failed": "Opnieuw koppelen mislukt: __error__"
   },
   "departure_not_set": "Niet ingesteld",
   "migrating": "Apparaat wordt gemigreerd, even geduld...",
@@ -33,6 +35,7 @@
   "error_climate_control_off": "Klimaatregeling staat niet aan.",
   "error_location_not_found": "Kon die locatie niet vinden.",
   "error_queue_full": "Er staan al te veel commando's in de wachtrij voor deze auto. Wacht even en probeer het opnieuw.",
+  "error_device_gone": "Deze auto is niet meer beschikbaar.",
   "error_unknown_command": "Onbekend commando: __command__",
   "error_invalid_window_state": "Ongeldige raamstatus: __state__",
   "error_battery_too_low_for_refresh": "Kan geen geforceerde vernieuwing uitvoeren: 12V-accu is te laag of onbekend (__batSoc__%, moet boven __level__% zijn)."

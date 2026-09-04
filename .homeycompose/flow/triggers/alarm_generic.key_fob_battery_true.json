@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The key fob battery alarm turned on",
     "nl": "Het batterijalarm van de sleutelhanger is ingeschakeld",

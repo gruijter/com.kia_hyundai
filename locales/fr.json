@@ -2,6 +2,7 @@
   "pair": {
     "title": "Associez votre voiture Hyundai",
     "subtitle": "Utilisez vos identifiants Hyundai Bluelink",
+    "repair_title": "Associez à nouveau votre voiture Hyundai",
     "region": "Sélectionnez votre région",
     "region_eu": "Europe",
     "region_us": "États-Unis",
@@ -17,7 +18,8 @@
     "invalid_pin": "Code PIN invalide, saisissez votre code PIN à 4 chiffres.",
     "no_vehicles": "Aucun véhicule trouvé pour ce compte.",
     "pairing_failed": "Échec de l'association : __error__",
-    "network_error": "Serveur Hyundai injoignable. Réessayez plus tard."
+    "network_error": "Serveur Hyundai injoignable. Réessayez plus tard.",
+    "repair_failed": "Échec de la nouvelle association : __error__"
   },
   "departure_not_set": "Non défini",
   "migrating": "Migration de l'appareil, veuillez patienter...",
@@ -33,6 +35,7 @@
   "error_climate_control_off": "La climatisation n'est pas activée.",
   "error_location_not_found": "Impossible de trouver cet emplacement.",
   "error_queue_full": "Trop de commandes sont déjà en file d'attente pour cette voiture. Veuillez patienter un instant et réessayer.",
+  "error_device_gone": "Cette voiture n'est plus disponible.",
   "error_unknown_command": "Commande inconnue : __command__",
   "error_invalid_window_state": "État de fenêtre invalide : __state__",
   "error_battery_too_low_for_refresh": "Actualisation forcée impossible : batterie 12V trop faible ou inconnue (__batSoc__ %, doit être supérieure à __level__ %)."

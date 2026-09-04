@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "12V battery level changed",
     "nl": "12V-accuniveau gewijzigd",

@@ -24,8 +24,8 @@ const { createClient, exceptions } = require('../../lib/connect');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
-const timeout = (ms) => new Promise((_, reject) => {
-  setTimeout(() => reject(Error('timeout')), ms);
+const timeout = (homey, ms) => new Promise((_, reject) => {
+  homey.setTimeout(() => reject(Error('timeout')), ms);
 });
 
 module.exports = class MyDriver extends Homey.Driver {
@@ -127,8 +127,122 @@ module.exports = class MyDriver extends Homey.Driver {
   // (migration) — both key the checked fields by the same capability names.
   filterSupportedCapabilities(correctCaps, status) {
     if (!status) return correctCaps;
-    const isUnsupported = (value) => value === undefined || value === null || Number.isNaN(value);
-    return correctCaps.filter((cap) => !this.capabilitiesToCheck.includes(cap) || !isUnsupported(status[cap]));
+    return correctCaps.filter((cap) => !this.capabilitiesToCheck.includes(cap) || !this.isUnsupportedValue(status[cap]));
+  }
+
+  // The "this car doesn't report it" test, shared with Device#recordSeenCaps()
+  // so the evidence a capability is *kept* on is gathered by exactly the same
+  // rule that would drop it.
+  isUnsupportedValue(value) {
+    return value === undefined || value === null || Number.isNaN(value);
+  }
+
+  // Positive evidence ("this car does report it") per capabilitiesToCheck
+  // field, built from extractCheckableStatus()'s raw reads — the authoritative
+  // source, unlike Device#recordSeenCaps()'s input, which has already been
+  // through mapStatus()'s `!!` coercion. Written to the device store by BOTH
+  // onPair() and onRepair(), so Device#migrate() reaches the same conclusion on
+  // the next onInit() that the pairing/repair just did.
+  //
+  // An EMPTY object is a meaningful answer, not a missing one: it means "all of
+  // capabilitiesToCheck were checked against a real status and this car reports
+  // none of them". Device#migrate() depends on that distinction — an *absent*
+  // seenCaps means "never checked" and prunes nothing.
+  buildSeenCaps(checkable) {
+    const seenCaps = {};
+    Object.keys(checkable).forEach((cap) => {
+      if (!this.isUnsupportedValue(checkable[cap])) seenCaps[cap] = true;
+    });
+    return seenCaps;
+  }
+
+  // Logs in with the credentials from the pair/repair form and confirms the
+  // PIN. Shared so a repair validates exactly what pairing validates; only
+  // the wrapper message differs, hence failedKey (a repair that fails should
+  // not report "Pairing failed").
+  async validateCredentials(settings, failedKey = 'pair.pairing_failed') {
+    this.log('validating credentials');
+    if (settings.pin.length !== 4) {
+      throw Error(this.homey.__('pair.invalid_pin'));
+    }
+    const manager = createClient({
+      username: settings.username,
+      password: settings.password,
+      pin: settings.pin,
+      brand: this.homey.manifest.id.replace('com.', ''), // 'kia' or 'hyundai'
+      region: settings.region,
+      logger: { log: this.log.bind(this), error: this.error.bind(this) },
+    });
+    let vehicleConfigs;
+    try {
+      vehicleConfigs = await Promise.race([manager.login(), timeout(this.homey, LOGIN_TIMEOUT_MS)]);
+    } catch (error) {
+      this.error(error);
+      if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
+        throw Error(this.homey.__('pair.network_error'));
+      }
+      throw Error(this.homey.__(failedKey, { error: error.message || error }));
+    }
+    if (!vehicleConfigs || !Array.isArray(vehicleConfigs) || vehicleConfigs.length < 1) {
+      this.error('No vehicles in this account!');
+      throw Error(this.homey.__('pair.no_vehicles'));
+    }
+    try {
+      await manager.odometer(vehicleConfigs[0]); // confirms the PIN is correct
+    } catch {
+      this.error('Incorrect PIN!');
+      throw Error(this.homey.__('pair.invalid_pin'));
+    }
+    this.log('CREDENTIALS OK!');
+    return { manager, vehicleConfigs };
+  }
+
+  // Which capabilitiesMap bucket this vehicle belongs in. Derived from a raw
+  // status + the vehicle's own protocol flag, so it can only be done where
+  // both are at hand: pairing, repair, or a poll — never Device#migrate(),
+  // which runs before login and only has the mapped status to go on.
+  deriveEngine(status, vehicleConfig) {
+    // legacy (non-ccuCCS2) vehicles nest evStatus/dte/fuelLevel one level
+    // deeper, under vehicleStatus — CCS2 vehicles are already flat here.
+    const legacyStatus = status?.vehicleStatus || status;
+    const isPEV = !!legacyStatus.evStatus || !!status?.Green?.ChargingInformation?.ConnectorFastening;
+    const isICE = !!legacyStatus.dte || !!legacyStatus.fuelLevel
+      || !!legacyStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.gasModeRange?.value
+      || !!status?.Drivetrain?.InternalCombustionEngine;
+    let engine = 'HEV/ICE';
+    if (isPEV && isICE) engine = 'PHEV';
+    if (isPEV && !isICE) engine = 'Full EV';
+    if (isPEV && !isICE && vehicleConfig?.ccuCCS2ProtocolSupport) engine = 'Full EV ccuCCS2';
+    return engine;
+  }
+
+  // The complete device settings a pairing produces — every one of them
+  // re-derived, so a repair can write the identical set over an existing
+  // device instead of leaving stale values behind.
+  // `language` is the one settings key a user can change after pairing that
+  // this builder would otherwise clobber: it is a dropdown of the 14 API
+  // languages, read back in Device#setupClient(). Pairing has nothing to
+  // carry over so it takes the 'en' default; a repair must pass the device's
+  // current value or it silently resets everyone to English.
+  buildDeviceSettings(credentials, vehicleConfig, engine, language = 'en') {
+    return {
+      username: credentials.username,
+      password: credentials.password,
+      pin: credentials.pin,
+      region: credentials.region,
+      language,
+      // pollInterval,
+      nameOrg: vehicleConfig.name,
+      idOrg: vehicleConfig.id,
+      vin: vehicleConfig.vin,
+      regDate: vehicleConfig.regDate.split(' ')[0],
+      brandIndicator: vehicleConfig.brandIndicator,
+      generation: vehicleConfig.generation,
+      ccuCCS2ProtocolSupport: vehicleConfig.ccuCCS2ProtocolSupport,
+      engine,
+      lat: Math.round(this.homey.geolocation.getLatitude() * 100000000) / 100000000,
+      lon: Math.round(this.homey.geolocation.getLongitude() * 100000000) / 100000000,
+    };
   }
 
   onPair(session) {
@@ -140,47 +254,8 @@ module.exports = class MyDriver extends Homey.Driver {
       let vehicleConfigs = [];
 
       session.setHandler('validate', async (data) => {
-        this.log('validating credentials');
         settings = data;
-        vehicleConfigs = [];
-
-        if (settings.pin.length !== 4) {
-          throw Error(this.homey.__('pair.invalid_pin'));
-        }
-
-        const options = {
-          username: settings.username,
-          password: settings.password,
-          pin: settings.pin,
-          brand: this.homey.manifest.id.replace('com.', ''), // 'kia' or 'hyundai'
-          region: settings.region,
-          logger: { log: this.log.bind(this), error: this.error.bind(this) },
-        };
-
-        manager = createClient(options);
-
-        let veh;
-        try {
-          veh = await Promise.race([manager.login(), timeout(LOGIN_TIMEOUT_MS)]);
-        } catch (error) {
-          this.error(error);
-          if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
-            throw Error(this.homey.__('pair.network_error'));
-          }
-          throw Error(this.homey.__('pair.pairing_failed', { error: error.message || error }));
-        }
-        if (!veh || !Array.isArray(veh) || veh.length < 1) {
-          this.error('No vehicles in this account!');
-          throw Error(this.homey.__('pair.no_vehicles'));
-        }
-        try {
-          await manager.odometer(veh[0]); // confirms the PIN is correct
-        } catch {
-          this.error('Incorrect PIN!');
-          throw Error(this.homey.__('pair.invalid_pin'));
-        }
-        this.log('CREDENTIALS OK!');
-        vehicleConfigs = veh;
+        ({ manager, vehicleConfigs } = await this.validateCredentials(data));
         return true;
       });
 
@@ -190,44 +265,24 @@ module.exports = class MyDriver extends Homey.Driver {
           this.log(vehicleConfig);
           const status = await manager.updateVehicleWithCachedState(vehicleConfig);
           // console.dir(status, { depth: null, colors: true });
-          // legacy (non-ccuCCS2) vehicles nest evStatus/dte/fuelLevel one level
-          // deeper, under vehicleStatus — CCS2 vehicles are already flat here.
-          const legacyStatus = status?.vehicleStatus || status;
-          const isPEV = !!legacyStatus.evStatus || !!status?.Green?.ChargingInformation?.ConnectorFastening;
-          const isICE = !!legacyStatus.dte || !!legacyStatus.fuelLevel
-            || !!legacyStatus?.evStatus?.drvDistance?.[0]?.rangeByFuel?.gasModeRange?.value
-            || !!status?.Drivetrain?.InternalCombustionEngine;
-          let engine = 'HEV/ICE';
-          if (isPEV && isICE) engine = 'PHEV';
-          if (isPEV && !isICE) engine = 'Full EV';
-          if (isPEV && !isICE && vehicleConfig?.ccuCCS2ProtocolSupport) engine = 'Full EV ccuCCS2';
+          const engine = this.deriveEngine(status, vehicleConfig);
+          const checkable = this.extractCheckableStatus(status);
           return {
             name: vehicleConfig.nickname,
             data: {
               id: vehicleConfig.vin,
             },
-            settings: {
-              username: settings.username,
-              password: settings.password,
-              pin: settings.pin,
-              region: settings.region,
-              language: 'en',
-              // pollInterval,
-              nameOrg: vehicleConfig.name,
-              idOrg: vehicleConfig.id,
-              vin: vehicleConfig.vin,
-              regDate: vehicleConfig.regDate.split(' ')[0],
-              brandIndicator: vehicleConfig.brandIndicator,
-              generation: vehicleConfig.generation,
-              ccuCCS2ProtocolSupport: vehicleConfig.ccuCCS2ProtocolSupport,
-              engine,
-              lat: Math.round(this.homey.geolocation.getLatitude() * 100000000) / 100000000,
-              lon: Math.round(this.homey.geolocation.getLongitude() * 100000000) / 100000000,
-            },
-            capabilities: this.filterSupportedCapabilities(
-              this.capabilitiesMap[engine],
-              this.extractCheckableStatus(status),
-            ),
+            settings: this.buildDeviceSettings(settings, vehicleConfig, engine),
+            capabilities: this.filterSupportedCapabilities(this.capabilitiesMap[engine], checkable),
+            // Seeded for the same reason onRepair() writes it below: without it
+            // a freshly paired device has an empty store, Device#migrate() reads
+            // that as "no evidence either way", re-derives the UNFILTERED engine
+            // bucket and immediately migrates the device back to it — undoing the
+            // pruning this pairing just did. Observed on a legacy e-Niro: a ~22s
+            // capability remove/re-add on the very first onInit(), after which
+            // the three re-added alarm_generic.* capabilities sat unfilled
+            // forever, because the car never reports them.
+            store: { seenCaps: this.buildSeenCaps(checkable) },
           };
         });
         // console.log(await Promise.all(devices));
@@ -236,6 +291,67 @@ module.exports = class MyDriver extends Homey.Driver {
     } catch (error) {
       this.error(error);
     }
+  }
+
+  // Re-runs a full pairing against an existing device: same credential form,
+  // same login, same engine derivation, same settings and capability list —
+  // then throws away everything the device had learned since it was paired
+  // (stored status, per-capability evidence, park location, applied unit
+  // labels), so it comes up as if it had just been added. Recovers a device
+  // whose settings went stale or were never written by the version that
+  // paired it (a missing `engine` disables Device#migrate() entirely), and
+  // re-buckets a car whose protocol changed under it (ccuCCS2 after a
+  // firmware update) — neither of which any restart can fix.
+  onRepair(session, device) {
+    let credentials;
+    let manager;
+    let vehicleConfigs = [];
+
+    session.setHandler('validate', async (data) => {
+      credentials = data;
+      ({ manager, vehicleConfigs } = await this.validateCredentials(data, 'pair.repair_failed'));
+      return true;
+    });
+
+    session.setHandler('repair', async () => {
+      const vin = device.getData().id;
+      this.log(`repairing ${device.getName()} (${vin})`);
+      const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === vin);
+      // The account no longer holds this car (sold, or unshared) — the same
+      // situation Device#setupClient() reports, so the same message.
+      if (!vehicleConfig) throw Error(this.homey.__('device_no_vehicle', { vin }));
+
+      const status = await manager.updateVehicleWithCachedState(vehicleConfig);
+      const engine = this.deriveEngine(status, vehicleConfig);
+      await device.setSettings(this.buildDeviceSettings(credentials, vehicleConfig, engine, device.getSettings().language));
+      // The capability migration is deliberately NOT run here. It settles 2s
+      // per added and per removed capability, so re-bucketing an engine would
+      // hold this pair-session handler open for minutes behind a
+      // progress-less loading overlay. Device#migrate() does exactly the same
+      // work on the next onInit() — it only needs this repair's freshly
+      // fetched evidence, which is what seenCaps below carries over to it.
+      //
+      // Writing seenCaps (rather than clearing it along with the other stale
+      // keys) is also what keeps the restart from re-adding everything this
+      // repair should prune: migrate() reads an absent seenCaps AND lastStatus
+      // as "no evidence either way" and prunes nothing at all.
+      const seenCaps = this.buildSeenCaps(this.extractCheckableStatus(status));
+      // Store keys a fresh pairing wouldn't have. Left behind, the unit
+      // markers would suppress the next poll's unit write (see
+      // DeviceMigrator#reconcileUnitMarkers).
+      const stale = ['lastStatus', 'parkLocation', 'appliedDistanceUnits', 'appliedSpeedUnits', 'appliedFuelEconomyUnits'];
+      await Promise.all(stale.map((key) => device.unsetStoreValue(key).catch((error) => this.error(error))));
+      await device.setStoreValue('seenCaps', seenCaps).catch((error) => this.error(error));
+      this.log(`repair of ${device.getName()} done, engine=${engine}`);
+      // cancelRestart() first: a device is usually repaired *because* it sits
+      // in a pending restart backoff (15 min on device_auth_failed, 60 on OTP
+      // or quota), and restartDevice() early-returns while `restarting` is
+      // true. Without this the repair's own restart is silently dropped and
+      // none of the above takes effect until that pending timer fires.
+      device.cancelRestart();
+      device.restartDevice(500).catch((error) => this.error(error));
+      return true;
+    });
   }
 
 };

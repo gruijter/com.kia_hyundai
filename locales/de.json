@@ -2,6 +2,7 @@
   "pair": {
     "title": "Koppeln Sie Ihr Hyundai-Auto",
     "subtitle": "Verwenden Sie Ihre Hyundai Bluelink-Zugangsdaten",
+    "repair_title": "Hyundai-Auto neu koppeln",
     "region": "Wählen Sie Ihre Region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -17,7 +18,8 @@
     "invalid_pin": "Ungültige PIN, geben Sie Ihre 4-stellige PIN ein.",
     "no_vehicles": "Für dieses Konto wurden keine Fahrzeuge gefunden.",
     "pairing_failed": "Kopplung fehlgeschlagen: __error__",
-    "network_error": "Hyundai-Server nicht erreichbar. Später erneut versuchen."
+    "network_error": "Hyundai-Server nicht erreichbar. Später erneut versuchen.",
+    "repair_failed": "Neukopplung fehlgeschlagen: __error__"
   },
   "departure_not_set": "Nicht eingestellt",
   "migrating": "Gerät wird migriert, bitte warten...",
@@ -33,6 +35,7 @@
   "error_climate_control_off": "Klimasteuerung ist nicht eingeschaltet.",
   "error_location_not_found": "Dieser Standort konnte nicht gefunden werden.",
   "error_queue_full": "Für dieses Fahrzeug sind bereits zu viele Befehle in der Warteschlange. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+  "error_device_gone": "Dieses Fahrzeug ist nicht mehr verfügbar.",
   "error_unknown_command": "Unbekannter Befehl: __command__",
   "error_invalid_window_state": "Ungültiger Fensterstatus: __state__",
   "error_battery_too_low_for_refresh": "Erzwungene Aktualisierung nicht möglich: 12V-Batterie ist zu niedrig oder unbekannt (__batSoc__%, muss über __level__% liegen)."

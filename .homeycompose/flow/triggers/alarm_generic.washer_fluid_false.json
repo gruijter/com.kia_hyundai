@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The washer fluid alarm turned off",
     "nl": "Het ruitensproeiervloeistofalarm is uitgeschakeld",

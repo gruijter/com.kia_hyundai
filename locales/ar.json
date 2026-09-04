@@ -2,6 +2,7 @@
   "pair": {
     "title": "اقتران سيارتك Hyundai",
     "subtitle": "استخدم بيانات اعتماد Hyundai Bluelink الخاصة بك",
+    "repair_title": "إعادة اقتران سيارتك Hyundai",
     "region": "اختر منطقتك",
     "region_eu": "أوروبا",
     "region_us": "الولايات المتحدة",
@@ -17,7 +18,8 @@
     "invalid_pin": "رقم سري غير صالح، أدخل الرقم السري المكون من 4 أرقام.",
     "no_vehicles": "لم يتم العثور على أي مركبات لهذا الحساب.",
     "pairing_failed": "فشل الاقتران: __error__",
-    "network_error": "تعذّر الوصول إلى خادم Hyundai. حاول مرة أخرى لاحقًا."
+    "network_error": "تعذّر الوصول إلى خادم Hyundai. حاول مرة أخرى لاحقًا.",
+    "repair_failed": "فشل إعادة الاقتران: __error__"
   },
   "departure_not_set": "غير محدد",
   "migrating": "جارٍ ترحيل الجهاز، يرجى الانتظار...",
@@ -33,6 +35,7 @@
   "error_climate_control_off": "التحكم بالمناخ غير مفعّل.",
   "error_location_not_found": "تعذر العثور على هذا الموقع.",
   "error_queue_full": "يوجد بالفعل عدد كبير جدًا من الأوامر في قائمة الانتظار لهذه السيارة. يرجى الانتظار لحظة والمحاولة مرة أخرى.",
+  "error_device_gone": "هذه السيارة لم تعد متاحة.",
   "error_unknown_command": "أمر غير معروف: __command__",
   "error_invalid_window_state": "حالة نافذة غير صالحة: __state__",
   "error_battery_too_low_for_refresh": "تعذر فرض التحديث: بطارية 12 فولت منخفضة جدًا أو غير معروفة (__batSoc__٪، يجب أن تكون أعلى من __level__٪)."

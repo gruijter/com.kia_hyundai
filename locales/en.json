@@ -2,6 +2,7 @@
   "pair": {
     "title": "Pair your Hyundai car",
     "subtitle": "Use your Hyundai Bluelink credentials",
+    "repair_title": "Re-pair your Hyundai car",
     "region": "Select your region",
     "region_eu": "Europe",
     "region_us": "USA",
@@ -17,7 +18,8 @@
     "invalid_pin": "Invalid PIN, enter your 4-digit PIN.",
     "no_vehicles": "No vehicles found for this account.",
     "pairing_failed": "Pairing failed: __error__",
-    "network_error": "Hyundai server not reachable. Try again later."
+    "network_error": "Hyundai server not reachable. Try again later.",
+    "repair_failed": "Re-pairing failed: __error__"
   },
   "departure_not_set": "Not set",
   "migrating": "Migrating device, please wait...",
@@ -33,6 +35,7 @@
   "error_climate_control_off": "Climate control is not on.",
   "error_location_not_found": "Could not find that location.",
   "error_queue_full": "Too many commands are already queued for this car. Please wait a moment and try again.",
+  "error_device_gone": "This car is no longer available.",
   "error_unknown_command": "Unknown command: __command__",
   "error_invalid_window_state": "Invalid window state: __state__",
   "error_battery_too_low_for_refresh": "Cannot force a refresh: 12V battery is too low or unknown (__batSoc__%, must be above __level__%)."
