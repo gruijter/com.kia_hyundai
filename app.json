@@ -3853,6 +3853,11 @@
           "template": "add_devices"
         }
       ],
+      "repair": [
+        {
+          "id": "repair"
+        }
+      ],
       "id": "car",
       "settings": [
         {
