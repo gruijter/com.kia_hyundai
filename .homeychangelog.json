@@ -52,5 +52,8 @@
   },
   "2.5.0": {
     "en": "Enable Homey Cloud installs. Add car repair. Fix capability and unit migrations. Multiple stability fixes."
+  },
+  "2.5.1": {
+    "en": "Added dashboard widget."
   }
 }
