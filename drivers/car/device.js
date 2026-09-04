@@ -78,6 +78,12 @@ const ITEM_WAIT_SECONDS = {
 // that's still legitimately in progress.
 const ENQUEUE_RESULT_TIMEOUT_MS = 8 * 1000;
 
+// Ceiling for setupClient()'s login retry backoff (15s, 30s, 60s ... capped).
+// 15 minutes matches the AuthenticationError branch's own fixed retry, and
+// keeps a device that's down for a whole day at ~100 login attempts instead
+// of ~5700.
+const LOGIN_BACKOFF_MAX_MS = 15 * 60 * 1000;
+
 class CarDevice extends Homey.Device {
 
   // this method is called when the Device is inited
@@ -100,17 +106,34 @@ class CarDevice extends Homey.Device {
   async migrate() {
     try {
       // Drop capabilities the car has never actually reported data for (see
-      // driver.js#capabilitiesToCheck) — sourced from the device's own
-      // last-stored status rather than a live fetch, so migration doesn't
-      // add an extra vehicle-API call on every app restart. This reliably
-      // catches the confirmed legacy/non-CCS2 gap (see the comment above
+      // driver.js#capabilitiesToCheck) — sourced from the device's own stored
+      // status rather than a live fetch, so migration doesn't add an extra
+      // vehicle-API call on every app restart. This reliably catches the
+      // confirmed legacy/non-CCS2 gap (see the comment above
       // `alarm_generic.washer_fluid` in mapStatus() below); it can't catch a
       // hypothetical CCS2-side version of the same gap, since those fields
       // are coerced to a boolean before being stored.
+      //
+      // "Never reported" is what's meant, so a capability the car HAS
+      // reported at some point overrides whatever the most recent status
+      // says: one truncated response (a status missing its whole `evStatus`/
+      // `Green` branch, say) would otherwise permanently drop the capability
+      // at the next restart, and removeCapability() breaks every flow using
+      // it — three of the checked capabilities have condition cards.
+      // recordSeenCaps() collects that evidence on each poll; an empty/absent
+      // `seenCaps` (device from before this existed) simply falls back to the
+      // last-status-only behaviour.
+      // Both absent (freshly paired, or a cleared store) must stay `null`:
+      // filterSupportedCapabilities() treats a falsy status as "no evidence
+      // either way" and prunes nothing, where an empty object would read as
+      // "reports none of them" and strip the capabilities pairing just
+      // correctly added.
       const lastStatus = this.getStoreValue('lastStatus');
+      const seenCaps = this.getStoreValue('seenCaps');
+      const evidence = (lastStatus || seenCaps) ? { ...lastStatus, ...seenCaps } : null;
       const correctCaps = this.driver.filterSupportedCapabilities(
         this.driver.capabilitiesMap[this.getSettings().engine],
-        lastStatus,
+        evidence,
       );
       await DeviceMigrator.migrateCapabilities(this, correctCaps);
       // Must run after the capability migration above, which is one of the
@@ -121,9 +144,24 @@ class CarDevice extends Homey.Device {
     }
   }
 
+  // Remembers which of driver.js#capabilitiesToCheck this car has ever
+  // reported a real value for, so migrate() can prune on "never seen" rather
+  // than "missing from the most recent status". Write-once per capability:
+  // after the first poll that reports them all, this never touches the store
+  // again.
+  async recordSeenCaps(stsMapped) {
+    const seen = this.getStoreValue('seenCaps') || {};
+    let changed = false;
+    this.driver.capabilitiesToCheck.forEach((cap) => {
+      if (seen[cap] || this.driver.isUnsupportedValue(stsMapped[cap])) return;
+      seen[cap] = true;
+      changed = true;
+    });
+    if (changed) await this.setStoreValue('seenCaps', seen);
+  }
+
   // init some values
   initvalues() {
-    this.capsChanged = false;
     this.settings = this.getSettings();
     this.vehicleConfig = null;
     this.pollMode = 0; // 0: normal, 1: engineOn with refresh
@@ -352,7 +390,19 @@ class CarDevice extends Homey.Device {
       // this.vehicleConfig is always still null here: initvalues() resets it
       // on every onInit(), and it's only assigned below after a successful
       // login + vehicle match, which by definition hasn't happened yet.
-      this.restartDevice(15 * 1000).catch((e) => this.error(e));
+      //
+      // Back off exponentially: this restart re-enters onInit() -> setupClient()
+      // -> login(), so an error with no typed branch above (a network error
+      // during a server outage, most often) otherwise retries at a flat 15s
+      // forever — ~240 full logins an hour against an API with a daily quota,
+      // with nothing to stop it (onInit()'s own restartDevice() early-returns
+      // on this.restarting, and initvalues() resets watchDogCounter to 6 on
+      // every pass). The counter deliberately lives outside initvalues() so it
+      // survives those restarts, and is cleared on the next successful login.
+      this.loginFailures = (this.loginFailures || 0) + 1;
+      const backoff = Math.min(15 * 1000 * (2 ** (this.loginFailures - 1)), LOGIN_BACKOFF_MAX_MS);
+      this.log(`login failed ${this.loginFailures}x, retrying in ${backoff / 1000} seconds`);
+      this.restartDevice(backoff).catch((e) => this.error(e));
       throw error;
     }
 
@@ -372,6 +422,7 @@ class CarDevice extends Homey.Device {
     }
     if (this.vehicleConfig === null) this.log(JSON.stringify(vehicleConfig));
     this.vehicleConfig = vehicleConfig;
+    this.loginFailures = 0;
   }
 
   async startPolling(interval) {
@@ -442,7 +493,6 @@ class CarDevice extends Homey.Device {
   // this method is called when the user has changed the device's settings in Homey.
   async onSettings({ oldSettings, newSettings, changedKeys }) {
     this.log('Settings changed', this.getName(), newSettings);
-    this.migrated = false;
     this.restartDevice(500).catch((error) => this.error(error));
   }
 
@@ -541,6 +591,7 @@ class CarDevice extends Homey.Device {
 
       this.lastStatus = stsMapped;
       await this.setStoreValue('lastStatus', stsMapped).catch((error) => this.error(error));
+      await this.recordSeenCaps(stsMapped).catch((error) => this.error(error));
 
       // check if car is active
       const justUnplugged = this.isEV && (stsMapped.ev_charging_state === 'plugged_out') && (stsMapped.ev_charging_state !== this.getCapabilityValue('ev_charging_state'));

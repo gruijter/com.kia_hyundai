@@ -127,8 +127,14 @@ module.exports = class MyDriver extends Homey.Driver {
   // (migration) — both key the checked fields by the same capability names.
   filterSupportedCapabilities(correctCaps, status) {
     if (!status) return correctCaps;
-    const isUnsupported = (value) => value === undefined || value === null || Number.isNaN(value);
-    return correctCaps.filter((cap) => !this.capabilitiesToCheck.includes(cap) || !isUnsupported(status[cap]));
+    return correctCaps.filter((cap) => !this.capabilitiesToCheck.includes(cap) || !this.isUnsupportedValue(status[cap]));
+  }
+
+  // The "this car doesn't report it" test, shared with Device#recordSeenCaps()
+  // so the evidence a capability is *kept* on is gathered by exactly the same
+  // rule that would drop it.
+  isUnsupportedValue(value) {
+    return value === undefined || value === null || Number.isNaN(value);
   }
 
   onPair(session) {
