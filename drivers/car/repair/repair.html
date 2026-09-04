@@ -1,0 +1,72 @@
+<header class="homey-header">
+  <h1 class="homey-title" data-i18n="pair.repair_title">
+  </h1>
+  <p class="homey-subtitle" data-i18n="pair.subtitle">
+  </p>
+</header>
+
+<form class="homey-form">
+	<div class="homey-form-group">
+
+		<label class="homey-form-label" for="region" data-i18n="pair.region">Select your region</label>
+		<select class="homey-form-select" id="region">
+					<option value="EU" selected data-i18n="pair.region_eu">Europe</option>
+					<option value="US" data-i18n="pair.region_us">USA</option>
+					<option value="CA" data-i18n="pair.region_ca">Canada</option>
+					<option value="AU" data-i18n="pair.region_au">Australia</option>
+					<option value="CN" data-i18n="pair.region_cn">China</option>
+		</select>
+
+		<label class="homey-form-label" for="username" data-i18n="pair.username">username</label>
+		<input class="homey-form-input" id="username" type="text" placeholder="" value="" />
+
+		<label class="homey-form-label" for="password" data-i18n="pair.password">password</label>
+		<input class="homey-form-input" id="password" type="password" placeholder="" value="" />
+
+		<label class="homey-form-label" for="pin" data-i18n="pair.pin">pin</label>
+		<input class="homey-form-input" id="pin" maxlength="4" type="password" placeholder="" value="" />
+		<p class="homey-subtitle" data-i18n="pair.pin_hint"></p>
+
+	</div>
+</form>
+<br>
+<button class="homey-button-primary-full" id="runTest" onclick="validate()" data-i18n="pair.validate" >continue</button>
+
+<script type="text/javascript">
+
+async function validate() {
+  try {
+    const region = $('#region').val();
+    const username = $('#username').val().trim();
+    const password = $('#password').val().trim();
+    const pin = $('#pin').val().trim();
+
+    if (username === '' || password === '' || pin === '') {
+      throw Error(__('pair.required'));
+    }
+    if (pin.length !== 4) {
+      throw Error(__('pair.invalid_pin'));
+    }
+    const settings = {
+      region,
+      username,
+      password,
+      pin,
+    };
+    // Continue to back-end, pass along data
+    Homey.showLoadingOverlay();
+    await Homey.emit('validate', settings);
+    await Homey.emit('repair');
+    Homey.hideLoadingOverlay();
+    Homey.done();
+  } catch (error) {
+    Homey.hideLoadingOverlay();
+    Homey.alert(error, 'error');
+  }
+}
+
+// $(document).ready(async () => {
+//   Homey.setTitle(Homey.__('pair.start'));
+// });
+
+</script>

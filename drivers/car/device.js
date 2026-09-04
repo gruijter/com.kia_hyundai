@@ -78,11 +78,18 @@ const ITEM_WAIT_SECONDS = {
 // that's still legitimately in progress.
 const ENQUEUE_RESULT_TIMEOUT_MS = 8 * 1000;
 
+// Ceiling for setupClient()'s login retry backoff (15s, 30s, 60s ... capped).
+// 15 minutes matches the AuthenticationError branch's own fixed retry, and
+// keeps a device that's down for a whole day at ~100 login attempts instead
+// of ~5700.
+const LOGIN_BACKOFF_MAX_MS = 15 * 60 * 1000;
+
 class CarDevice extends Homey.Device {
 
   // this method is called when the Device is inited
   async onInit() {
     // this.log('device init: ', this.getName(), 'id:', this.getData().id);
+    if (this.destroyed) return;
     try {
       // migrate capabilities from old versions
       await this.migrate();
@@ -100,27 +107,86 @@ class CarDevice extends Homey.Device {
   async migrate() {
     try {
       // Drop capabilities the car has never actually reported data for (see
-      // driver.js#capabilitiesToCheck) — sourced from the device's own
-      // last-stored status rather than a live fetch, so migration doesn't
-      // add an extra vehicle-API call on every app restart. This reliably
-      // catches the confirmed legacy/non-CCS2 gap (see the comment above
+      // driver.js#capabilitiesToCheck) — sourced from the device's own stored
+      // status rather than a live fetch, so migration doesn't add an extra
+      // vehicle-API call on every app restart. This reliably catches the
+      // confirmed legacy/non-CCS2 gap (see the comment above
       // `alarm_generic.washer_fluid` in mapStatus() below); it can't catch a
       // hypothetical CCS2-side version of the same gap, since those fields
       // are coerced to a boolean before being stored.
+      //
+      // "Never reported" is what's meant, so a capability the car HAS
+      // reported at some point overrides whatever the most recent status
+      // says: one truncated response (a status missing its whole `evStatus`/
+      // `Green` branch, say) would otherwise permanently drop the capability
+      // at the next restart, and removeCapability() breaks every flow using
+      // it — three of the checked capabilities have condition cards.
+      // recordSeenCaps() collects that evidence on each poll; an absent
+      // `seenCaps` (device paired before Driver#buildSeenCaps() existed) simply
+      // falls back to the last-status-only behaviour.
+      //
+      // Both absent must stay `null`: filterSupportedCapabilities() treats a
+      // falsy status as "no evidence either way" and prunes nothing. An EMPTY
+      // seenCaps object is NOT that case and must survive as `{}` — it is a
+      // real answer written by onPair()/onRepair(), meaning "checked against a
+      // live status, this car reports none of them". Before pairing seeded it,
+      // a freshly paired device hit the `null` branch instead, so migrate()
+      // re-derived the unfiltered engine bucket and undid the pruning pairing
+      // had just done: a ~22s capability remove/re-add on the very first
+      // onInit(), leaving alarm_generic.* capabilities that then stayed empty
+      // forever. `{}` is truthy, so the expression below already handles it.
       const lastStatus = this.getStoreValue('lastStatus');
+      const seenCaps = this.getStoreValue('seenCaps');
+      const evidence = (lastStatus || seenCaps) ? { ...lastStatus, ...seenCaps } : null;
       const correctCaps = this.driver.filterSupportedCapabilities(
         this.driver.capabilitiesMap[this.getSettings().engine],
-        lastStatus,
+        evidence,
       );
       await DeviceMigrator.migrateCapabilities(this, correctCaps);
     } catch (error) {
       this.error(error);
     }
+    // Its own try/catch rather than chained onto the migration above: the two
+    // are independent, and a device whose `engine` setting is missing or
+    // unrecognised — exactly the population driver.js#onRepair() exists for —
+    // makes capabilitiesMap[engine] undefined and throws inside
+    // migrateCapabilities(), which used to take the unit-marker repair
+    // (community report #1050) down with it. Still runs after it, since a
+    // capability migration is one of the things that resets unit options.
+    try {
+      await DeviceMigrator.reconcileUnitMarkers(this);
+    } catch (error) {
+      this.error(error);
+    }
+  }
+
+  // Remembers which of driver.js#capabilitiesToCheck this car has ever
+  // reported a real value for, so migrate() can prune on "never seen" rather
+  // than "missing from the most recent status". Write-once per capability:
+  // after the first poll that reports them all, this never touches the store
+  // again.
+  async recordSeenCaps(stsMapped) {
+    const seen = this.getStoreValue('seenCaps') || {};
+    let changed = false;
+    this.driver.capabilitiesToCheck.forEach((cap) => {
+      // Only for capabilities this device actually has. mapStatus()'s CCS2
+      // branch coerces the three `alarm_generic.*` fields with `!!`, so a
+      // field the car never reports arrives here as `false` — a real value as
+      // far as isUnsupportedValue() is concerned. Without this guard a
+      // capability that pairing correctly pruned (extractCheckableStatus()
+      // reads those fields raw, so it saw `undefined`) got evidence recorded
+      // on the first poll and was re-added by migrate() at the next restart,
+      // permanently: seenCaps has no expiry.
+      if (!this.hasCapability(cap)) return;
+      if (seen[cap] || this.driver.isUnsupportedValue(stsMapped[cap])) return;
+      seen[cap] = true;
+      changed = true;
+    });
+    if (changed) await this.setStoreValue('seenCaps', seen);
   }
 
   // init some values
   initvalues() {
-    this.capsChanged = false;
     this.settings = this.getSettings();
     this.vehicleConfig = null;
     this.pollMode = 0; // 0: normal, 1: engineOn with refresh
@@ -130,6 +196,7 @@ class CarDevice extends Homey.Device {
     this.watchDogCounter = 6;
     this.busy = false;
     this.restarting = false;
+    this.restartTimeout = null;
     this.moving = false; // read by the 'moving' flow condition card (app.js)
     // for [queue-timing] logging only, see runQueue() — real-world data on
     // whether ITEM_WAIT_SECONDS is actually long enough per command, since
@@ -139,16 +206,43 @@ class CarDevice extends Homey.Device {
     this.lastCommandDispatchedAt = null;
   }
 
+  // Defined on the class rather than assigned inside setupQueue() below: a
+  // device spends its whole first onInit() inside `await this.migrate()`,
+  // which runs for minutes whenever a release reorders capabilities (2s
+  // settle per add and per remove), and both markDestroyed() and
+  // restartDevice() can fire in that window — before setupQueue() has run.
+  // As an instance property this threw `this.flushQueue is not a function`
+  // there, aborting teardown, and in restartDevice() it left `restarting`
+  // true with no timer ever scheduled, stalling that device for good.
+  flushQueue() {
+    this.queue = [];
+    this.queueRunning = false;
+    this.log('Queue is flushed');
+  }
+
   // stuff for queue handling here
   setupQueue() {
     this.queue = [];
     this.queueRunning = false;
+    // Bumped on every setup so a runQueue() loop left over from before a
+    // restart can tell it is stale. restartDevice() flushes the queue and
+    // re-enters onInit(), but a loop parked in the ITEM_WAIT_SECONDS sleep
+    // (up to 65s) survives that: it resumes, resolves `this.deQueue` to the
+    // NEW closure over the NEW array, and drains it alongside the fresh
+    // loop — defeating the command spacing and producing exactly the
+    // duplicate/rate-limit rejections the [queue-timing] logging exists to
+    // diagnose. Worse, on finding the new queue momentarily empty it would
+    // fall out of its `while` and clear `queueRunning` for the loop that is
+    // legitimately running, so the next enQueue() started a third drain.
+    this.queueGeneration = (this.queueGeneration || 0) + 1;
+    const generation = this.queueGeneration;
     // Returns a promise for this specific item's result. It races the
     // item's real outcome against ENQUEUE_RESULT_TIMEOUT_MS — see that
     // constant's comment for why. Fire-and-forget callers (internal
     // auto-polls) should attach a no-op .catch() since a fast, definitive
     // failure (e.g. a full queue) does reject this promise.
     this.enQueue = (item) => {
+      if (this.destroyed) return Promise.reject(Error(this.homey.__('error_device_gone')));
       if (this.queue.length >= 10) {
         this.error('queue overflow');
         return Promise.reject(Error(this.homey.__('error_queue_full')));
@@ -168,11 +262,6 @@ class CarDevice extends Homey.Device {
       ]);
     };
     this.deQueue = () => this.queue.shift();
-    this.flushQueue = () => {
-      this.queue = [];
-      this.queueRunning = false;
-      this.log('Queue is flushed');
-    };
     this.runQueue = async () => {
       if (this.queueRunning) return; // already draining, e.g. called again from enQueue while busy
       this.queueRunning = true;
@@ -181,6 +270,7 @@ class CarDevice extends Homey.Device {
       try {
         let item = this.deQueue();
         while (item) {
+          if (this.destroyed || this.queueGeneration !== generation) return;
           if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
             throw Error('Ignoring queued command; not logged in');
@@ -208,7 +298,7 @@ class CarDevice extends Homey.Device {
           await dispatch()
             .then(() => {
               this.watchDogCounter = 6;
-              this.setAvailable().catch(this.error);
+              if (!this.destroyed) this.setAvailable().catch(this.error);
               item.resolve(true);
             })
             .catch(async (error) => {
@@ -227,15 +317,20 @@ class CarDevice extends Homey.Device {
                 this.log(`[queue-timing] ${item.command} REJECTED as duplicate/rate-limited ${sinceLastMs}ms after `
                   + `previous command (${previousCommand || 'none'}). Retrying in 60 seconds`);
                 await setTimeoutPromise(60 * 1000, 'waiting is done');
+                if (this.destroyed) return;
                 if (this.settings.loginOnRetry) {
                   const vehicleConfigs = await this.client.login();
                   const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
                   if (vehicleConfig) this.vehicleConfig = vehicleConfig;
                 }
+                // login() above is a network round-trip; without re-checking
+                // here a device deleted (or an app unloaded) during it would
+                // still have dispatch() send a real command to the car.
+                if (this.destroyed || this.queueGeneration !== generation) return;
                 retryWorked = await dispatch()
                   .then(() => {
                     this.watchDogCounter = 6;
-                    this.setAvailable().catch(this.error);
+                    if (!this.destroyed) this.setAvailable().catch(this.error);
                     return true;
                   })
                   .catch(() => false);
@@ -250,21 +345,25 @@ class CarDevice extends Homey.Device {
             });
           // eslint-disable-next-line no-await-in-loop
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
+          if (this.destroyed || this.queueGeneration !== generation) return;
           item = this.deQueue();
         }
         needsFollowUpPoll = this.lastCommand !== 'doPoll';
       } catch (error) {
         this.error(error.message);
       } finally {
-        this.queueRunning = false;
-        this.busy = false;
+        // Only if this loop is still the current one — see queueGeneration above.
+        if (this.queueGeneration === generation) {
+          this.queueRunning = false;
+          this.busy = false;
+        }
       }
       // Enqueued here, after queueRunning is back to false — enqueuing it
       // inside the try block above left it stranded: enQueue() only starts
       // a fresh runQueue() when !queueRunning, which wasn't true yet there.
       // A stranded poll would then sit until some unrelated later command
       // triggered the queue again, jumping the queue ahead of it (FIFO).
-      if (needsFollowUpPoll) {
+      if (needsFollowUpPoll && this.queueGeneration === generation) {
         this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
       }
     };
@@ -349,9 +448,22 @@ class CarDevice extends Homey.Device {
       // this.vehicleConfig is always still null here: initvalues() resets it
       // on every onInit(), and it's only assigned below after a successful
       // login + vehicle match, which by definition hasn't happened yet.
-      this.restartDevice(15 * 1000).catch((e) => this.error(e));
+      //
+      // Back off exponentially: this restart re-enters onInit() -> setupClient()
+      // -> login(), so an error with no typed branch above (a network error
+      // during a server outage, most often) otherwise retries at a flat 15s
+      // forever — ~240 full logins an hour against an API with a daily quota,
+      // with nothing to stop it (onInit()'s own restartDevice() early-returns
+      // on this.restarting, and initvalues() resets watchDogCounter to 6 on
+      // every pass). The counter deliberately lives outside initvalues() so it
+      // survives those restarts, and is cleared on the next successful login.
+      this.loginFailures = (this.loginFailures || 0) + 1;
+      const backoff = Math.min(15 * 1000 * (2 ** (this.loginFailures - 1)), LOGIN_BACKOFF_MAX_MS);
+      this.log(`login failed ${this.loginFailures}x, retrying in ${backoff / 1000} seconds`);
+      this.restartDevice(backoff).catch((e) => this.error(e));
       throw error;
     }
+    if (this.destroyed) return;
 
     const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
     if (!vehicleConfig) {
@@ -369,10 +481,12 @@ class CarDevice extends Homey.Device {
     }
     if (this.vehicleConfig === null) this.log(JSON.stringify(vehicleConfig));
     this.vehicleConfig = vehicleConfig;
+    this.loginFailures = 0;
   }
 
   async startPolling(interval) {
     this.homey.clearInterval(this.intervalIdDevicePoll);
+    if (this.destroyed) return;
     const mode = this.pollMode ? 'car' : 'server';
     this.log(`Start polling ${mode} ${this.getName()} @ ${interval} minute interval`);
     if (this.settings.pollIntervalForced) this.log(`Warning: forced polling is enabled @${this.settings.pollIntervalForced} minute interval`);
@@ -403,20 +517,49 @@ class CarDevice extends Homey.Device {
   }
 
   async restartDevice(delay, reason) {
-    if (this.restarting) return;
+    if (this.restarting || this.destroyed) return;
     this.restarting = true;
     this.stopPolling();
     this.flushQueue();
     const dly = delay || 1000 * 60 * 5;
     this.log(`Device will restart in ${dly / 1000} seconds`);
     this.setUnavailable(reason || this.homey.__('device_restarting')).catch(this.error);
-    await setTimeoutPromise(dly);
-    this.onInit().catch((error) => this.error(error));
+    // Kept as a cancellable id rather than an awaited sleep: homey.setTimeout
+    // only disposes the timer when the whole Homey instance is destroyed (app
+    // unload) — never when this one device is deleted. A pending restart runs
+    // up to 60 minutes (quota/OTP), so without cancelRestart() below, deleting
+    // a car mid-wait would still re-enter onInit() and log back in on its
+    // behalf.
+    this.restartTimeout = this.homey.setTimeout(() => {
+      this.onInit().catch((error) => this.error(error));
+    }, dly);
+  }
+
+  // Set once the instance is on its way out (deleted, or uninitialized by
+  // Homey) and never cleared — Homey builds a fresh Device instance when a
+  // device comes back, so nothing legitimately resumes on this one. Async work
+  // already in flight when that happens (a login, a queued command, the 60s
+  // duplicate-retry sleep) can't be aborted mid-await, so every step that
+  // would touch Homey or the vehicle API after an await checks this first
+  // instead of erroring against a dead device.
+  markDestroyed() {
+    this.destroyed = true;
+    this.cancelRestart();
+    this.stopPolling();
+    this.flushQueue();
+  }
+
+  cancelRestart() {
+    if (!this.restartTimeout) return;
+    this.log(`cancelling pending restart of ${this.getName()}`);
+    this.homey.clearTimeout(this.restartTimeout);
+    this.restartTimeout = null;
+    this.restarting = false;
   }
 
   async onUninit() {
     this.log('unInit', this.getName());
-    this.stopPolling();
+    this.markDestroyed();
     await setTimeoutPromise(2000).catch((error) => this.error(error)); // wait 2 secs
   }
 
@@ -425,9 +568,11 @@ class CarDevice extends Homey.Device {
     this.log(`Car added: ${this.getName()}`);
   }
 
-  // this method is called when the Device is deleted
+  // this method is called when the Device is deleted. Homey calls onUninit()
+  // on deletion too, so this teardown is redundant — kept as belt and braces,
+  // markDestroyed() is idempotent.
   onDeleted() {
-    this.stopPolling();
+    this.markDestroyed();
     // this.destroyListeners();
     this.log(`Car deleted: ${this.getName()}`);
   }
@@ -439,11 +584,11 @@ class CarDevice extends Homey.Device {
   // this method is called when the user has changed the device's settings in Homey.
   async onSettings({ oldSettings, newSettings, changedKeys }) {
     this.log('Settings changed', this.getName(), newSettings);
-    this.migrated = false;
     this.restartDevice(500).catch((error) => this.error(error));
   }
 
   setCapability(capability, value) {
+    if (this.destroyed) return;
     if (this.hasCapability(capability) && value !== undefined) {
       this.setCapabilityValue(capability, value).catch((error) => {
         this.error(error);
@@ -481,6 +626,9 @@ class CarDevice extends Homey.Device {
       const fullStatus = refresh
         ? await this.client.forceRefreshVehicleState(this.vehicleConfig)
         : await this.client.updateVehicleWithCachedState(this.vehicleConfig);
+      // The call above can outlive the device (deletion, app unload); anything
+      // below writes capabilities, the store or flow triggers.
+      if (this.destroyed) return;
 
       // CCS2 status always includes Location inline; legacy (non-ccuCCS2)
       // vehicles sometimes don't — fetch it separately when missing.
@@ -538,6 +686,7 @@ class CarDevice extends Homey.Device {
 
       this.lastStatus = stsMapped;
       await this.setStoreValue('lastStatus', stsMapped).catch((error) => this.error(error));
+      await this.recordSeenCaps(stsMapped).catch((error) => this.error(error));
 
       // check if car is active
       const justUnplugged = this.isEV && (stsMapped.ev_charging_state === 'plugged_out') && (stsMapped.ev_charging_state !== this.getCapabilityValue('ev_charging_state'));
@@ -1244,6 +1393,20 @@ class CarDevice extends Homey.Device {
 
   // register capability listeners
   startListeners() {
+    // Outside the listenersSet latch below, and re-checked on every onInit():
+    // this is the only registration gated on hasCapability(), and
+    // departure_schedule.* can be added to a device *after* its first
+    // onInit() — by onRepair() re-bucketing a car to 'Full EV ccuCCS2', or by
+    // migrate() on an app update. restartDevice() re-enters onInit() on the
+    // same Device instance rather than constructing a new one, so the latch
+    // stayed true and these listeners were never registered: the toggles show
+    // up in the UI and nothing is sent to the car until the whole app
+    // restarts. Latched separately so it still registers only once.
+    if (this.hasCapability('departure_schedule.1') && !this.departureListenersSet) {
+      this.registerCapabilityListener('departure_schedule.1', (enabled) => this.enableDepartureSchedule(1, enabled, 'app'));
+      this.registerCapabilityListener('departure_schedule.2', (enabled) => this.enableDepartureSchedule(2, enabled, 'app'));
+      this.departureListenersSet = true;
+    }
     if (!this.listenersSet) {
       this.log(`${this.getName()} starting capability listeners`);
       // capabilityListeners will be overwritten, so no need to unregister them
@@ -1258,10 +1421,6 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
-      if (this.hasCapability('departure_schedule.1')) {
-        this.registerCapabilityListener('departure_schedule.1', (enabled) => this.enableDepartureSchedule(1, enabled, 'app'));
-        this.registerCapabilityListener('departure_schedule.2', (enabled) => this.enableDepartureSchedule(2, enabled, 'app'));
-      }
       // Momentary buttons — self-reset back to false after the command
       // completes (or the enQueue timeout races it), matching refresh_status.
       this.registerCapabilityListener('vent_windows', (pressed) => {

@@ -1,6 +1,6 @@
 {
   "name": "com.kia",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.12",
-    "eslint": "^7.32.0",
-    "eslint-config-athom": "^3.1.5"
+    "eslint": "^8.57.1",
+    "eslint-config-athom": "^4.0.2"
   }
 }

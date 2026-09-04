@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The engine is !{{on|off}}",
     "nl": "De motor is !{{aan|uit}}",

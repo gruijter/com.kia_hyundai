@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "Flash lights (find my car)",
     "nl": "Lichten laten knipperen (mijn auto zoeken)",

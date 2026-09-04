@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "Departure schedule 2",
     "nl": "Vertrekschema 2",

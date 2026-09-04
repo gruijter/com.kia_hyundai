@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The charger is !{{on|off}}",
     "nl": "De lader is !{{aan|uit}}",

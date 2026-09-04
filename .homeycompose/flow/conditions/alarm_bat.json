@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The battery alarm is !{{on|off}}",
     "nl": "Het accualarm is !{{aan|uit}}",

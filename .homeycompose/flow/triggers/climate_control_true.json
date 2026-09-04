@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The A/C turned on",
     "nl": "De airco is ingeschakeld",

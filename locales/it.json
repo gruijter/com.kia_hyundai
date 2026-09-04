@@ -2,6 +2,7 @@
   "pair": {
     "title": "Associa la tua auto Kia",
     "subtitle": "Usa le tue credenziali Kia Connect",
+    "repair_title": "Riassocia la tua auto Kia",
     "region": "Seleziona la tua regione",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -18,6 +19,7 @@
     "invalid_pin": "PIN non valido, inserisci il tuo PIN a 4 cifre.",
     "no_vehicles": "Nessun veicolo trovato per questo account.",
     "pairing_failed": "Associazione non riuscita: __error__",
+    "repair_failed": "Riassociazione non riuscita: __error__",
     "network_error": "Server Kia/Hyundai non raggiungibile. Riprova più tardi."
   },
   "departure_not_set": "Non impostato",
@@ -34,6 +36,7 @@
   "error_climate_control_off": "La climatizzazione non è attiva.",
   "error_location_not_found": "Impossibile trovare quella posizione.",
   "error_queue_full": "Ci sono già troppi comandi in coda per questa auto. Attendi un momento e riprova.",
+  "error_device_gone": "Questa auto non è più disponibile.",
   "error_unknown_command": "Comando sconosciuto: __command__",
   "error_invalid_window_state": "Stato del finestrino non valido: __state__",
   "error_battery_too_low_for_refresh": "Impossibile forzare l'aggiornamento: batteria a 12V troppo bassa o sconosciuta (__batSoc__%, deve essere superiore a __level__%)."

@@ -2,6 +2,7 @@
   "pair": {
     "title": "Sparuj swój samochód Kia",
     "subtitle": "Użyj danych logowania Kia Connect",
+    "repair_title": "Sparuj ponownie swój samochód Kia",
     "region": "Wybierz swój region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -18,6 +19,7 @@
     "invalid_pin": "Nieprawidłowy kod PIN, wprowadź swój 4-cyfrowy kod PIN.",
     "no_vehicles": "Nie znaleziono pojazdów dla tego konta.",
     "pairing_failed": "Parowanie nie powiodło się: __error__",
+    "repair_failed": "Ponowne parowanie nie powiodło się: __error__",
     "network_error": "Serwer Kia/Hyundai niedostępny. Spróbuj ponownie później."
   },
   "departure_not_set": "Nie ustawiono",
@@ -34,6 +36,7 @@
   "error_climate_control_off": "Klimatyzacja nie jest włączona.",
   "error_location_not_found": "Nie można znaleźć tej lokalizacji.",
   "error_queue_full": "W kolejce dla tego samochodu jest już zbyt wiele poleceń. Poczekaj chwilę i spróbuj ponownie.",
+  "error_device_gone": "Ten samochód nie jest już dostępny.",
   "error_unknown_command": "Nieznane polecenie: __command__",
   "error_invalid_window_state": "Nieprawidłowy stan szyby: __state__",
   "error_battery_too_low_for_refresh": "Nie można wymusić odświeżenia: akumulator 12V jest zbyt niski lub nieznany (__batSoc__%, musi przekraczać __level__%)."

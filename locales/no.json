@@ -2,6 +2,7 @@
   "pair": {
     "title": "Koble til Kia-bilen din",
     "subtitle": "Bruk Kia Connect-påloggingsinformasjonen din",
+    "repair_title": "Koble til Kia-bilen din på nytt",
     "region": "Velg region",
     "region_eu": "Europa",
     "region_us": "USA",
@@ -18,6 +19,7 @@
     "invalid_pin": "Ugyldig PIN-kode, angi din 4-sifrede PIN-kode.",
     "no_vehicles": "Ingen kjøretøy funnet for denne kontoen.",
     "pairing_failed": "Sammenkobling mislyktes: __error__",
+    "repair_failed": "Ny sammenkobling mislyktes: __error__",
     "network_error": "Kia/Hyundai-serveren er ikke tilgjengelig. Prøv igjen senere."
   },
   "departure_not_set": "Ikke angitt",
@@ -34,6 +36,7 @@
   "error_climate_control_off": "Klimastyring er ikke på.",
   "error_location_not_found": "Fant ikke den plasseringen.",
   "error_queue_full": "Det er allerede for mange kommandoer i køen for denne bilen. Vent litt og prøv igjen.",
+  "error_device_gone": "Denne bilen er ikke lenger tilgjengelig.",
   "error_unknown_command": "Ukjent kommando: __command__",
   "error_invalid_window_state": "Ugyldig vindustilstand: __state__",
   "error_battery_too_low_for_refresh": "Kan ikke tvinge frem en oppdatering: 12V-batteriet er for lavt eller ukjent (__batSoc__%, må være over __level__%)."

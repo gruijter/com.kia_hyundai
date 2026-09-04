@@ -1,4 +1,8 @@
 {
+  "platforms": [
+    "local",
+    "cloud"
+  ],
   "title": {
     "en": "The brake fluid alarm turned on",
     "nl": "Het remvloeistofalarm is ingeschakeld",
