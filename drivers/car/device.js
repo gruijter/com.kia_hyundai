@@ -113,6 +113,9 @@ class CarDevice extends Homey.Device {
         lastStatus,
       );
       await DeviceMigrator.migrateCapabilities(this, correctCaps);
+      // Must run after the capability migration above, which is one of the
+      // things that can silently reset a capability's unit options.
+      await DeviceMigrator.reconcileUnitMarkers(this);
     } catch (error) {
       this.error(error);
     }
