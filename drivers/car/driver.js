@@ -137,6 +137,25 @@ module.exports = class MyDriver extends Homey.Driver {
     return value === undefined || value === null || Number.isNaN(value);
   }
 
+  // Positive evidence ("this car does report it") per capabilitiesToCheck
+  // field, built from extractCheckableStatus()'s raw reads — the authoritative
+  // source, unlike Device#recordSeenCaps()'s input, which has already been
+  // through mapStatus()'s `!!` coercion. Written to the device store by BOTH
+  // onPair() and onRepair(), so Device#migrate() reaches the same conclusion on
+  // the next onInit() that the pairing/repair just did.
+  //
+  // An EMPTY object is a meaningful answer, not a missing one: it means "all of
+  // capabilitiesToCheck were checked against a real status and this car reports
+  // none of them". Device#migrate() depends on that distinction — an *absent*
+  // seenCaps means "never checked" and prunes nothing.
+  buildSeenCaps(checkable) {
+    const seenCaps = {};
+    Object.keys(checkable).forEach((cap) => {
+      if (!this.isUnsupportedValue(checkable[cap])) seenCaps[cap] = true;
+    });
+    return seenCaps;
+  }
+
   // Logs in with the credentials from the pair/repair form and confirms the
   // PIN. Shared so a repair validates exactly what pairing validates; only
   // the wrapper message differs, hence failedKey (a repair that fails should
@@ -247,16 +266,23 @@ module.exports = class MyDriver extends Homey.Driver {
           const status = await manager.updateVehicleWithCachedState(vehicleConfig);
           // console.dir(status, { depth: null, colors: true });
           const engine = this.deriveEngine(status, vehicleConfig);
+          const checkable = this.extractCheckableStatus(status);
           return {
             name: vehicleConfig.nickname,
             data: {
               id: vehicleConfig.vin,
             },
             settings: this.buildDeviceSettings(settings, vehicleConfig, engine),
-            capabilities: this.filterSupportedCapabilities(
-              this.capabilitiesMap[engine],
-              this.extractCheckableStatus(status),
-            ),
+            capabilities: this.filterSupportedCapabilities(this.capabilitiesMap[engine], checkable),
+            // Seeded for the same reason onRepair() writes it below: without it
+            // a freshly paired device has an empty store, Device#migrate() reads
+            // that as "no evidence either way", re-derives the UNFILTERED engine
+            // bucket and immediately migrates the device back to it — undoing the
+            // pruning this pairing just did. Observed on a legacy e-Niro: a ~22s
+            // capability remove/re-add on the very first onInit(), after which
+            // the three re-added alarm_generic.* capabilities sat unfilled
+            // forever, because the car never reports them.
+            store: { seenCaps: this.buildSeenCaps(checkable) },
           };
         });
         // console.log(await Promise.all(devices));
@@ -308,15 +334,8 @@ module.exports = class MyDriver extends Homey.Driver {
       // Writing seenCaps (rather than clearing it along with the other stale
       // keys) is also what keeps the restart from re-adding everything this
       // repair should prune: migrate() reads an absent seenCaps AND lastStatus
-      // as "no evidence either way" and prunes nothing at all. Built from
-      // extractCheckableStatus()'s raw reads, which is the authoritative
-      // source here — unlike Device#recordSeenCaps(), whose input has already
-      // been through mapStatus()'s `!!` coercion.
-      const checkable = this.extractCheckableStatus(status);
-      const seenCaps = {};
-      Object.keys(checkable).forEach((cap) => {
-        if (!this.isUnsupportedValue(checkable[cap])) seenCaps[cap] = true;
-      });
+      // as "no evidence either way" and prunes nothing at all.
+      const seenCaps = this.buildSeenCaps(this.extractCheckableStatus(status));
       // Store keys a fresh pairing wouldn't have. Left behind, the unit
       // markers would suppress the next poll's unit write (see
       // DeviceMigrator#reconcileUnitMarkers).

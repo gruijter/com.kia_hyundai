@@ -121,14 +121,20 @@ class CarDevice extends Homey.Device {
       // `Green` branch, say) would otherwise permanently drop the capability
       // at the next restart, and removeCapability() breaks every flow using
       // it — three of the checked capabilities have condition cards.
-      // recordSeenCaps() collects that evidence on each poll; an empty/absent
-      // `seenCaps` (device from before this existed) simply falls back to the
-      // last-status-only behaviour.
-      // Both absent (freshly paired, or a cleared store) must stay `null`:
-      // filterSupportedCapabilities() treats a falsy status as "no evidence
-      // either way" and prunes nothing, where an empty object would read as
-      // "reports none of them" and strip the capabilities pairing just
-      // correctly added.
+      // recordSeenCaps() collects that evidence on each poll; an absent
+      // `seenCaps` (device paired before Driver#buildSeenCaps() existed) simply
+      // falls back to the last-status-only behaviour.
+      //
+      // Both absent must stay `null`: filterSupportedCapabilities() treats a
+      // falsy status as "no evidence either way" and prunes nothing. An EMPTY
+      // seenCaps object is NOT that case and must survive as `{}` — it is a
+      // real answer written by onPair()/onRepair(), meaning "checked against a
+      // live status, this car reports none of them". Before pairing seeded it,
+      // a freshly paired device hit the `null` branch instead, so migrate()
+      // re-derived the unfiltered engine bucket and undid the pruning pairing
+      // had just done: a ~22s capability remove/re-add on the very first
+      // onInit(), leaving alarm_generic.* capabilities that then stayed empty
+      // forever. `{}` is truthy, so the expression below already handles it.
       const lastStatus = this.getStoreValue('lastStatus');
       const seenCaps = this.getStoreValue('seenCaps');
       const evidence = (lastStatus || seenCaps) ? { ...lastStatus, ...seenCaps } : null;
