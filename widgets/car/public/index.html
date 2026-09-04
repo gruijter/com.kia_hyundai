@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Car Dashboard Widget</title>
+  <style>
+    :root {
+      --bg-color: var(--homey-color-background, #141518);
+      --card-bg: var(--homey-color-card-background, #1f2127);
+      --text-main: var(--homey-color-text, #ffffff);
+      --text-muted: var(--homey-color-text-light, #9ca3af);
+      --text-subtle: #6b7280;
+      --accent-green: #34c759;
+      --accent-blue: #0a84ff;
+      --accent-red: #ff453a;
+      --accent-orange: #ff9f0a;
+      --accent-cyan: #30d158;
+      --card-border: rgba(255, 255, 255, 0.09);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --badge-bg: rgba(255, 255, 255, 0.08);
+      --border-radius: 12px;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-color: var(--homey-color-background, #f5f6f9);
+        --card-bg: var(--homey-color-card-background, #ffffff);
+        --text-main: var(--homey-color-text, #111827);
+        --text-muted: var(--homey-color-text-light, #6b7280);
+        --text-subtle: #9ca3af;
+        --card-border: rgba(0, 0, 0, 0.08);
+        --glass-bg: rgba(0, 0, 0, 0.03);
+        --badge-bg: rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .widget-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      width: 100%;
+      gap: 8px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .car-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .car-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .car-status-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background-color: var(--badge-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .status-badge.charging {
+      background-color: rgba(52, 199, 89, 0.16);
+      color: var(--accent-green);
+      border-color: rgba(52, 199, 89, 0.3);
+    }
+
+    .status-badge.plugged {
+      background-color: rgba(10, 132, 255, 0.16);
+      color: var(--accent-blue);
+      border-color: rgba(10, 132, 255, 0.3);
+    }
+
+    .status-badge.driving {
+      background-color: rgba(255, 159, 10, 0.16);
+      color: var(--accent-orange);
+      border-color: rgba(255, 159, 10, 0.3);
+    }
+
+    .status-badge.unlocked {
+      background-color: rgba(255, 69, 58, 0.16);
+      color: var(--accent-red);
+      border-color: rgba(255, 69, 58, 0.3);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    .status-badge.charging .status-dot {
+      animation: pulse-dot 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.25); }
+    }
+
+    /* Showcase & Car Visual */
+    .showcase-area {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, rgba(10, 132, 255, 0.12) 0%, rgba(0, 0, 0, 0) 75%);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      height: 112px;
+      flex-shrink: 0;
+    }
+
+    .car-image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 112px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .car-img {
+      width: 72%;
+      max-width: 270px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .car-img:hover {
+      transform: scale(1.02);
+    }
+
+    /* Inline Refresh Button in Footer */
+    .refresh-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .refresh-btn:hover {
+      color: var(--text-main);
+      transform: scale(1.12);
+    }
+
+    .refresh-btn:active {
+      transform: scale(0.88);
+    }
+
+    .refresh-btn.is-spinning .refresh-icon {
+      animation: spin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Battery Bar Area */
+    .battery-overview {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      background: var(--glass-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 11px;
+      padding: 8px 12px;
+    }
+
+    .battery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .battery-main-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      line-height: 1;
+    }
+
+    .battery-main-unit {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .battery-range-val {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      line-height: 1;
+    }
+
+    .battery-bar-track {
+      width: 100%;
+      height: 8px;
+      background-color: rgba(120, 120, 128, 0.22);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .battery-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #34c759, #30d158);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+    }
+
+    /* Kia-inspired Controls Action Bar */
+    .controls-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .action-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 9px 4px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      outline: none;
+      color: var(--text-main);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .action-btn:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    @media (prefers-color-scheme: light) {
+      .action-btn:hover {
+        border-color: rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .action-icon-wrapper {
+      position: relative;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-icon {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      transition: all 0.2s ease;
+    }
+
+    .action-spinner {
+      display: none;
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .action-btn.is-loading .action-icon {
+      opacity: 0;
+    }
+
+    .action-btn.is-loading .action-spinner {
+      display: block;
+    }
+
+    .action-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .action-state {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Active & Alert States for Action Buttons */
+    .action-btn.state-active-green {
+      background: rgba(52, 199, 89, 0.16);
+      border-color: rgba(52, 199, 89, 0.38);
+      color: var(--accent-green);
+    }
+    .action-btn.state-active-green .action-state {
+      color: var(--accent-green);
+    }
+
+    .action-btn.state-active-blue {
+      background: rgba(10, 132, 255, 0.16);
+      border-color: rgba(10, 132, 255, 0.38);
+      color: var(--accent-blue);
+    }
+    .action-btn.state-active-blue .action-state {
+      color: var(--accent-blue);
+    }
+
+    .action-btn.state-active-orange {
+      background: rgba(255, 159, 10, 0.16);
+      border-color: rgba(255, 159, 10, 0.38);
+      color: var(--accent-orange);
+    }
+    .action-btn.state-active-orange .action-state {
+      color: var(--accent-orange);
+    }
+
+    .action-btn.state-warning-red {
+      background: rgba(255, 69, 58, 0.16);
+      border-color: rgba(255, 69, 58, 0.38);
+      color: var(--accent-red);
+    }
+    .action-btn.state-warning-red .action-state {
+      color: var(--accent-red);
+    }
+
+    /* Footer: single clean line with Location on left and Sync timestamp on right */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-subtle);
+      padding: 2px 4px 0;
+      gap: 8px;
+    }
+
+    .footer-location {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 62%;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .footer-sync {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .empty-state {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+
+    .empty-state.active {
+      display: flex;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div id="empty-state" class="empty-state">
+    <div class="empty-icon">🚗</div>
+    <div id="empty-msg">No car found</div>
+  </div>
+
+  <div id="widget-container" class="widget-container">
+    <!-- Header: Vehicle Name & Odometer (left), Status pill (right) -->
+    <header class="header">
+      <div class="car-meta">
+        <div id="car-name" class="car-name">CAR</div>
+        <div id="car-sub" class="car-status-sub">
+          <span id="car-sub-text">--</span>
+        </div>
+      </div>
+      <div id="status-badge" class="status-badge">
+        <span class="status-dot"></span>
+        <span id="status-badge-text">--</span>
+      </div>
+    </header>
+
+    <!-- Showcase Car Visual -->
+    <section class="showcase-area">
+      <div class="car-image-wrapper">
+        <img id="car-img" class="car-img" alt="Car" src="" />
+      </div>
+    </section>
+
+    <!-- Battery Overview -->
+    <section class="battery-overview" id="battery-overview">
+      <div class="battery-header">
+        <div class="battery-main-val">
+          <span id="battery-val">--</span>
+          <span class="battery-main-unit">%</span>
+        </div>
+        <div class="battery-range-val">
+          <span id="range-hero-val">--</span>
+          <span class="battery-main-unit" id="range-hero-unit">km</span>
+        </div>
+      </div>
+      <div class="battery-bar-track">
+        <div id="battery-bar" class="battery-bar-fill"></div>
+      </div>
+    </section>
+
+    <!-- Kia-inspired Quick Actions Controls Bar -->
+    <section class="controls-bar" id="controls-bar">
+      <!-- Control 1: Lock / Unlock -->
+      <button id="btn-lock" class="action-btn" type="button" aria-label="Lock / Unlock">
+        <div class="action-icon-wrapper">
+          <svg class="action-icon" id="icon-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="11" rx="2.5" ry="2.5"></rect>
+            <path id="lock-shackle" d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            <circle cx="12" cy="16" r="1" fill="currentColor"></circle>
+          </svg>
+          <div class="action-spinner"></div>
+        </div>
+        <span class="action-label" id="lbl-btn-lock">Lock</span>
+        <span class="action-state" id="state-btn-lock">--</span>
+      </button>
+
+      <!-- Control 2: Charge Start / Stop -->
+      <button id="btn-charge" class="action-btn" type="button" aria-label="Charge">
+        <div class="action-icon-wrapper">
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <div class="action-spinner"></div>
+        </div>
+        <span class="action-label" id="lbl-btn-charge">Charge</span>
+        <span class="action-state" id="state-btn-charge">--</span>
+      </button>
+
+      <!-- Control 3: A/C On / Off -->
+      <button id="btn-climate" class="action-btn" type="button" aria-label="Climate A/C">
+        <div class="action-icon-wrapper">
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 12c0-3 2.5-5.5 5.5-5.5S22 9 20 12h-8z"/>
+            <path d="M12 12c3 0 5.5 2.5 5.5 5.5S15 22 12 20v-8z"/>
+            <path d="M12 12c0 3-2.5 5.5-5.5 5.5S2 15 4 12h8z"/>
+            <path d="M12 12c-3 0-5.5-2.5-5.5-5.5S9 2 12 4v8z"/>
+            <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+          </svg>
+          <div class="action-spinner"></div>
+        </div>
+        <span class="action-label" id="lbl-btn-climate">A/C</span>
+        <span class="action-state" id="state-btn-climate">--</span>
+      </button>
+
+      <!-- Control 4: Defrost On / Off -->
+      <button id="btn-defrost" class="action-btn" type="button" aria-label="Defrost">
+        <div class="action-icon-wrapper">
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 17c1-7 4-10 9-10s8 3 9 10H3z"/>
+            <path d="M8 13c.5-1 1-1 1-2s-.5-1 0-2"/>
+            <path d="M12 13c.5-1 1-1 1-2s-.5-1 0-2"/>
+            <path d="M16 13c.5-1 1-1 1-2s-.5-1 0-2"/>
+          </svg>
+          <div class="action-spinner"></div>
+        </div>
+        <span class="action-label" id="lbl-btn-defrost">Defrost</span>
+        <span class="action-state" id="state-btn-defrost">--</span>
+      </button>
+    </section>
+
+    <!-- Footer: Location on left, Sync timestamp + refresh on right -->
+    <footer class="footer">
+      <div class="footer-location" id="footer-location" style="display: none;">
+        <span>📍</span>
+        <span id="footer-loc-text">--</span>
+      </div>
+      <div class="footer-sync" id="footer-sync">
+        <span id="lbl-updated">Updated</span>: <span id="sync-time-val">--</span>
+        <button id="btn-refresh" class="refresh-btn" type="button" aria-label="Refresh status" title="Refresh">
+          <svg class="refresh-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2v6h-6"></path>
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+            <path d="M3 22v-6h6"></path>
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+          </svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function onHomeyReady(Homey) {
+      Homey.ready({ height: 440 });
+
+      var I18N = {
+        en: {
+          car: 'Car',
+          locked: 'Locked',
+          secured: 'Secured',
+          unlocked: 'Unlocked',
+          charging: 'Charging',
+          pluggedIn: 'Plugged in',
+          driving: 'Driving',
+          climate: 'Climate',
+          range: 'Range',
+          location: 'Location',
+          atHome: 'At home',
+          fromHome: 'from home',
+          noCar: 'No car found',
+          updated: 'Updated',
+          justNow: 'just now',
+          minutesAgo: 'm ago',
+          hoursAgo: 'h ago',
+          km: 'km',
+          lockBtn: 'Lock',
+          unlockBtn: 'Unlock',
+          chargeBtn: 'Charge',
+          acBtn: 'A/C',
+          defrostBtn: 'Defrost',
+          start: 'Start',
+          stop: 'Stop',
+          on: 'On',
+          off: 'Off',
+          refresh: 'Refresh'
+        },
+        nl: {
+          car: 'Auto',
+          locked: 'Vergrendeld',
+          secured: 'Beveiligd',
+          unlocked: 'Ontgrendeld',
+          charging: 'Opladen',
+          pluggedIn: 'Aangesloten',
+          driving: 'Rijden',
+          climate: 'Klimaat',
+          range: 'Bereik',
+          location: 'Locatie',
+          atHome: 'Thuis',
+          fromHome: 'van huis',
+          noCar: 'Geen auto gevonden',
+          updated: 'Bijgewerkt',
+          justNow: 'zojuist',
+          minutesAgo: 'm geleden',
+          hoursAgo: 'u geleden',
+          km: 'km',
+          lockBtn: 'Vergrendel',
+          unlockBtn: 'Ontgrendel',
+          chargeBtn: 'Laden',
+          acBtn: 'A/C',
+          defrostBtn: 'Ontdooi',
+          start: 'Start',
+          stop: 'Stop',
+          on: 'Aan',
+          off: 'Uit',
+          refresh: 'Vernieuwen'
+        },
+        de: {
+          car: 'Auto',
+          locked: 'Verriegelt',
+          secured: 'Gesichert',
+          unlocked: 'Entriegelt',
+          charging: 'Lädt',
+          pluggedIn: 'Angeschlossen',
+          driving: 'Fahrt',
+          climate: 'Klima',
+          range: 'Reichweite',
+          location: 'Standort',
+          atHome: 'Zuhause',
+          fromHome: 'von Zuhause',
+          noCar: 'Kein Auto gefunden',
+          updated: 'Aktualisiert',
+          justNow: 'gerade eben',
+          minutesAgo: 'm her',
+          hoursAgo: 'Std. her',
+          km: 'km',
+          lockBtn: 'Sperren',
+          unlockBtn: 'Entsperren',
+          chargeBtn: 'Laden',
+          acBtn: 'Klima',
+          defrostBtn: 'Enteisen',
+          start: 'Start',
+          stop: 'Stopp',
+          on: 'Ein',
+          off: 'Aus',
+          refresh: 'Aktualisieren'
+        },
+        fr: {
+          car: 'Voiture',
+          locked: 'Verrouillé',
+          secured: 'Sécurisé',
+          unlocked: 'Déverrouillé',
+          charging: 'En charge',
+          pluggedIn: 'Branché',
+          driving: 'En route',
+          climate: 'Climatisation',
+          range: 'Autonomie',
+          location: 'Position',
+          atHome: 'À la maison',
+          fromHome: 'du domicile',
+          noCar: 'Aucune voiture trouvée',
+          updated: 'Mis à jour',
+          justNow: 'à l\'instant',
+          minutesAgo: 'min',
+          hoursAgo: 'h',
+          km: 'km',
+          lockBtn: 'Verrouiller',
+          unlockBtn: 'Déverrouiller',
+          chargeBtn: 'Recharge',
+          acBtn: 'Clim',
+          defrostBtn: 'Dégivrage',
+          start: 'Démarrer',
+          stop: 'Arrêter',
+          on: 'Allumé',
+          off: 'Éteint',
+          refresh: 'Actualiser'
+        },
+        es: {
+          car: 'Coche',
+          locked: 'Bloqueado',
+          secured: 'Asegurado',
+          unlocked: 'Desbloqueado',
+          charging: 'Cargando',
+          pluggedIn: 'Enchufado',
+          driving: 'En marcha',
+          climate: 'Clima',
+          range: 'Autonomía',
+          location: 'Ubicación',
+          atHome: 'En casa',
+          fromHome: 'de casa',
+          noCar: 'No se encontró ningún coche',
+          updated: 'Actualizado',
+          justNow: 'ahora mismo',
+          minutesAgo: 'm',
+          hoursAgo: 'h',
+          km: 'km',
+          lockBtn: 'Bloquear',
+          unlockBtn: 'Desbloquear',
+          chargeBtn: 'Carga',
+          acBtn: 'A/A',
+          defrostBtn: 'Descongelar',
+          start: 'Iniciar',
+          stop: 'Detener',
+          on: 'Encendido',
+          off: 'Apagado',
+          refresh: 'Actualizar'
+        },
+        it: {
+          car: 'Auto',
+          locked: 'Bloccato',
+          secured: 'Protetto',
+          unlocked: 'Sbloccato',
+          charging: 'In carica',
+          pluggedIn: 'Collegato',
+          driving: 'In marcia',
+          climate: 'Clima',
+          range: 'Autonomia',
+          location: 'Posizione',
+          atHome: 'A casa',
+          fromHome: 'da casa',
+          noCar: 'Nessuna auto trovata',
+          updated: 'Aggiornato',
+          justNow: 'proprio ora',
+          minutesAgo: 'm fa',
+          hoursAgo: 'h fa',
+          km: 'km',
+          lockBtn: 'Blocca',
+          unlockBtn: 'Sblocca',
+          chargeBtn: 'Ricarica',
+          acBtn: 'A/C',
+          defrostBtn: 'Sbrinamento',
+          start: 'Avvia',
+          stop: 'Arresta',
+          on: 'Acceso',
+          off: 'Spento',
+          refresh: 'Aggiorna'
+        },
+        da: {
+          car: 'Bil',
+          locked: 'Låst',
+          secured: 'Sikret',
+          unlocked: 'Ulåst',
+          charging: 'Oplader',
+          pluggedIn: 'Tilsluttet',
+          driving: 'Kører',
+          climate: 'Klima',
+          range: 'Rækkevidde',
+          location: 'Placering',
+          atHome: 'Hjemme',
+          fromHome: 'hjemmefra',
+          noCar: 'Ingen bil fundet',
+          updated: 'Opdateret',
+          justNow: 'lige nu',
+          minutesAgo: 'm siden',
+          hoursAgo: 't siden',
+          km: 'km',
+          lockBtn: 'Lås',
+          unlockBtn: 'Lås op',
+          chargeBtn: 'Oplad',
+          acBtn: 'A/C',
+          defrostBtn: 'Afrim',
+          start: 'Start',
+          stop: 'Stop',
+          on: 'Tændt',
+          off: 'Slukket',
+          refresh: 'Opdater'
+        },
+        sv: {
+          car: 'Bil',
+          locked: 'Låst',
+          secured: 'Säkrad',
+          unlocked: 'Olåst',
+          charging: 'Laddar',
+          pluggedIn: 'Ansluten',
+          driving: 'Kör',
+          climate: 'Klimat',
+          range: 'Räckvidd',
+          location: 'Plats',
+          atHome: 'Hemma',
+          fromHome: 'hemifrån',
+          noCar: 'Ingen bil hittades',
+          updated: 'Uppdaterad',
+          justNow: 'just nu',
+          minutesAgo: 'm sedan',
+          hoursAgo: 'tim sedan',
+          km: 'km',
+          lockBtn: 'Lås',
+          unlockBtn: 'Lås upp',
+          chargeBtn: 'Ladda',
+          acBtn: 'A/C',
+          defrostBtn: 'Avfrosta',
+          start: 'Start',
+          stop: 'Stopp',
+          on: 'På',
+          off: 'Av',
+          refresh: 'Uppdatera'
+        },
+        no: {
+          car: 'Bil',
+          locked: 'Låst',
+          secured: 'Sikret',
+          unlocked: 'Ulåst',
+          charging: 'Lader',
+          pluggedIn: 'Tilkoblet',
+          driving: 'Kjører',
+          climate: 'Klima',
+          range: 'Rekkevidde',
+          location: 'Posisjon',
+          atHome: 'Hjemme',
+          fromHome: 'hjemmefra',
+          noCar: 'Ingen bil funnet',
+          updated: 'Oppdatert',
+          justNow: 'akkurat nå',
+          minutesAgo: 'm siden',
+          hoursAgo: 't siden',
+          km: 'km',
+          lockBtn: 'Lås',
+          unlockBtn: 'Lås opp',
+          chargeBtn: 'Lade',
+          acBtn: 'A/C',
+          defrostBtn: 'Avising',
+          start: 'Start',
+          stop: 'Stopp',
+          on: 'På',
+          off: 'Av',
+          refresh: 'Oppdater'
+        },
+        pl: {
+          car: 'Samochód',
+          locked: 'Zablokowany',
+          secured: 'Zabezpieczony',
+          unlocked: 'Odblokowany',
+          charging: 'Ładowanie',
+          pluggedIn: 'Podłączony',
+          driving: 'Jazda',
+          climate: 'Klimatyzacja',
+          range: 'Zasięg',
+          location: 'Lokalizacja',
+          atHome: 'W domu',
+          fromHome: 'od domu',
+          noCar: 'Nie znaleziono samochodu',
+          updated: 'Zaktualizowano',
+          justNow: 'przed chwilą',
+          minutesAgo: 'min temu',
+          hoursAgo: 'godz. temu',
+          km: 'km',
+          lockBtn: 'Zablokuj',
+          unlockBtn: 'Odblokuj',
+          chargeBtn: 'Ładuj',
+          acBtn: 'Klima',
+          defrostBtn: 'Odszranianie',
+          start: 'Start',
+          stop: 'Zatrzymaj',
+          on: 'Wł.',
+          off: 'Wył.',
+          refresh: 'Odśwież'
+        },
+        ru: {
+          car: 'Автомобиль',
+          locked: 'Заблокирован',
+          secured: 'На охране',
+          unlocked: 'Разблокирован',
+          charging: 'Заряжается',
+          pluggedIn: 'Подключен',
+          driving: 'В пути',
+          climate: 'Климат',
+          range: 'Запас хода',
+          location: 'Местоположение',
+          atHome: 'Дома',
+          fromHome: 'от дома',
+          noCar: 'Автомобиль не найден',
+          updated: 'Обновлено',
+          justNow: 'только что',
+          minutesAgo: 'мин назад',
+          hoursAgo: 'ч назад',
+          km: 'км',
+          lockBtn: 'Запереть',
+          unlockBtn: 'Отпереть',
+          chargeBtn: 'Зарядка',
+          acBtn: 'Кондиционер',
+          defrostBtn: 'Обогрев',
+          start: 'Пуск',
+          stop: 'Стоп',
+          on: 'Вкл',
+          off: 'Выкл',
+          refresh: 'Обновить'
+        },
+        ar: {
+          car: 'سيارة',
+          locked: 'مقفل',
+          secured: 'مؤمن',
+          unlocked: 'مفتوح',
+          charging: 'جارٍ الشحن',
+          pluggedIn: 'متصل',
+          driving: 'قيادة',
+          climate: 'المكيف',
+          range: 'المدى',
+          location: 'الموقع',
+          atHome: 'في المنزل',
+          fromHome: 'عن المنزل',
+          noCar: 'لم يتم العثور على سيارة',
+          updated: 'تم التحديث',
+          justNow: 'الآن',
+          minutesAgo: 'دقيقة',
+          hoursAgo: 'ساعة',
+          km: 'كم',
+          lockBtn: 'قفل',
+          unlockBtn: 'فتح',
+          chargeBtn: 'شحن',
+          acBtn: 'مكيف',
+          defrostBtn: 'إزالة الجليد',
+          start: 'بدء',
+          stop: 'إيقاف',
+          on: 'تشغيل',
+          off: 'إيقاف',
+          refresh: 'تحديث'
+        },
+        ko: {
+          car: '자동차',
+          locked: '잠김',
+          secured: '보안 중',
+          unlocked: '열림',
+          charging: '충전 중',
+          pluggedIn: '연결됨',
+          driving: '주행 중',
+          climate: '공조',
+          range: '주행 가능 거리',
+          location: '위치',
+          atHome: '집',
+          fromHome: '집에서',
+          noCar: '차량을 찾을 수 없음',
+          updated: '업데이트됨',
+          justNow: '방금',
+          minutesAgo: '분 전',
+          hoursAgo: '시간 전',
+          km: 'km',
+          lockBtn: '잠금',
+          unlockBtn: '잠금 해제',
+          chargeBtn: '충전',
+          acBtn: '에어컨',
+          defrostBtn: '성에 제거',
+          start: '시작',
+          stop: '중지',
+          on: '켜짐',
+          off: '꺼짐',
+          refresh: '새로고침'
+        }
+      };
+
+      var userLang = (typeof Homey.getLanguage === 'function' ? Homey.getLanguage() : 'en') || 'en';
+      var t = I18N[userLang] || I18N['en'];
+
+      if (userLang === 'ar') {
+        document.documentElement.dir = 'rtl';
+      }
+
+      // Initialize static localized labels
+      document.getElementById('lbl-updated').innerText = t.updated;
+      document.getElementById('empty-msg').innerText = t.noCar;
+
+      document.getElementById('lbl-btn-lock').innerText = t.lockBtn;
+      document.getElementById('lbl-btn-charge').innerText = t.chargeBtn;
+      document.getElementById('lbl-btn-climate').innerText = t.acBtn;
+      document.getElementById('lbl-btn-defrost').innerText = t.defrostBtn;
+
+      var currentCarData = null;
+      var pendingAction = {};
+
+      function getSelectedDeviceId() {
+        if (typeof Homey.getDeviceIds === 'function') {
+          var ids = Homey.getDeviceIds();
+          if (ids && ids.length > 0) return String(ids[0]);
+        }
+        var settings = typeof Homey.getSettings === 'function' ? Homey.getSettings() : {};
+        if (settings) {
+          if (settings.device) {
+            if (typeof settings.device === 'string') return settings.device;
+            if (typeof settings.device === 'object') {
+              if (settings.device.id) return String(settings.device.id);
+              if (settings.device.data && settings.device.data.id) return String(settings.device.data.id);
+            }
+          }
+          if (settings.devices && Array.isArray(settings.devices) && settings.devices.length > 0) {
+            return String(settings.devices[0]);
+          }
+        }
+        return null;
+      }
+
+      function getIsLocked(data) {
+        if (!data) return true;
+        if (typeof data.locked === 'boolean') return data.locked;
+        if (typeof data.closed_locked === 'boolean') return data.closed_locked;
+        return true;
+      }
+
+      function formatRelativeTime(dateStr) {
+        if (!dateStr) return '--';
+        try {
+          var date = new Date(dateStr);
+          var now = new Date();
+          var diffMs = now.getTime() - date.getTime();
+          var year = date.getFullYear();
+          if (isNaN(diffMs) || year < 2020 || year > 2050) {
+            return dateStr;
+          }
+          if (diffMs < 0) return t.justNow;
+          var diffMins = Math.floor(diffMs / 60000);
+          if (diffMins < 1) return t.justNow;
+          if (diffMins < 60) return diffMins + t.minutesAgo;
+          var diffHours = Math.floor(diffMins / 60);
+          if (diffHours < 24) return diffHours + t.hoursAgo;
+          return date.toLocaleDateString();
+        } catch {
+          return dateStr;
+        }
+      }
+
+      function updateUI(data) {
+        currentCarData = data;
+        var emptyEl = document.getElementById('empty-state');
+        var containerEl = document.getElementById('widget-container');
+
+        if (!data) {
+          if (emptyEl) emptyEl.classList.add('active');
+          if (containerEl) containerEl.style.display = 'none';
+          return;
+        }
+
+        if (emptyEl) emptyEl.classList.remove('active');
+        if (containerEl) containerEl.style.display = 'flex';
+
+        // Vehicle Name
+        var carNameEl = document.getElementById('car-name');
+        if (carNameEl) carNameEl.innerText = (data.name || t.car).toUpperCase();
+
+        // Subtitle: Odometer reading (e.g. 116.528 km) - replaces duplicate locked status
+        var carSubEl = document.getElementById('car-sub-text');
+        if (carSubEl) {
+          if (typeof data.measure_odo === 'number' && !isNaN(data.measure_odo) && data.measure_odo > 0) {
+            carSubEl.innerText = Math.round(data.measure_odo).toLocaleString() + ' km';
+          } else if (data.engine) {
+            carSubEl.innerText = data.engine;
+          } else {
+            carSubEl.innerText = '';
+          }
+        }
+
+        // Status pill (top right)
+        var badgeEl = document.getElementById('status-badge');
+        var badgeTextEl = document.getElementById('status-badge-text');
+
+        badgeEl.className = 'status-badge'; // reset classes
+
+        var isEV = Boolean(data.is_ev);
+        var isCharging = isEV && (data.ev_charging_state === 'plugged_in_charging' || (data.charge && isEV));
+        var isPlugged = isEV && data.ev_charging_state === 'plugged_in';
+        var isDriving = data.engine === true;
+        var isLocked = getIsLocked(data);
+
+        if (isCharging) {
+          badgeEl.classList.add('charging');
+          var pwr = data['measure_power.charge'];
+          badgeTextEl.innerText = (pwr && pwr > 0) ? '⚡ ' + pwr.toFixed(1) + ' kW' : '⚡ ' + t.charging;
+        } else if (isPlugged) {
+          badgeEl.classList.add('plugged');
+          badgeTextEl.innerText = '🔌 ' + t.pluggedIn;
+        } else if (isDriving) {
+          badgeEl.classList.add('driving');
+          badgeTextEl.innerText = '🚗 ' + t.driving;
+        } else if (isLocked) {
+          badgeTextEl.innerText = '🔒 ' + t.secured;
+        } else {
+          badgeEl.classList.add('unlocked');
+          badgeTextEl.innerText = '🔓 ' + t.unlocked;
+        }
+
+        // Car Image
+        var carImgEl = document.getElementById('car-img');
+        if (carImgEl) {
+          var settings = (typeof Homey.getSettings === 'function' ? Homey.getSettings() : {}) || {};
+          var customUrl = settings.imageUrl && settings.imageUrl.trim();
+          var defaultImg = data.default_image || '';
+
+          carImgEl.onerror = function() {
+            if (carImgEl.src !== defaultImg && defaultImg) {
+              carImgEl.src = defaultImg;
+            }
+          };
+
+          if (customUrl) {
+            carImgEl.src = customUrl;
+          } else if (defaultImg) {
+            carImgEl.src = defaultImg;
+          }
+        }
+
+        // Battery & Range Hero
+        var battOverview = document.getElementById('battery-overview');
+        var battVal = data.measure_battery;
+        var battEl = document.getElementById('battery-val');
+        var battBarEl = document.getElementById('battery-bar');
+        var rangeHeroEl = document.getElementById('range-hero-val');
+
+        if (typeof battVal === 'number' && !isNaN(battVal)) {
+          if (battOverview) battOverview.style.display = 'flex';
+          var roundedBatt = Math.round(battVal);
+          battEl.innerText = roundedBatt;
+          battBarEl.style.width = Math.min(100, Math.max(0, roundedBatt)) + '%';
+
+          if (isCharging) {
+            battBarEl.style.background = 'linear-gradient(90deg, #30d158, #0a84ff)';
+          } else if (roundedBatt <= 20) {
+            battBarEl.style.background = 'var(--accent-red)';
+          } else if (roundedBatt <= 40) {
+            battBarEl.style.background = 'var(--accent-orange)';
+          } else {
+            battBarEl.style.background = 'linear-gradient(90deg, #34c759, #30d158)';
+          }
+        } else {
+          battEl.innerText = '--';
+          battBarEl.style.width = '0%';
+        }
+
+        if (typeof data.measure_range === 'number' && !isNaN(data.measure_range)) {
+          rangeHeroEl.innerText = Math.round(data.measure_range);
+        } else {
+          rangeHeroEl.innerText = '--';
+        }
+
+        // Action Controls Update
+        // Non-EV handling: adapt action bar columns & hide charge button if non-EV
+        var controlsBar = document.getElementById('controls-bar');
+        var btnCharge = document.getElementById('btn-charge');
+        if (isEV) {
+          if (btnCharge) btnCharge.style.display = 'flex';
+          if (controlsBar) controlsBar.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        } else {
+          if (btnCharge) btnCharge.style.display = 'none';
+          if (controlsBar) controlsBar.style.gridTemplateColumns = 'repeat(3, 1fr)';
+        }
+
+        // Button 1: Lock / Unlock
+        var btnLock = document.getElementById('btn-lock');
+        var lblLock = document.getElementById('lbl-btn-lock');
+        var stateLock = document.getElementById('state-btn-lock');
+        var lockShackle = document.getElementById('lock-shackle');
+        if (btnLock && stateLock) {
+          btnLock.classList.remove('state-warning-red');
+          if (isLocked) {
+            if (lblLock) lblLock.innerText = t.unlockBtn;
+            stateLock.innerText = t.locked;
+            if (lockShackle) lockShackle.setAttribute('d', 'M7 11V7a5 5 0 0 1 10 0v4');
+          } else {
+            if (lblLock) lblLock.innerText = t.lockBtn;
+            stateLock.innerText = t.unlocked;
+            btnLock.classList.add('state-warning-red');
+            if (lockShackle) lockShackle.setAttribute('d', 'M7 11V7a5 5 0 0 1 9.9-1');
+          }
+        }
+
+        // Button 2: Charge Start / Stop
+        var stateCharge = document.getElementById('state-btn-charge');
+        if (btnCharge && stateCharge) {
+          btnCharge.classList.remove('state-active-green');
+          if (isCharging) {
+            btnCharge.classList.add('state-active-green');
+            stateCharge.innerText = t.stop;
+          } else {
+            stateCharge.innerText = t.start;
+          }
+        }
+
+        // Button 3: Climate A/C On / Off
+        var btnClimate = document.getElementById('btn-climate');
+        var stateClimate = document.getElementById('state-btn-climate');
+        if (btnClimate && stateClimate) {
+          btnClimate.classList.remove('state-active-blue');
+          if (data.climate_control) {
+            btnClimate.classList.add('state-active-blue');
+            var temp = typeof data.target_temperature === 'number' ? data.target_temperature.toFixed(0) + '°' : t.on;
+            stateClimate.innerText = temp;
+          } else {
+            stateClimate.innerText = t.off;
+          }
+        }
+
+        // Button 4: Defrost On / Off
+        var btnDefrost = document.getElementById('btn-defrost');
+        var stateDefrost = document.getElementById('state-btn-defrost');
+        if (btnDefrost && stateDefrost) {
+          btnDefrost.classList.remove('state-active-orange');
+          if (data.defrost) {
+            btnDefrost.classList.add('state-active-orange');
+            stateDefrost.innerText = t.on;
+          } else {
+            stateDefrost.innerText = t.off;
+          }
+        }
+
+        // Footer: Location (left) & Sync time (right)
+        var locTextEl = document.getElementById('footer-loc-text');
+        var footerLocEl = document.getElementById('footer-location');
+        if (locTextEl && footerLocEl) {
+          var dist = data.meter_distance;
+          var locStr = '';
+          if (typeof dist === 'number' && !isNaN(dist) && dist < 0.1) {
+            locStr = t.atHome + (data.location ? ' (' + data.location + ')' : '');
+          } else if (typeof dist === 'number' && !isNaN(dist) && dist >= 0.1) {
+            locStr = dist.toFixed(1) + ' ' + t.km + (data.location ? ' • ' + data.location : '');
+          } else if (data.location && data.location.trim().length > 0) {
+            locStr = data.location;
+          }
+
+          if (locStr) {
+            locTextEl.innerText = locStr;
+            footerLocEl.style.display = 'flex';
+          } else {
+            footerLocEl.style.display = 'none';
+          }
+        }
+
+        var syncTimeEl = document.getElementById('sync-time-val');
+        if (syncTimeEl) {
+          syncTimeEl.innerText = formatRelativeTime(data.last_refresh);
+        }
+      }
+
+      function executeAction(action, value, buttonEl) {
+        if (pendingAction[action]) return;
+        pendingAction[action] = true;
+
+        if (buttonEl) buttonEl.classList.add('is-loading');
+
+        var deviceId = getSelectedDeviceId();
+        Homey.api('POST', '/action', { action: action, value: value, deviceId: deviceId })
+          .then(function() {
+            setTimeout(fetchCarData, 1500);
+            setTimeout(fetchCarData, 5000);
+          })
+          .catch(function(err) {
+            console.error('Failed action ' + action + ':', err);
+          })
+          .finally(function() {
+            setTimeout(function() {
+              pendingAction[action] = false;
+              if (buttonEl) buttonEl.classList.remove('is-loading');
+            }, 1200);
+          });
+      }
+
+      // Attach button click listeners
+      var btnLock = document.getElementById('btn-lock');
+      if (btnLock) {
+        btnLock.addEventListener('click', function() {
+          var isLocked = getIsLocked(currentCarData);
+          executeAction('lock', !isLocked, btnLock);
+        });
+      }
+
+      var btnCharge = document.getElementById('btn-charge');
+      if (btnCharge) {
+        btnCharge.addEventListener('click', function() {
+          var isCharging = currentCarData && (currentCarData.ev_charging_state === 'plugged_in_charging' || (currentCarData.charge && currentCarData.is_ev));
+          executeAction('charge', !isCharging, btnCharge);
+        });
+      }
+
+      var btnClimate = document.getElementById('btn-climate');
+      if (btnClimate) {
+        btnClimate.addEventListener('click', function() {
+          var isClimate = currentCarData && Boolean(currentCarData.climate_control);
+          executeAction('climate', !isClimate, btnClimate);
+        });
+      }
+
+      var btnDefrost = document.getElementById('btn-defrost');
+      if (btnDefrost) {
+        btnDefrost.addEventListener('click', function() {
+          var isDefrost = currentCarData && Boolean(currentCarData.defrost);
+          executeAction('defrost', !isDefrost, btnDefrost);
+        });
+      }
+
+      var btnRefresh = document.getElementById('btn-refresh');
+      if (btnRefresh) {
+        btnRefresh.addEventListener('click', function() {
+          if (pendingAction['refresh']) return;
+          pendingAction['refresh'] = true;
+          btnRefresh.classList.add('is-spinning');
+
+          var deviceId = getSelectedDeviceId();
+          Homey.api('POST', '/action', { action: 'refresh', deviceId: deviceId })
+            .then(function() {
+              setTimeout(fetchCarData, 2500);
+              setTimeout(fetchCarData, 8000);
+            })
+            .catch(function(err) {
+              console.error('Refresh status failed:', err);
+            })
+            .finally(function() {
+              setTimeout(function() {
+                pendingAction['refresh'] = false;
+                btnRefresh.classList.remove('is-spinning');
+              }, 3000);
+            });
+        });
+      }
+
+      function fetchCarData() {
+        var deviceId = getSelectedDeviceId();
+        var path = '/' + (deviceId ? '?deviceId=' + encodeURIComponent(deviceId) : '');
+
+        Homey.api('GET', path, {})
+          .then(function(result) {
+            updateUI(result);
+          })
+          .catch(function(err) {
+            console.error('Failed to fetch car data:', err);
+          });
+      }
+
+      fetchCarData();
+
+      if (typeof Homey.onSettings === 'function') {
+        Homey.onSettings(function() {
+          fetchCarData();
+        });
+      }
+
+      setInterval(fetchCarData, 30000);
+    }
+
+    if (typeof window.Homey !== 'undefined') {
+      onHomeyReady(window.Homey);
+    }
+  </script>
+</body>
+</html>
