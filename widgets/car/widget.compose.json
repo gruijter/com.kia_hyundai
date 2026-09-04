@@ -1,0 +1,72 @@
+{
+  "name": {
+    "en": "Car",
+    "nl": "Auto",
+    "de": "Auto",
+    "fr": "Voiture",
+    "es": "Coche",
+    "it": "Auto",
+    "da": "Bil",
+    "sv": "Bil",
+    "no": "Bil",
+    "pl": "Samochód",
+    "ru": "Автомобиль",
+    "ar": "سيارة",
+    "ko": "자동차"
+  },
+  "devices": {
+    "type": "app",
+    "singular": true,
+    "filter": {
+      "class": "vehicle"
+    }
+  },
+  "height": 440,
+  "settings": [
+    {
+      "id": "imageUrl",
+      "type": "text",
+      "title": {
+        "en": "Custom image URL",
+        "nl": "Aangepaste afbeeldings-URL",
+        "de": "Benutzerdefinierte Bild-URL",
+        "fr": "URL de l'image personnalisée",
+        "es": "URL de imagen personalizada",
+        "it": "URL immagine personalizzata",
+        "da": "Brugerdefineret billed-URL",
+        "sv": "Anpassad bild-URL",
+        "no": "Egendefinert bilde-URL",
+        "pl": "Niestandardowy adres URL obrazu",
+        "ru": "Пользовательский URL изображения",
+        "ar": "عنوان URL مخصص للصورة",
+        "ko": "사용자 지정 이미지 URL"
+      },
+      "placeholder": {
+        "en": "Leave empty for default car image",
+        "nl": "Laat leeg voor standaard auto-afbeelding",
+        "de": "Leer lassen für Standard-Autobild",
+        "fr": "Laisser vide pour l'image de voiture par défaut",
+        "es": "Dejar vacío para la imagen predeterminada del coche",
+        "it": "Lascia vuoto per l'immagine predefinita dell'auto",
+        "da": "Lad stå tomt for standard bilbillede",
+        "sv": "Lämna tomt för standardbilbild",
+        "no": "La stå tomt for standard bilbilde",
+        "pl": "Pozostaw puste dla domyślnego obrazu samochodu",
+        "ru": "Оставьте пустым для изображения автомобиля по умолчанию",
+        "ar": "اتركه فارغًا للحصول على صورة السيارة الافتراضية",
+        "ko": "기본 차량 이미지를 사용하려면 비워 두세요"
+      },
+      "value": ""
+    }
+  ],
+  "api": {
+    "getCarData": {
+      "method": "GET",
+      "path": "/"
+    },
+    "carAction": {
+      "method": "POST",
+      "path": "/action"
+    }
+  }
+}
