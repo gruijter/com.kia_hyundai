@@ -25,8 +25,8 @@ const DeviceMigrator = require('../../lib/DeviceMigrator');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
-const timeout = (ms) => new Promise((_, reject) => {
-  setTimeout(() => reject(Error('timeout')), ms);
+const timeout = (homey, ms) => new Promise((_, reject) => {
+  homey.setTimeout(() => reject(Error('timeout')), ms);
 });
 
 module.exports = class MyDriver extends Homey.Driver {
@@ -156,7 +156,7 @@ module.exports = class MyDriver extends Homey.Driver {
     });
     let vehicleConfigs;
     try {
-      vehicleConfigs = await Promise.race([manager.login(), timeout(LOGIN_TIMEOUT_MS)]);
+      vehicleConfigs = await Promise.race([manager.login(), timeout(this.homey, LOGIN_TIMEOUT_MS)]);
     } catch (error) {
       this.error(error);
       if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
