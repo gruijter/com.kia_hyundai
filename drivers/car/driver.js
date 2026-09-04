@@ -21,7 +21,6 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const { createClient, exceptions } = require('../../lib/connect');
-const DeviceMigrator = require('../../lib/DeviceMigrator');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
@@ -139,9 +138,10 @@ module.exports = class MyDriver extends Homey.Driver {
   }
 
   // Logs in with the credentials from the pair/repair form and confirms the
-  // PIN, throwing the same localized errors either flow shows. Shared so a
-  // repair validates exactly what pairing validates.
-  async validateCredentials(settings) {
+  // PIN. Shared so a repair validates exactly what pairing validates; only
+  // the wrapper message differs, hence failedKey (a repair that fails should
+  // not report "Pairing failed").
+  async validateCredentials(settings, failedKey = 'pair.pairing_failed') {
     this.log('validating credentials');
     if (settings.pin.length !== 4) {
       throw Error(this.homey.__('pair.invalid_pin'));
@@ -162,7 +162,7 @@ module.exports = class MyDriver extends Homey.Driver {
       if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
         throw Error(this.homey.__('pair.network_error'));
       }
-      throw Error(this.homey.__('pair.pairing_failed', { error: error.message || error }));
+      throw Error(this.homey.__(failedKey, { error: error.message || error }));
     }
     if (!vehicleConfigs || !Array.isArray(vehicleConfigs) || vehicleConfigs.length < 1) {
       this.error('No vehicles in this account!');
@@ -200,13 +200,18 @@ module.exports = class MyDriver extends Homey.Driver {
   // The complete device settings a pairing produces — every one of them
   // re-derived, so a repair can write the identical set over an existing
   // device instead of leaving stale values behind.
-  buildDeviceSettings(credentials, vehicleConfig, engine) {
+  // `language` is the one settings key a user can change after pairing that
+  // this builder would otherwise clobber: it is a dropdown of the 14 API
+  // languages, read back in Device#setupClient(). Pairing has nothing to
+  // carry over so it takes the 'en' default; a repair must pass the device's
+  // current value or it silently resets everyone to English.
+  buildDeviceSettings(credentials, vehicleConfig, engine, language = 'en') {
     return {
       username: credentials.username,
       password: credentials.password,
       pin: credentials.pin,
       region: credentials.region,
-      language: 'en',
+      language,
       // pollInterval,
       nameOrg: vehicleConfig.name,
       idOrg: vehicleConfig.id,
@@ -278,7 +283,7 @@ module.exports = class MyDriver extends Homey.Driver {
 
     session.setHandler('validate', async (data) => {
       credentials = data;
-      ({ manager, vehicleConfigs } = await this.validateCredentials(data));
+      ({ manager, vehicleConfigs } = await this.validateCredentials(data, 'pair.repair_failed'));
       return true;
     });
 
@@ -292,18 +297,39 @@ module.exports = class MyDriver extends Homey.Driver {
 
       const status = await manager.updateVehicleWithCachedState(vehicleConfig);
       const engine = this.deriveEngine(status, vehicleConfig);
-      await device.setSettings(this.buildDeviceSettings(credentials, vehicleConfig, engine));
-      await DeviceMigrator.migrateCapabilities(device, this.filterSupportedCapabilities(
-        this.capabilitiesMap[engine],
-        this.extractCheckableStatus(status),
-      ));
-      // Store keys a fresh pairing wouldn't have. Left behind they'd outvote
-      // what this repair just established: `seenCaps` keeps pruned-away
-      // capabilities alive, and the unit markers suppress the next poll's
-      // unit write (see DeviceMigrator#reconcileUnitMarkers).
-      const stale = ['lastStatus', 'seenCaps', 'parkLocation', 'appliedDistanceUnits', 'appliedSpeedUnits', 'appliedFuelEconomyUnits'];
+      await device.setSettings(this.buildDeviceSettings(credentials, vehicleConfig, engine, device.getSettings().language));
+      // The capability migration is deliberately NOT run here. It settles 2s
+      // per added and per removed capability, so re-bucketing an engine would
+      // hold this pair-session handler open for minutes behind a
+      // progress-less loading overlay. Device#migrate() does exactly the same
+      // work on the next onInit() — it only needs this repair's freshly
+      // fetched evidence, which is what seenCaps below carries over to it.
+      //
+      // Writing seenCaps (rather than clearing it along with the other stale
+      // keys) is also what keeps the restart from re-adding everything this
+      // repair should prune: migrate() reads an absent seenCaps AND lastStatus
+      // as "no evidence either way" and prunes nothing at all. Built from
+      // extractCheckableStatus()'s raw reads, which is the authoritative
+      // source here — unlike Device#recordSeenCaps(), whose input has already
+      // been through mapStatus()'s `!!` coercion.
+      const checkable = this.extractCheckableStatus(status);
+      const seenCaps = {};
+      Object.keys(checkable).forEach((cap) => {
+        if (!this.isUnsupportedValue(checkable[cap])) seenCaps[cap] = true;
+      });
+      // Store keys a fresh pairing wouldn't have. Left behind, the unit
+      // markers would suppress the next poll's unit write (see
+      // DeviceMigrator#reconcileUnitMarkers).
+      const stale = ['lastStatus', 'parkLocation', 'appliedDistanceUnits', 'appliedSpeedUnits', 'appliedFuelEconomyUnits'];
       await Promise.all(stale.map((key) => device.unsetStoreValue(key).catch((error) => this.error(error))));
+      await device.setStoreValue('seenCaps', seenCaps).catch((error) => this.error(error));
       this.log(`repair of ${device.getName()} done, engine=${engine}`);
+      // cancelRestart() first: a device is usually repaired *because* it sits
+      // in a pending restart backoff (15 min on device_auth_failed, 60 on OTP
+      // or quota), and restartDevice() early-returns while `restarting` is
+      // true. Without this the repair's own restart is silently dropped and
+      // none of the above takes effect until that pending timer fires.
+      device.cancelRestart();
       device.restartDevice(500).catch((error) => this.error(error));
       return true;
     });

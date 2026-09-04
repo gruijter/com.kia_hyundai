@@ -2,6 +2,7 @@
   "pair": {
     "title": "Vincula tu coche Kia",
     "subtitle": "Usa tus credenciales de Kia Connect",
+    "repair_title": "Vuelve a vincular tu coche Kia",
     "region": "Selecciona tu región",
     "region_eu": "Europa",
     "region_us": "EE. UU.",
@@ -18,6 +19,7 @@
     "invalid_pin": "PIN no válido, introduce tu PIN de 4 dígitos.",
     "no_vehicles": "No se han encontrado vehículos para esta cuenta.",
     "pairing_failed": "Error de vinculación: __error__",
+    "repair_failed": "Error al volver a vincular: __error__",
     "network_error": "Servidor Kia/Hyundai no accesible. Inténtalo más tarde."
   },
   "departure_not_set": "Sin definir",
@@ -34,6 +36,7 @@
   "error_climate_control_off": "La climatización no está activada.",
   "error_location_not_found": "No se pudo encontrar esa ubicación.",
   "error_queue_full": "Ya hay demasiados comandos en cola para este coche. Espera un momento y vuelve a intentarlo.",
+  "error_device_gone": "Este coche ya no está disponible.",
   "error_unknown_command": "Comando desconocido: __command__",
   "error_invalid_window_state": "Estado de ventana no válido: __state__",
   "error_battery_too_low_for_refresh": "No se puede forzar una actualización: la batería de 12V es demasiado baja o desconocida (__batSoc__ %, debe superar el __level__ %)."

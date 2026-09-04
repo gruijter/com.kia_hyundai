@@ -236,7 +236,7 @@ class CarDevice extends Homey.Device {
     // auto-polls) should attach a no-op .catch() since a fast, definitive
     // failure (e.g. a full queue) does reject this promise.
     this.enQueue = (item) => {
-      if (this.destroyed) return Promise.reject(Error('device is gone'));
+      if (this.destroyed) return Promise.reject(Error(this.homey.__('error_device_gone')));
       if (this.queue.length >= 10) {
         this.error('queue overflow');
         return Promise.reject(Error(this.homey.__('error_queue_full')));
