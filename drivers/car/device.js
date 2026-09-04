@@ -137,8 +137,17 @@ class CarDevice extends Homey.Device {
         evidence,
       );
       await DeviceMigrator.migrateCapabilities(this, correctCaps);
-      // Must run after the capability migration above, which is one of the
-      // things that can silently reset a capability's unit options.
+    } catch (error) {
+      this.error(error);
+    }
+    // Its own try/catch rather than chained onto the migration above: the two
+    // are independent, and a device whose `engine` setting is missing or
+    // unrecognised — exactly the population driver.js#onRepair() exists for —
+    // makes capabilitiesMap[engine] undefined and throws inside
+    // migrateCapabilities(), which used to take the unit-marker repair
+    // (community report #1050) down with it. Still runs after it, since a
+    // capability migration is one of the things that resets unit options.
+    try {
       await DeviceMigrator.reconcileUnitMarkers(this);
     } catch (error) {
       this.error(error);
@@ -154,6 +163,15 @@ class CarDevice extends Homey.Device {
     const seen = this.getStoreValue('seenCaps') || {};
     let changed = false;
     this.driver.capabilitiesToCheck.forEach((cap) => {
+      // Only for capabilities this device actually has. mapStatus()'s CCS2
+      // branch coerces the three `alarm_generic.*` fields with `!!`, so a
+      // field the car never reports arrives here as `false` — a real value as
+      // far as isUnsupportedValue() is concerned. Without this guard a
+      // capability that pairing correctly pruned (extractCheckableStatus()
+      // reads those fields raw, so it saw `undefined`) got evidence recorded
+      // on the first poll and was re-added by migrate() at the next restart,
+      // permanently: seenCaps has no expiry.
+      if (!this.hasCapability(cap)) return;
       if (seen[cap] || this.driver.isUnsupportedValue(stsMapped[cap])) return;
       seen[cap] = true;
       changed = true;
@@ -1369,6 +1387,20 @@ class CarDevice extends Homey.Device {
 
   // register capability listeners
   startListeners() {
+    // Outside the listenersSet latch below, and re-checked on every onInit():
+    // this is the only registration gated on hasCapability(), and
+    // departure_schedule.* can be added to a device *after* its first
+    // onInit() — by onRepair() re-bucketing a car to 'Full EV ccuCCS2', or by
+    // migrate() on an app update. restartDevice() re-enters onInit() on the
+    // same Device instance rather than constructing a new one, so the latch
+    // stayed true and these listeners were never registered: the toggles show
+    // up in the UI and nothing is sent to the car until the whole app
+    // restarts. Latched separately so it still registers only once.
+    if (this.hasCapability('departure_schedule.1') && !this.departureListenersSet) {
+      this.registerCapabilityListener('departure_schedule.1', (enabled) => this.enableDepartureSchedule(1, enabled, 'app'));
+      this.registerCapabilityListener('departure_schedule.2', (enabled) => this.enableDepartureSchedule(2, enabled, 'app'));
+      this.departureListenersSet = true;
+    }
     if (!this.listenersSet) {
       this.log(`${this.getName()} starting capability listeners`);
       // capabilityListeners will be overwritten, so no need to unregister them
@@ -1383,10 +1415,6 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
-      if (this.hasCapability('departure_schedule.1')) {
-        this.registerCapabilityListener('departure_schedule.1', (enabled) => this.enableDepartureSchedule(1, enabled, 'app'));
-        this.registerCapabilityListener('departure_schedule.2', (enabled) => this.enableDepartureSchedule(2, enabled, 'app'));
-      }
       // Momentary buttons — self-reset back to false after the command
       // completes (or the enQueue timeout races it), matching refresh_status.
       this.registerCapabilityListener('vent_windows', (pressed) => {
