@@ -89,6 +89,7 @@ class CarDevice extends Homey.Device {
   // this method is called when the Device is inited
   async onInit() {
     // this.log('device init: ', this.getName(), 'id:', this.getData().id);
+    if (this.destroyed) return;
     try {
       // migrate capabilities from old versions
       await this.migrate();
@@ -171,6 +172,7 @@ class CarDevice extends Homey.Device {
     this.watchDogCounter = 6;
     this.busy = false;
     this.restarting = false;
+    this.restartTimeout = null;
     this.moving = false; // read by the 'moving' flow condition card (app.js)
     // for [queue-timing] logging only, see runQueue() — real-world data on
     // whether ITEM_WAIT_SECONDS is actually long enough per command, since
@@ -190,6 +192,7 @@ class CarDevice extends Homey.Device {
     // auto-polls) should attach a no-op .catch() since a fast, definitive
     // failure (e.g. a full queue) does reject this promise.
     this.enQueue = (item) => {
+      if (this.destroyed) return Promise.reject(Error('device is gone'));
       if (this.queue.length >= 10) {
         this.error('queue overflow');
         return Promise.reject(Error(this.homey.__('error_queue_full')));
@@ -222,6 +225,7 @@ class CarDevice extends Homey.Device {
       try {
         let item = this.deQueue();
         while (item) {
+          if (this.destroyed) return;
           if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
             throw Error('Ignoring queued command; not logged in');
@@ -249,7 +253,7 @@ class CarDevice extends Homey.Device {
           await dispatch()
             .then(() => {
               this.watchDogCounter = 6;
-              this.setAvailable().catch(this.error);
+              if (!this.destroyed) this.setAvailable().catch(this.error);
               item.resolve(true);
             })
             .catch(async (error) => {
@@ -268,6 +272,7 @@ class CarDevice extends Homey.Device {
                 this.log(`[queue-timing] ${item.command} REJECTED as duplicate/rate-limited ${sinceLastMs}ms after `
                   + `previous command (${previousCommand || 'none'}). Retrying in 60 seconds`);
                 await setTimeoutPromise(60 * 1000, 'waiting is done');
+                if (this.destroyed) return;
                 if (this.settings.loginOnRetry) {
                   const vehicleConfigs = await this.client.login();
                   const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
@@ -276,7 +281,7 @@ class CarDevice extends Homey.Device {
                 retryWorked = await dispatch()
                   .then(() => {
                     this.watchDogCounter = 6;
-                    this.setAvailable().catch(this.error);
+                    if (!this.destroyed) this.setAvailable().catch(this.error);
                     return true;
                   })
                   .catch(() => false);
@@ -291,6 +296,7 @@ class CarDevice extends Homey.Device {
             });
           // eslint-disable-next-line no-await-in-loop
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
+          if (this.destroyed) return;
           item = this.deQueue();
         }
         needsFollowUpPoll = this.lastCommand !== 'doPoll';
@@ -405,6 +411,7 @@ class CarDevice extends Homey.Device {
       this.restartDevice(backoff).catch((e) => this.error(e));
       throw error;
     }
+    if (this.destroyed) return;
 
     const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
     if (!vehicleConfig) {
@@ -427,6 +434,7 @@ class CarDevice extends Homey.Device {
 
   async startPolling(interval) {
     this.homey.clearInterval(this.intervalIdDevicePoll);
+    if (this.destroyed) return;
     const mode = this.pollMode ? 'car' : 'server';
     this.log(`Start polling ${mode} ${this.getName()} @ ${interval} minute interval`);
     if (this.settings.pollIntervalForced) this.log(`Warning: forced polling is enabled @${this.settings.pollIntervalForced} minute interval`);
@@ -457,20 +465,49 @@ class CarDevice extends Homey.Device {
   }
 
   async restartDevice(delay, reason) {
-    if (this.restarting) return;
+    if (this.restarting || this.destroyed) return;
     this.restarting = true;
     this.stopPolling();
     this.flushQueue();
     const dly = delay || 1000 * 60 * 5;
     this.log(`Device will restart in ${dly / 1000} seconds`);
     this.setUnavailable(reason || this.homey.__('device_restarting')).catch(this.error);
-    await setTimeoutPromise(dly);
-    this.onInit().catch((error) => this.error(error));
+    // Kept as a cancellable id rather than an awaited sleep: homey.setTimeout
+    // only disposes the timer when the whole Homey instance is destroyed (app
+    // unload) — never when this one device is deleted. A pending restart runs
+    // up to 60 minutes (quota/OTP), so without cancelRestart() below, deleting
+    // a car mid-wait would still re-enter onInit() and log back in on its
+    // behalf.
+    this.restartTimeout = this.homey.setTimeout(() => {
+      this.onInit().catch((error) => this.error(error));
+    }, dly);
+  }
+
+  // Set once the instance is on its way out (deleted, or uninitialized by
+  // Homey) and never cleared — Homey builds a fresh Device instance when a
+  // device comes back, so nothing legitimately resumes on this one. Async work
+  // already in flight when that happens (a login, a queued command, the 60s
+  // duplicate-retry sleep) can't be aborted mid-await, so every step that
+  // would touch Homey or the vehicle API after an await checks this first
+  // instead of erroring against a dead device.
+  markDestroyed() {
+    this.destroyed = true;
+    this.cancelRestart();
+    this.stopPolling();
+    this.flushQueue();
+  }
+
+  cancelRestart() {
+    if (!this.restartTimeout) return;
+    this.log(`cancelling pending restart of ${this.getName()}`);
+    this.homey.clearTimeout(this.restartTimeout);
+    this.restartTimeout = null;
+    this.restarting = false;
   }
 
   async onUninit() {
     this.log('unInit', this.getName());
-    this.stopPolling();
+    this.markDestroyed();
     await setTimeoutPromise(2000).catch((error) => this.error(error)); // wait 2 secs
   }
 
@@ -479,9 +516,11 @@ class CarDevice extends Homey.Device {
     this.log(`Car added: ${this.getName()}`);
   }
 
-  // this method is called when the Device is deleted
+  // this method is called when the Device is deleted. Homey calls onUninit()
+  // on deletion too, so this teardown is redundant — kept as belt and braces,
+  // markDestroyed() is idempotent.
   onDeleted() {
-    this.stopPolling();
+    this.markDestroyed();
     // this.destroyListeners();
     this.log(`Car deleted: ${this.getName()}`);
   }
@@ -497,6 +536,7 @@ class CarDevice extends Homey.Device {
   }
 
   setCapability(capability, value) {
+    if (this.destroyed) return;
     if (this.hasCapability(capability) && value !== undefined) {
       this.setCapabilityValue(capability, value).catch((error) => {
         this.error(error);
@@ -534,6 +574,9 @@ class CarDevice extends Homey.Device {
       const fullStatus = refresh
         ? await this.client.forceRefreshVehicleState(this.vehicleConfig)
         : await this.client.updateVehicleWithCachedState(this.vehicleConfig);
+      // The call above can outlive the device (deletion, app unload); anything
+      // below writes capabilities, the store or flow triggers.
+      if (this.destroyed) return;
 
       // CCS2 status always includes Location inline; legacy (non-ccuCCS2)
       // vehicles sometimes don't — fetch it separately when missing.
