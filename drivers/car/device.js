@@ -182,10 +182,36 @@ class CarDevice extends Homey.Device {
     this.lastCommandDispatchedAt = null;
   }
 
+  // Defined on the class rather than assigned inside setupQueue() below: a
+  // device spends its whole first onInit() inside `await this.migrate()`,
+  // which runs for minutes whenever a release reorders capabilities (2s
+  // settle per add and per remove), and both markDestroyed() and
+  // restartDevice() can fire in that window — before setupQueue() has run.
+  // As an instance property this threw `this.flushQueue is not a function`
+  // there, aborting teardown, and in restartDevice() it left `restarting`
+  // true with no timer ever scheduled, stalling that device for good.
+  flushQueue() {
+    this.queue = [];
+    this.queueRunning = false;
+    this.log('Queue is flushed');
+  }
+
   // stuff for queue handling here
   setupQueue() {
     this.queue = [];
     this.queueRunning = false;
+    // Bumped on every setup so a runQueue() loop left over from before a
+    // restart can tell it is stale. restartDevice() flushes the queue and
+    // re-enters onInit(), but a loop parked in the ITEM_WAIT_SECONDS sleep
+    // (up to 65s) survives that: it resumes, resolves `this.deQueue` to the
+    // NEW closure over the NEW array, and drains it alongside the fresh
+    // loop — defeating the command spacing and producing exactly the
+    // duplicate/rate-limit rejections the [queue-timing] logging exists to
+    // diagnose. Worse, on finding the new queue momentarily empty it would
+    // fall out of its `while` and clear `queueRunning` for the loop that is
+    // legitimately running, so the next enQueue() started a third drain.
+    this.queueGeneration = (this.queueGeneration || 0) + 1;
+    const generation = this.queueGeneration;
     // Returns a promise for this specific item's result. It races the
     // item's real outcome against ENQUEUE_RESULT_TIMEOUT_MS — see that
     // constant's comment for why. Fire-and-forget callers (internal
@@ -212,11 +238,6 @@ class CarDevice extends Homey.Device {
       ]);
     };
     this.deQueue = () => this.queue.shift();
-    this.flushQueue = () => {
-      this.queue = [];
-      this.queueRunning = false;
-      this.log('Queue is flushed');
-    };
     this.runQueue = async () => {
       if (this.queueRunning) return; // already draining, e.g. called again from enQueue while busy
       this.queueRunning = true;
@@ -225,7 +246,7 @@ class CarDevice extends Homey.Device {
       try {
         let item = this.deQueue();
         while (item) {
-          if (this.destroyed) return;
+          if (this.destroyed || this.queueGeneration !== generation) return;
           if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
             throw Error('Ignoring queued command; not logged in');
@@ -278,6 +299,10 @@ class CarDevice extends Homey.Device {
                   const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === this.settings.vin);
                   if (vehicleConfig) this.vehicleConfig = vehicleConfig;
                 }
+                // login() above is a network round-trip; without re-checking
+                // here a device deleted (or an app unloaded) during it would
+                // still have dispatch() send a real command to the car.
+                if (this.destroyed || this.queueGeneration !== generation) return;
                 retryWorked = await dispatch()
                   .then(() => {
                     this.watchDogCounter = 6;
@@ -296,22 +321,25 @@ class CarDevice extends Homey.Device {
             });
           // eslint-disable-next-line no-await-in-loop
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
-          if (this.destroyed) return;
+          if (this.destroyed || this.queueGeneration !== generation) return;
           item = this.deQueue();
         }
         needsFollowUpPoll = this.lastCommand !== 'doPoll';
       } catch (error) {
         this.error(error.message);
       } finally {
-        this.queueRunning = false;
-        this.busy = false;
+        // Only if this loop is still the current one — see queueGeneration above.
+        if (this.queueGeneration === generation) {
+          this.queueRunning = false;
+          this.busy = false;
+        }
       }
       // Enqueued here, after queueRunning is back to false — enqueuing it
       // inside the try block above left it stranded: enQueue() only starts
       // a fresh runQueue() when !queueRunning, which wasn't true yet there.
       // A stranded poll would then sit until some unrelated later command
       // triggered the queue again, jumping the queue ahead of it (FIFO).
-      if (needsFollowUpPoll) {
+      if (needsFollowUpPoll && this.queueGeneration === generation) {
         this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
       }
     };
