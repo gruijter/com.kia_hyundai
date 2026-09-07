@@ -167,14 +167,14 @@
       background: radial-gradient(ellipse at center, rgba(10, 132, 255, 0.12) 0%, rgba(0, 0, 0, 0) 75%);
       border-radius: var(--border-radius);
       overflow: hidden;
-      height: 112px;
+      height: 175px;
       flex-shrink: 0;
     }
 
     .car-image-wrapper {
       position: relative;
       width: 100%;
-      height: 112px;
+      height: 175px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -183,7 +183,15 @@
 
     .car-img {
       width: 72%;
-      max-width: 270px;
+      max-width: 320px;
+      /* max-height is what makes object-fit below actually do something: with
+         `height: auto` alone the element grows to the image's own aspect, so a
+         square 1000x1000 asset rendered 270px wide was 270px tall inside a
+         112px overflow:hidden band and lost ~79px off the top and bottom. The
+         low EV6 happened to survive that crop; the taller Ioniq 5 lost its
+         roof. Uploaded photos can be any shape at all, so the fit has to be
+         guaranteed rather than lucky. */
+      max-height: 100%;
       height: auto;
       object-fit: contain;
       filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
