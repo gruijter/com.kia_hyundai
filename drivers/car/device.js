@@ -864,7 +864,12 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.washer_fluid'] = sts?.washerFluidStatus;
       map['alarm_generic.brake_fluid'] = sts?.breakOilStatus;
       map['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
-      map['measure_battery.12V'] = sts?.battery?.batSoc;
+      // A sleeping car reports batSoc 0 (with batState still 1) instead of
+      // leaving it out, so 0 means "not measured", not a flat battery. Carry
+      // the last known value forward, or a parked car raises a 12V alarm out
+      // of nowhere and the forced-refresh guard starts refusing on "0%".
+      map['measure_battery.12V'] = sts?.battery?.batSoc || this.lastStatus?.['measure_battery.12V'];
+      const bat12V = map['measure_battery.12V'];
       map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       const rangeField = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange;
       const rangeValue = rangeField?.value || sts?.dte?.value;
@@ -896,7 +901,8 @@ class CarDevice extends Homey.Device {
       map.departure_time = this.formatDeparture(departureSlots);
       map['departure_schedule.1'] = !!departureSlots[0]?.enabled;
       map['departure_schedule.2'] = !!departureSlots[1]?.enabled;
-      map['alarm_bat'] = (sts?.battery?.batSoc < this.settings.batteryAlarmLevel) || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
+      map['alarm_bat'] = (typeof bat12V === 'number' && bat12V < this.settings.batteryAlarmLevel)
+        || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.time;
     }
     // is new type status
@@ -989,7 +995,8 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.washer_fluid'] = !!sts?.Body?.Windshield?.Front?.WasherFluid?.LevelLow;
       map['alarm_generic.brake_fluid'] = !!sts?.Chassis?.Brake?.Fluid?.Warning;
       map['alarm_generic.key_fob_battery'] = !!sts?.Electronics?.FOB?.LowBattery;
-      map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
+      map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level || this.lastStatus?.['measure_battery.12V']; // 0 = not measured, see legacy branch
+      const ccs2Bat12V = map['measure_battery.12V'];
       map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       if (typeof map.measure_range === 'number') map.measure_range = Math.round(map.measure_range * 10) / 10;
@@ -1009,7 +1016,8 @@ class CarDevice extends Homey.Device {
       map.departure_time = this.formatDeparture(ccs2DepartureSlots);
       map['departure_schedule.1'] = !!ccs2DepartureSlots[0]?.enabled;
       map['departure_schedule.2'] = !!ccs2DepartureSlots[1]?.enabled;
-      map['alarm_bat'] = (map['measure_battery.12V'] < this.settings.batteryAlarmLevel) || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
+      map['alarm_bat'] = (typeof ccs2Bat12V === 'number' && ccs2Bat12V < this.settings.batteryAlarmLevel)
+        || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.Date;
     }
     return map;
