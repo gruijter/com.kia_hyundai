@@ -18,8 +18,8 @@
     "invalid_pin": "PIN no válido, introduce tu PIN de 4 dígitos.",
     "no_vehicles": "No se han encontrado vehículos para esta cuenta.",
     "pairing_failed": "Error de vinculación: __error__",
-    "network_error": "Servidor Hyundai no accesible. Inténtalo más tarde.",
-    "repair_failed": "Error al volver a vincular: __error__"
+    "repair_failed": "Error al volver a vincular: __error__",
+    "network_error": "Servidor Hyundai no accesible. Inténtalo más tarde."
   },
   "departure_not_set": "Sin definir",
   "migrating": "Migrando dispositivo, espera un momento...",

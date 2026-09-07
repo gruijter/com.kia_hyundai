@@ -1,0 +1,202 @@
+{
+  "tokens": {
+    "SERVERS": "Hyundai",
+    "SERVICE": "Hyundai Bluelink",
+    "APPNAME": "Bluelink",
+    "BRAND_UC": "Hyundai",
+    "BRAND": "Hyundai",
+    "APP_ID": "com.hyundai"
+  },
+  "appJson": {
+    "id": "com.hyundai",
+    "name": {
+      "en": "Hyundai",
+      "nl": "Hyundai",
+      "de": "Hyundai",
+      "fr": "Hyundai",
+      "es": "Hyundai",
+      "it": "Hyundai",
+      "da": "Hyundai",
+      "sv": "Hyundai",
+      "no": "Hyundai",
+      "pl": "Hyundai",
+      "ru": "Hyundai",
+      "ar": "Hyundai",
+      "ko": "Hyundai"
+    },
+    "brandColor": "#003082",
+    "description": {
+      "en": "The future is now!",
+      "nl": "De toekomst is nu!",
+      "de": "Die Zukunft ist jetzt!",
+      "fr": "L'avenir, c'est maintenant !",
+      "es": "¡El futuro es ahora!",
+      "it": "Il futuro è ora!",
+      "da": "Fremtiden er nu!",
+      "sv": "Framtiden är nu!",
+      "no": "Fremtiden er nå!",
+      "pl": "Przyszłość jest teraz!",
+      "ru": "Будущее уже здесь!",
+      "ar": "المستقبل الآن!",
+      "ko": "미래는 지금입니다!"
+    },
+    "tags": {
+      "en": [
+        "smart car",
+        "EV",
+        "PHEV",
+        "Electric Vehicle",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "location",
+        "geofence"
+      ],
+      "nl": [
+        "slimme auto",
+        "EV",
+        "PHEV",
+        "Elektrisch voertuig",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "locatie",
+        "geofence"
+      ],
+      "de": [
+        "intelligentes Auto",
+        "EV",
+        "PHEV",
+        "Elektrofahrzeug",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "Standort",
+        "geofence"
+      ],
+      "fr": [
+        "voiture intelligente",
+        "EV",
+        "PHEV",
+        "Véhicule électrique",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "emplacement",
+        "geofence"
+      ],
+      "es": [
+        "coche inteligente",
+        "EV",
+        "PHEV",
+        "Vehículo eléctrico",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "ubicación",
+        "geofence"
+      ],
+      "it": [
+        "auto intelligente",
+        "EV",
+        "PHEV",
+        "Veicolo elettrico",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "posizione",
+        "geofence"
+      ],
+      "da": [
+        "smart bil",
+        "EV",
+        "PHEV",
+        "Elbil",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "placering",
+        "geofence"
+      ],
+      "sv": [
+        "smart bil",
+        "EV",
+        "PHEV",
+        "Elbil",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "plats",
+        "geofence"
+      ],
+      "no": [
+        "smart bil",
+        "EV",
+        "PHEV",
+        "Elbil",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "plassering",
+        "geofence"
+      ],
+      "pl": [
+        "inteligentny samochód",
+        "EV",
+        "PHEV",
+        "Pojazd elektryczny",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "lokalizacja",
+        "geofence"
+      ],
+      "ru": [
+        "умный автомобиль",
+        "EV",
+        "PHEV",
+        "Электромобиль",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "местоположение",
+        "geofence"
+      ],
+      "ar": [
+        "سيارة ذكية",
+        "EV",
+        "PHEV",
+        "مركبة كهربائية",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "الموقع",
+        "geofence"
+      ],
+      "ko": [
+        "스마트카",
+        "EV",
+        "PHEV",
+        "전기차",
+        "hyundai",
+        "ioniq",
+        "genesis",
+        "bluelink",
+        "위치",
+        "geofence"
+      ]
+    }
+  }
+}

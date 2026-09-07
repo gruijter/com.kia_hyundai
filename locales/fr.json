@@ -18,8 +18,8 @@
     "invalid_pin": "Code PIN invalide, saisissez votre code PIN à 4 chiffres.",
     "no_vehicles": "Aucun véhicule trouvé pour ce compte.",
     "pairing_failed": "Échec de l'association : __error__",
-    "network_error": "Serveur Hyundai injoignable. Réessayez plus tard.",
-    "repair_failed": "Échec de la nouvelle association : __error__"
+    "repair_failed": "Échec de la nouvelle association : __error__",
+    "network_error": "Serveur Hyundai injoignable. Réessayez plus tard."
   },
   "departure_not_set": "Non défini",
   "migrating": "Migration de l'appareil, veuillez patienter...",

@@ -18,8 +18,8 @@
     "invalid_pin": "Ugyldig PIN-kode, angi din 4-sifrede PIN-kode.",
     "no_vehicles": "Ingen kjøretøy funnet for denne kontoen.",
     "pairing_failed": "Sammenkobling mislyktes: __error__",
-    "network_error": "Hyundai-serveren er ikke tilgjengelig. Prøv igjen senere.",
-    "repair_failed": "Ny sammenkobling mislyktes: __error__"
+    "repair_failed": "Ny sammenkobling mislyktes: __error__",
+    "network_error": "Hyundai-serveren er ikke tilgjengelig. Prøv igjen senere."
   },
   "departure_not_set": "Ikke angitt",
   "migrating": "Migrerer enhet, vennligst vent...",

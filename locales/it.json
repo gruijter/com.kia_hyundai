@@ -18,8 +18,8 @@
     "invalid_pin": "PIN non valido, inserisci il tuo PIN a 4 cifre.",
     "no_vehicles": "Nessun veicolo trovato per questo account.",
     "pairing_failed": "Associazione non riuscita: __error__",
-    "network_error": "Server Hyundai non raggiungibile. Riprova più tardi.",
-    "repair_failed": "Riassociazione non riuscita: __error__"
+    "repair_failed": "Riassociazione non riuscita: __error__",
+    "network_error": "Server Hyundai non raggiungibile. Riprova più tardi."
   },
   "departure_not_set": "Non impostato",
   "migrating": "Migrazione del dispositivo in corso, attendere...",

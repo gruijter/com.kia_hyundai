@@ -18,8 +18,8 @@
     "invalid_pin": "Ongeldige pincode, voer uw 4-cijferige pincode in.",
     "no_vehicles": "Geen voertuigen gevonden voor dit account.",
     "pairing_failed": "Koppelen mislukt: __error__",
-    "network_error": "Hyundai-server niet bereikbaar. Probeer het later opnieuw.",
-    "repair_failed": "Opnieuw koppelen mislukt: __error__"
+    "repair_failed": "Opnieuw koppelen mislukt: __error__",
+    "network_error": "Hyundai-server niet bereikbaar. Probeer het later opnieuw."
   },
   "departure_not_set": "Niet ingesteld",
   "migrating": "Apparaat wordt gemigreerd, even geduld...",

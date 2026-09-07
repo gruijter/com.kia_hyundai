@@ -1,3 +1,14 @@
 {
-  "extends": "athom/homey-app"
+  "extends": "athom/homey-app",
+  "overrides": [
+    {
+      "files": [
+        "tools/**/*.js"
+      ],
+      "rules": {
+        "no-console": "off",
+        "no-process-exit": "off"
+      }
+    }
+  ]
 }

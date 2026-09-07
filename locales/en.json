@@ -18,8 +18,8 @@
     "invalid_pin": "Invalid PIN, enter your 4-digit PIN.",
     "no_vehicles": "No vehicles found for this account.",
     "pairing_failed": "Pairing failed: __error__",
-    "network_error": "Hyundai server not reachable. Try again later.",
-    "repair_failed": "Re-pairing failed: __error__"
+    "repair_failed": "Re-pairing failed: __error__",
+    "network_error": "Hyundai server not reachable. Try again later."
   },
   "departure_not_set": "Not set",
   "migrating": "Migrating device, please wait...",

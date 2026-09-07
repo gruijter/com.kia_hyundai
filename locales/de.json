@@ -18,8 +18,8 @@
     "invalid_pin": "Ungültige PIN, geben Sie Ihre 4-stellige PIN ein.",
     "no_vehicles": "Für dieses Konto wurden keine Fahrzeuge gefunden.",
     "pairing_failed": "Kopplung fehlgeschlagen: __error__",
-    "network_error": "Hyundai-Server nicht erreichbar. Später erneut versuchen.",
-    "repair_failed": "Neukopplung fehlgeschlagen: __error__"
+    "repair_failed": "Neukopplung fehlgeschlagen: __error__",
+    "network_error": "Hyundai-Server nicht erreichbar. Später erneut versuchen."
   },
   "departure_not_set": "Nicht eingestellt",
   "migrating": "Gerät wird migriert, bitte warten...",

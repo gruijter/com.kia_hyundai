@@ -18,8 +18,8 @@
     "invalid_pin": "Ogiltig PIN-kod, ange din 4-siffriga PIN-kod.",
     "no_vehicles": "Inga fordon hittades för det här kontot.",
     "pairing_failed": "Anslutning misslyckades: __error__",
-    "network_error": "Hyundai-servern kan inte nås. Försök igen senare.",
-    "repair_failed": "Återanslutning misslyckades: __error__"
+    "repair_failed": "Återanslutning misslyckades: __error__",
+    "network_error": "Hyundai-servern kan inte nås. Försök igen senare."
   },
   "departure_not_set": "Inte inställd",
   "migrating": "Migrerar enhet, vänta...",

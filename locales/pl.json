@@ -18,8 +18,8 @@
     "invalid_pin": "Nieprawidłowy kod PIN, wprowadź swój 4-cyfrowy kod PIN.",
     "no_vehicles": "Nie znaleziono pojazdów dla tego konta.",
     "pairing_failed": "Parowanie nie powiodło się: __error__",
-    "network_error": "Serwer Hyundai niedostępny. Spróbuj ponownie później.",
-    "repair_failed": "Ponowne parowanie nie powiodło się: __error__"
+    "repair_failed": "Ponowne parowanie nie powiodło się: __error__",
+    "network_error": "Serwer Hyundai niedostępny. Spróbuj ponownie później."
   },
   "departure_not_set": "Nie ustawiono",
   "migrating": "Migracja urządzenia, proszę czekać...",
