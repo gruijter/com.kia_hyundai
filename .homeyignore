@@ -6,3 +6,5 @@ roadmap.txt
 .claude
 .github
 AGENTS.md
+# Dev tooling: tracked by git, never part of the published app.
+/tools/
