@@ -14,7 +14,6 @@
     "pin": "PIN a 4 cifre",
     "pin_hint": "Il PIN impostato nell'app Kia Connect per il controllo remoto — non la password del tuo account.",
     "validate": "Continua",
-
     "required": "Devi compilare tutti i campi.",
     "invalid_pin": "PIN non valido, inserisci il tuo PIN a 4 cifre.",
     "no_vehicles": "Nessun veicolo trovato per questo account.",

@@ -1,0 +1,189 @@
+{
+  "tokens": {
+    "SERVERS": "Kia/Hyundai",
+    "SERVICE": "Kia Connect",
+    "APPNAME": "Kia",
+    "BRAND_UC": "KIA",
+    "BRAND": "Kia",
+    "APP_ID": "com.kia"
+  },
+  "appJson": {
+    "id": "com.kia",
+    "name": {
+      "en": "Kia",
+      "nl": "Kia",
+      "de": "Kia",
+      "fr": "Kia",
+      "es": "Kia",
+      "it": "Kia",
+      "da": "Kia",
+      "sv": "Kia",
+      "no": "Kia",
+      "pl": "Kia",
+      "ru": "Kia",
+      "ar": "Kia",
+      "ko": "Kia"
+    },
+    "brandColor": "#BB162C",
+    "description": {
+      "en": "Movement that inspires",
+      "nl": "Beweging die inspireert",
+      "de": "Bewegung, die inspiriert",
+      "fr": "Un mouvement qui inspire",
+      "es": "Movimiento que inspira",
+      "it": "Movimento che ispira",
+      "da": "Bevægelse der inspirerer",
+      "sv": "Rörelse som inspirerar",
+      "no": "Bevegelse som inspirerer",
+      "pl": "Ruch, który inspiruje",
+      "ru": "Движение, которое вдохновляет",
+      "ar": "حركة تلهم",
+      "ko": "영감을 주는 움직임"
+    },
+    "tags": {
+      "en": [
+        "smart car",
+        "EV",
+        "PHEV",
+        "Electric Vehicle",
+        "kia",
+        "niro",
+        "uvo",
+        "location",
+        "geofence"
+      ],
+      "nl": [
+        "slimme auto",
+        "EV",
+        "PHEV",
+        "Elektrisch voertuig",
+        "kia",
+        "niro",
+        "uvo",
+        "locatie",
+        "geofence"
+      ],
+      "de": [
+        "intelligentes Auto",
+        "EV",
+        "PHEV",
+        "Elektrofahrzeug",
+        "kia",
+        "niro",
+        "uvo",
+        "Standort",
+        "geofence"
+      ],
+      "fr": [
+        "voiture intelligente",
+        "EV",
+        "PHEV",
+        "Véhicule électrique",
+        "kia",
+        "niro",
+        "uvo",
+        "emplacement",
+        "geofence"
+      ],
+      "es": [
+        "coche inteligente",
+        "EV",
+        "PHEV",
+        "Vehículo eléctrico",
+        "kia",
+        "niro",
+        "uvo",
+        "ubicación",
+        "geofence"
+      ],
+      "it": [
+        "auto intelligente",
+        "EV",
+        "PHEV",
+        "Veicolo elettrico",
+        "kia",
+        "niro",
+        "uvo",
+        "posizione",
+        "geofence"
+      ],
+      "da": [
+        "smart bil",
+        "EV",
+        "PHEV",
+        "Elbil",
+        "kia",
+        "niro",
+        "uvo",
+        "placering",
+        "geofence"
+      ],
+      "sv": [
+        "smart bil",
+        "EV",
+        "PHEV",
+        "Elbil",
+        "kia",
+        "niro",
+        "uvo",
+        "plats",
+        "geofence"
+      ],
+      "no": [
+        "smart bil",
+        "EV",
+        "PHEV",
+        "Elbil",
+        "kia",
+        "niro",
+        "uvo",
+        "plassering",
+        "geofence"
+      ],
+      "pl": [
+        "inteligentny samochód",
+        "EV",
+        "PHEV",
+        "Pojazd elektryczny",
+        "kia",
+        "niro",
+        "uvo",
+        "lokalizacja",
+        "geofence"
+      ],
+      "ru": [
+        "умный автомобиль",
+        "EV",
+        "PHEV",
+        "Электромобиль",
+        "kia",
+        "niro",
+        "uvo",
+        "местоположение",
+        "geofence"
+      ],
+      "ar": [
+        "سيارة ذكية",
+        "EV",
+        "PHEV",
+        "مركبة كهربائية",
+        "kia",
+        "niro",
+        "uvo",
+        "الموقع",
+        "geofence"
+      ],
+      "ko": [
+        "스마트카",
+        "EV",
+        "PHEV",
+        "전기차",
+        "kia",
+        "niro",
+        "uvo",
+        "위치",
+        "geofence"
+      ]
+    }
+  }
+}

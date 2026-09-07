@@ -55,5 +55,8 @@
   },
   "2.5.1": {
     "en": "Added dashboard widget."
+  },
+  "2.5.2": {
+    "en": "Fixed dashboard widget previews. Added option to upload own car image. Added branch-brand dev tooling."
   }
 }

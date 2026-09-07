@@ -76,6 +76,13 @@ const ITEM_WAIT_SECONDS = {
 // retry backoff) far longer than that. Better to occasionally under-report
 // a slow failure than to routinely show a false "failed" for a command
 // that's still legitimately in progress.
+//
+// It is the budget for the WHOLE listener, not just the queue wait, and the
+// ~2s of headroom below the GUI's ~10s is there to be kept: anything that
+// runs before enQueue() spends from the same clock and must pass what's left
+// as its `budgetMs` (setDestination() is the only such caller), and any
+// debounce in front of the listener has to fit in the headroom (see the
+// registerMultipleCapabilityListener() call at the bottom of this file).
 const ENQUEUE_RESULT_TIMEOUT_MS = 8 * 1000;
 
 // Ceiling for setupClient()'s login retry backoff (15s, 30s, 60s ... capped).
@@ -238,10 +245,11 @@ class CarDevice extends Homey.Device {
     const generation = this.queueGeneration;
     // Returns a promise for this specific item's result. It races the
     // item's real outcome against ENQUEUE_RESULT_TIMEOUT_MS — see that
-    // constant's comment for why. Fire-and-forget callers (internal
-    // auto-polls) should attach a no-op .catch() since a fast, definitive
-    // failure (e.g. a full queue) does reject this promise.
-    this.enQueue = (item) => {
+    // constant's comment for why, and pass `budgetMs` instead if the caller
+    // already spent part of that budget before getting here. Fire-and-forget
+    // callers (internal auto-polls) should attach a no-op .catch() since a
+    // fast, definitive failure (e.g. a full queue) does reject this promise.
+    this.enQueue = (item, budgetMs = ENQUEUE_RESULT_TIMEOUT_MS) => {
       if (this.destroyed) return Promise.reject(Error(this.homey.__('error_device_gone')));
       if (this.queue.length >= 10) {
         this.error('queue overflow');
@@ -258,7 +266,7 @@ class CarDevice extends Homey.Device {
       }
       return Promise.race([
         result,
-        setTimeoutPromise(ENQUEUE_RESULT_TIMEOUT_MS).then(() => true),
+        setTimeoutPromise(Math.max(0, budgetMs)).then(() => true),
       ]);
     };
     this.deQueue = () => this.queue.shift();
@@ -844,6 +852,11 @@ class CarDevice extends Homey.Device {
       map.defrost = sts.defrost;
       map.engine = sts.engine;
       map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && Object.keys(sts.doorOpen).reduce((closedAccu, door) => closedAccu || !sts.doorOpen[door], true);
+      // Non-CCS2 cars can't be sent window commands, so they don't get the
+      // vent_windows capability and setCapability() drops this — mapped anyway
+      // because some of them (Niro EV '23, Sorento PHEV) do report the state,
+      // and it costs nothing if that ever becomes a read-only capability.
+      if (sts.windowOpen) map.vent_windows = Object.values(sts.windowOpen).some((open) => !!open);
       map['alarm_tire_pressure'] = !!sts?.tirePressureLamp?.tirePressureLampAll;
       // Legacy field names/casing (incl. Kia's own "break" typo for "brake")
       // — only reported by some non-CCS2 models (e.g. Sorento PHEV), absent
@@ -953,6 +966,10 @@ class CarDevice extends Homey.Device {
         sts?.Cabin?.Window?.Row2?.Right,
       ].filter(Boolean);
       const allWindowsClosed = windows.every((w) => w.Open === 0);
+      // Only set when the car actually reported window data: `every()` on an
+      // empty array is true, which would peg the button to "closed" forever on
+      // a car that reports no windows at all.
+      if (windows.length) map.vent_windows = !allWindowsClosed;
       // Check trunk, hood, sunroof — treat an absent field (car has no sunroof,
       // or the field isn't reported) as closed rather than as open, otherwise
       // closed_locked incorrectly stays false forever on cars without one.
@@ -1347,6 +1364,12 @@ class CarDevice extends Homey.Device {
   }
 
   async setDestination(destination, source) { // free text, latitude/longitude object or nomatim search object
+    // The only command that does real work *before* enQueue: the Nominatim
+    // lookup below is a network round-trip with its own 5s timeout
+    // (lib/nomatim.js), and the GUI's ~10s clock covers it too. Spend the
+    // budget from here rather than restarting it at the queue, otherwise
+    // 5s of geocoding + ENQUEUE_RESULT_TIMEOUT_MS overshoots it.
+    const budgetStart = Date.now();
     this.log(`Destination set by ${source} to ${JSON.stringify(destination)}`);
     let searchParam = destination;
     // check if destination is location object format
@@ -1371,7 +1394,7 @@ class CarDevice extends Homey.Device {
       },
     ];
     const command = 'setNavigation';
-    return this.enQueue({ command, args });
+    return this.enQueue({ command, args }, ENQUEUE_RESULT_TIMEOUT_MS - (Date.now() - budgetStart));
   }
 
   async refreshStatus(refresh, source) {
@@ -1421,12 +1444,13 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
+      // A real state, not a momentary trigger: the car reports window position
+      // (mapStatus() above), so the button reflects whether the windows are
+      // open/vented and switching it off closes them again — before this,
+      // venting could only be undone from a flow (community report #1056).
+      this.registerCapabilityListener('vent_windows', (vent) => this.setWindows(vent ? 'vent' : 'closed', 'app'));
       // Momentary buttons — self-reset back to false after the command
       // completes (or the enQueue timeout races it), matching refresh_status.
-      this.registerCapabilityListener('vent_windows', (pressed) => {
-        if (!pressed) return true;
-        return this.setWindows('vent', 'app').finally(() => this.setCapability('vent_windows', false));
-      });
       this.registerCapabilityListener('flash_lights', (pressed) => {
         if (!pressed) return true;
         return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false));
@@ -1435,12 +1459,23 @@ class CarDevice extends Homey.Device {
         if (!pressed) return true;
         return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false));
       });
+      // The trailing argument is a DEBOUNCE, not a command timeout: Homey waits
+      // this long for the *other* capability in the list to be set before
+      // calling the listener. It used to be 10000, so setting just one of the
+      // two sliders sat idle for a full 10s and only then started the (up to
+      // ENQUEUE_RESULT_TIMEOUT_MS) queue wait — always overshooting the ~10s
+      // the GUI waits for the listener, hence a reported timeout error on a
+      // command that was in fact on its way to the car.
+      // 500ms (the SDK default) still batches a UI/flow that sets both at
+      // once; two slider changes further apart than that now queue as two
+      // commands, which is fine — each one sends both values (the other read
+      // back from its capability), so the last one still wins.
       this.registerMultipleCapabilityListener(['charge_target_slow', 'charge_target_fast'], async (values) => {
         const slow = Number(values.charge_target_slow) || Number(this.getCapabilityValue('charge_target_slow'));
         const fast = Number(values.charge_target_fast) || Number(this.getCapabilityValue('charge_target_fast'));
         const targets = { slow, fast };
         return this.setChargeTargets(targets, 'app');
-      }, 10000);
+      }, 500);
       this.listenersSet = true;
     }
   }

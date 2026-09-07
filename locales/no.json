@@ -14,7 +14,6 @@
     "pin": "4-sifret PIN-kode",
     "pin_hint": "PIN-koden du har angitt i Kia Connect-appen for fjernstyring — ikke passordet til kontoen din.",
     "validate": "Fortsett",
-
     "required": "Du må fylle ut alle feltene.",
     "invalid_pin": "Ugyldig PIN-kode, angi din 4-sifrede PIN-kode.",
     "no_vehicles": "Ingen kjøretøy funnet for denne kontoen.",

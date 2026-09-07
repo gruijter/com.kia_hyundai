@@ -6,3 +6,9 @@ roadmap.txt
 .claude
 .github
 AGENTS.md
+# Dev tooling: tracked by git, never part of the published app.
+# brand/ holds BOTH brands' artwork and store copy plus the templates, so
+# without this the Kia app shipped the Hyundai images and README, and vice
+# versa - 4MB of a 7.4MB bundle.
+/tools/
+/brand/

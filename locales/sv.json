@@ -14,7 +14,6 @@
     "pin": "4-siffrig PIN-kod",
     "pin_hint": "Den PIN-kod du angett i Kia Connect-appen för fjärrstyrning — inte ditt kontolösenord.",
     "validate": "Fortsätt",
-
     "required": "Du måste fylla i alla fält.",
     "invalid_pin": "Ogiltig PIN-kod, ange din 4-siffriga PIN-kod.",
     "no_vehicles": "Inga fordon hittades för det här kontot.",
