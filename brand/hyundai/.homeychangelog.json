@@ -1,0 +1,59 @@
+{
+  "2.0.0": {
+    "en": "Complete rewrite of the vehicle connection layer, now also supporting AU, CN, CA and US regions. Added flow cards for find-my-car, remote windows, charge port, charging current, V2L discharge limit and valet mode. Fixed engine-type detection for some EVs/PHEVs, an odometer crash, the tire-pressure alarm not triggering, a locked-status false negative on sunroof-less cars, and broken distance-changed/is-moving flow cards. Devices now show a clear reason when they become unavailable."
+  },
+  "1.3.0": {
+    "en": "Fixed login for new API endpoints."
+  },
+  "1.2.2": {
+    "en": "Fixed detection of ccuCCS2 HEV. Added HP2016/2019 warning in readme. Fixed support link."
+  },
+  "1.2.1": {
+    "en": "Minor usability tweaks."
+  },
+  "1.2.0": {
+    "en": "Fixed car parked detection. Updated icons. Added capability migration."
+  },
+  "1.1.1": {
+    "en": "Added Ceed support. Updated images."
+  },
+  "1.1.0": {
+    "en": "Removed Homey Cloud compatibility."
+  },
+  "1.0.1": {
+    "en": "Updated icons. Refresh button state fix. Minor improvements."
+  },
+  "1.0.0": {
+    "en": "First release"
+  },
+  "2.1.0": {
+    "en": "Fix for new API blocks"
+  },
+  "2.2.0": {
+    "en": "Fix app crash. Fix location fetching for CCS2."
+  },
+  "2.3.0": {
+    "en": "Added capabilities and flows for SoH, Flash, Honk, Vent, Chargeport, Valet mode, Break fluid, Washer fluid and Key fob. Improved flows for LimitAC, A/C and Defrost. Fix speed for CCS2. Auto-remove unsupported flows and capabilities. Add all translations."
+  },
+  "2.3.1": {
+    "en": "Implement unit aware handling of car data. Improve capability migrations. Cleanup inline comments. Remove HP2016/19 warning."
+  },
+  "2.3.2": {
+    "en": "Add PIN hint. Show error on refresh when 12V battery is tool low. Fix speed for non-ccs2. Convert speed to Mi/h when range is reported in Miles. Fix Celcius and Fahrenheit handling (untested). Cleanup code."
+  },
+  "2.3.3": {
+    "en": "Corrected the app branding in the pairing screen text, the app store search tags and the translated store descriptions."
+  },
+  "2.3.4": {
+    "en": "Fixed an app crash that could occur when a remote command failed with a telematics timeout."
+  },
+  "2.4.0": {
+    "en": "Add next departure capability. Add enable/disable departure schedule buttons and flows. Fix refresh timezone. Improve server unavailable error."
+  },
+  "2.5.0": {
+    "en": "Enable Homey Cloud installs. Add car repair. Fix capability and unit migrations. Multiple stability fixes."
+  },
+  "2.5.1": {
+    "en": "Added dashboard widget."
+  }
+}

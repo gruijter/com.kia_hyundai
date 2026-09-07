@@ -14,7 +14,6 @@
     "pin": "4-cijferige pincode",
     "pin_hint": "De pincode die u in de Kia Connect-app heeft ingesteld voor bediening op afstand — niet uw accountwachtwoord.",
     "validate": "Doorgaan",
-
     "required": "U moet alle velden invullen.",
     "invalid_pin": "Ongeldige pincode, voer uw 4-cijferige pincode in.",
     "no_vehicles": "Geen voertuigen gevonden voor dit account.",
