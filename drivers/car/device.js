@@ -844,6 +844,11 @@ class CarDevice extends Homey.Device {
       map.defrost = sts.defrost;
       map.engine = sts.engine;
       map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && Object.keys(sts.doorOpen).reduce((closedAccu, door) => closedAccu || !sts.doorOpen[door], true);
+      // Non-CCS2 cars can't be sent window commands, so they don't get the
+      // vent_windows capability and setCapability() drops this — mapped anyway
+      // because some of them (Niro EV '23, Sorento PHEV) do report the state,
+      // and it costs nothing if that ever becomes a read-only capability.
+      if (sts.windowOpen) map.vent_windows = Object.values(sts.windowOpen).some((open) => !!open);
       map['alarm_tire_pressure'] = !!sts?.tirePressureLamp?.tirePressureLampAll;
       // Legacy field names/casing (incl. Kia's own "break" typo for "brake")
       // — only reported by some non-CCS2 models (e.g. Sorento PHEV), absent
@@ -953,6 +958,10 @@ class CarDevice extends Homey.Device {
         sts?.Cabin?.Window?.Row2?.Right,
       ].filter(Boolean);
       const allWindowsClosed = windows.every((w) => w.Open === 0);
+      // Only set when the car actually reported window data: `every()` on an
+      // empty array is true, which would peg the button to "closed" forever on
+      // a car that reports no windows at all.
+      if (windows.length) map.vent_windows = !allWindowsClosed;
       // Check trunk, hood, sunroof — treat an absent field (car has no sunroof,
       // or the field isn't reported) as closed rather than as open, otherwise
       // closed_locked incorrectly stays false forever on cars without one.
@@ -1421,12 +1430,13 @@ class CarDevice extends Homey.Device {
       this.registerCapabilityListener('target_temperature', async (temp) => this.setTargetTemp(temp, 'app'));
       this.registerCapabilityListener('refresh_status', (refresh) => this.refreshStatus(refresh, 'app'));
       this.registerCapabilityListener('charge', (charge) => this.chargingOnOff(charge, 'app'));
+      // A real state, not a momentary trigger: the car reports window position
+      // (mapStatus() above), so the button reflects whether the windows are
+      // open/vented and switching it off closes them again — before this,
+      // venting could only be undone from a flow (community report #1056).
+      this.registerCapabilityListener('vent_windows', (vent) => this.setWindows(vent ? 'vent' : 'closed', 'app'));
       // Momentary buttons — self-reset back to false after the command
       // completes (or the enQueue timeout races it), matching refresh_status.
-      this.registerCapabilityListener('vent_windows', (pressed) => {
-        if (!pressed) return true;
-        return this.setWindows('vent', 'app').finally(() => this.setCapability('vent_windows', false));
-      });
       this.registerCapabilityListener('flash_lights', (pressed) => {
         if (!pressed) return true;
         return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false));
