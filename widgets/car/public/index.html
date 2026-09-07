@@ -190,8 +190,77 @@
       transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .car-img:hover {
-      transform: scale(1.02);
+    /* Guarded like every other :hover here — see .photo-btn below. Untouched
+       this left the car permanently scaled up after a tap anywhere on it. */
+    @media (hover: hover) {
+      .car-img:hover {
+        transform: scale(1.02);
+      }
+    }
+
+    /* Photo controls, overlaid on the car image */
+    .photo-tools {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      display: flex;
+      gap: 4px;
+      z-index: 2;
+    }
+
+    .photo-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      outline: none;
+      background: var(--glass-bg);
+      color: var(--text-muted);
+      /* Deliberately low-contrast: this is a rarely-used affordance sitting on
+         top of the widget's hero image, so it should not compete with it. */
+      opacity: 0.45;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    }
+
+    /* Every :hover in this file is guarded this way. On Android's webview a tap
+       leaves :hover applied until something else is tapped: here that left the
+       icon just used white and full-opacity beside its still-muted neighbour.
+       Touch devices report `hover: none` and skip these rules entirely, while
+       the desktop web app still gets real hover feedback. */
+    @media (hover: hover) {
+      .photo-btn:hover {
+        opacity: 1;
+        color: var(--text-main);
+      }
+    }
+
+    .photo-btn:active {
+      transform: scale(0.88);
+    }
+
+    .photo-btn[hidden] {
+      display: none;
+    }
+
+    .photo-btn.is-busy {
+      opacity: 1;
+      animation: pulse 0.9s ease-in-out infinite;
+    }
+
+    .photo-btn.is-error {
+      opacity: 1;
+      color: var(--accent-red);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
     }
 
     /* Inline Refresh Button in Footer */
@@ -212,9 +281,11 @@
       flex-shrink: 0;
     }
 
-    .refresh-btn:hover {
-      color: var(--text-main);
-      transform: scale(1.12);
+    @media (hover: hover) {
+      .refresh-btn:hover {
+        color: var(--text-main);
+        transform: scale(1.12);
+      }
     }
 
     .refresh-btn:active {
@@ -317,11 +388,13 @@
       position: relative;
     }
 
-    .action-btn:hover {
-      border-color: rgba(255, 255, 255, 0.22);
+    @media (hover: hover) {
+      .action-btn:hover {
+        border-color: rgba(255, 255, 255, 0.22);
+      }
     }
 
-    @media (prefers-color-scheme: light) {
+    @media (prefers-color-scheme: light) and (hover: hover) {
       .action-btn:hover {
         border-color: rgba(0, 0, 0, 0.2);
       }
@@ -504,6 +577,25 @@
     <section class="showcase-area">
       <div class="car-image-wrapper">
         <img id="car-img" class="car-img" alt="Car" src="" />
+        <div class="photo-tools">
+          <button id="photo-reset" class="photo-btn" type="button" hidden>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor"
+                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+          </button>
+          <button id="photo-upload" class="photo-btn" type="button">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor"
+                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8.5h3.2l1.4-2h8.8l1.4 2H21v11H3z" />
+              <circle cx="12" cy="13.5" r="3.6" />
+            </svg>
+          </button>
+        </div>
+        <!-- Whether tapping this actually opens a picker depends on the host
+             webview implementing a file chooser; see uploadCarImage() below. -->
+        <input id="photo-input" type="file" accept="image/*" hidden />
       </div>
     </section>
 
@@ -637,7 +729,10 @@
           stop: 'Stop',
           on: 'On',
           off: 'Off',
-          refresh: 'Refresh'
+          refresh: 'Refresh',
+          changePhoto: 'Change photo',
+          resetPhoto: 'Use default photo',
+          photoFailed: 'Photo upload failed'
         },
         nl: {
           car: 'Auto',
@@ -667,7 +762,10 @@
           stop: 'Stop',
           on: 'Aan',
           off: 'Uit',
-          refresh: 'Vernieuwen'
+          refresh: 'Vernieuwen',
+          changePhoto: 'Foto wijzigen',
+          resetPhoto: 'Standaardfoto gebruiken',
+          photoFailed: 'Uploaden mislukt'
         },
         de: {
           car: 'Auto',
@@ -697,7 +795,10 @@
           stop: 'Stopp',
           on: 'Ein',
           off: 'Aus',
-          refresh: 'Aktualisieren'
+          refresh: 'Aktualisieren',
+          changePhoto: 'Foto ändern',
+          resetPhoto: 'Standardbild verwenden',
+          photoFailed: 'Upload fehlgeschlagen'
         },
         fr: {
           car: 'Voiture',
@@ -727,7 +828,10 @@
           stop: 'Arrêter',
           on: 'Allumé',
           off: 'Éteint',
-          refresh: 'Actualiser'
+          refresh: 'Actualiser',
+          changePhoto: 'Changer la photo',
+          resetPhoto: 'Photo par défaut',
+          photoFailed: 'Envoi échoué'
         },
         es: {
           car: 'Coche',
@@ -757,7 +861,10 @@
           stop: 'Detener',
           on: 'Encendido',
           off: 'Apagado',
-          refresh: 'Actualizar'
+          refresh: 'Actualizar',
+          changePhoto: 'Cambiar foto',
+          resetPhoto: 'Usar foto predeterminada',
+          photoFailed: 'Error al subir la foto'
         },
         it: {
           car: 'Auto',
@@ -787,7 +894,10 @@
           stop: 'Arresta',
           on: 'Acceso',
           off: 'Spento',
-          refresh: 'Aggiorna'
+          refresh: 'Aggiorna',
+          changePhoto: 'Cambia foto',
+          resetPhoto: 'Usa foto predefinita',
+          photoFailed: 'Caricamento non riuscito'
         },
         da: {
           car: 'Bil',
@@ -817,7 +927,10 @@
           stop: 'Stop',
           on: 'Tændt',
           off: 'Slukket',
-          refresh: 'Opdater'
+          refresh: 'Opdater',
+          changePhoto: 'Skift billede',
+          resetPhoto: 'Brug standardbillede',
+          photoFailed: 'Upload mislykkedes'
         },
         sv: {
           car: 'Bil',
@@ -847,7 +960,10 @@
           stop: 'Stopp',
           on: 'På',
           off: 'Av',
-          refresh: 'Uppdatera'
+          refresh: 'Uppdatera',
+          changePhoto: 'Byt bild',
+          resetPhoto: 'Använd standardbild',
+          photoFailed: 'Uppladdningen misslyckades'
         },
         no: {
           car: 'Bil',
@@ -877,7 +993,10 @@
           stop: 'Stopp',
           on: 'På',
           off: 'Av',
-          refresh: 'Oppdater'
+          refresh: 'Oppdater',
+          changePhoto: 'Bytt bilde',
+          resetPhoto: 'Bruk standardbilde',
+          photoFailed: 'Opplasting mislyktes'
         },
         pl: {
           car: 'Samochód',
@@ -907,7 +1026,10 @@
           stop: 'Zatrzymaj',
           on: 'Wł.',
           off: 'Wył.',
-          refresh: 'Odśwież'
+          refresh: 'Odśwież',
+          changePhoto: 'Zmień zdjęcie',
+          resetPhoto: 'Użyj zdjęcia domyślnego',
+          photoFailed: 'Przesyłanie nie powiodło się'
         },
         ru: {
           car: 'Автомобиль',
@@ -937,7 +1059,10 @@
           stop: 'Стоп',
           on: 'Вкл',
           off: 'Выкл',
-          refresh: 'Обновить'
+          refresh: 'Обновить',
+          changePhoto: 'Изменить фото',
+          resetPhoto: 'Фото по умолчанию',
+          photoFailed: 'Не удалось загрузить фото'
         },
         ar: {
           car: 'سيارة',
@@ -967,7 +1092,10 @@
           stop: 'إيقاف',
           on: 'تشغيل',
           off: 'إيقاف',
-          refresh: 'تحديث'
+          refresh: 'تحديث',
+          changePhoto: 'تغيير الصورة',
+          resetPhoto: 'استخدام الصورة الافتراضية',
+          photoFailed: 'فشل رفع الصورة'
         },
         ko: {
           car: '자동차',
@@ -997,7 +1125,10 @@
           stop: '중지',
           on: '켜짐',
           off: '꺼짐',
-          refresh: '새로고침'
+          refresh: '새로고침',
+          changePhoto: '사진 변경',
+          resetPhoto: '기본 사진 사용',
+          photoFailed: '사진 업로드 실패'
         }
       };
 
@@ -1134,6 +1265,7 @@
         if (carImgEl) {
           var settings = (typeof Homey.getSettings === 'function' ? Homey.getSettings() : {}) || {};
           var customUrl = settings.imageUrl && settings.imageUrl.trim();
+          var uploadedImg = data.custom_image || '';
           var defaultImg = data.default_image || '';
 
           carImgEl.onerror = function() {
@@ -1142,11 +1274,18 @@
             }
           };
 
-          if (customUrl) {
+          // An uploaded photo is the most deliberate, most recent choice, so it
+          // outranks the imageUrl setting; the shipped image is the last resort
+          // and also what onerror above falls back to.
+          if (uploadedImg) {
+            carImgEl.src = uploadedImg;
+          } else if (customUrl) {
             carImgEl.src = customUrl;
           } else if (defaultImg) {
             carImgEl.src = defaultImg;
           }
+
+          if (photoResetEl) photoResetEl.hidden = !uploadedImg;
         }
 
         // Battery & Range Hero
@@ -1333,6 +1472,108 @@
         btnDefrost.addEventListener('click', function() {
           var isDefrost = currentCarData && Boolean(currentCarData.defrost);
           executeAction('defrost', !isDefrost, btnDefrost);
+        });
+      }
+
+      // --- Custom car photo ---------------------------------------------
+      // Picking a file goes through a plain <input type="file">. In the Homey
+      // desktop web app that is an ordinary iframe and opens the OS dialog. In
+      // the mobile app the widget runs inside a native webview, where a picker
+      // appears only if the host implements a file chooser — undocumented
+      // either way, so nothing here assumes it works: the button reports
+      // failure visibly instead of leaving the user tapping a dead control.
+      var MAX_PHOTO_EDGE = 900;
+      var photoInputEl = document.getElementById('photo-input');
+      var photoUploadEl = document.getElementById('photo-upload');
+      var photoResetEl = document.getElementById('photo-reset');
+
+      function setPhotoState(state) {
+        if (!photoUploadEl) return;
+        photoUploadEl.classList.toggle('is-busy', state === 'busy');
+        photoUploadEl.classList.toggle('is-error', state === 'error');
+        photoUploadEl.title = state === 'error' ? t.photoFailed : t.changePhoto;
+      }
+
+      function failPhoto(err) {
+        console.error('Car photo:', err);
+        setPhotoState('error');
+        setTimeout(function() { setPhotoState('idle'); }, 4000);
+      }
+
+      // Re-encodes to at most MAX_PHOTO_EDGE on the long side before upload:
+      // the result is handed back to the widget as a base64 data URI on every
+      // refresh, so a 4MB phone photo would be paid for over and over.
+      function downscalePhoto(file) {
+        return new Promise(function(resolve, reject) {
+          var reader = new FileReader();
+          reader.onerror = function() { reject(new Error('Could not read file')); };
+          reader.onload = function() {
+            var img = new Image();
+            img.onerror = function() { reject(new Error('Not a readable image')); };
+            img.onload = function() {
+              var scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(img.width, img.height));
+              var w = Math.max(1, Math.round(img.width * scale));
+              var h = Math.max(1, Math.round(img.height * scale));
+              var canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              // Car renders float on the widget's gradient, so a cut-out PNG
+              // has to stay a PNG — JPEG would flatten it onto solid black.
+              // Photographs have no alpha and are far smaller as JPEG, so the
+              // format follows the image rather than being fixed either way.
+              var hasAlpha = false;
+              try {
+                var pixels = ctx.getImageData(0, 0, w, h).data;
+                for (var i = 3; i < pixels.length; i += 4) {
+                  if (pixels[i] < 255) { hasAlpha = true; break; }
+                }
+              } catch (e) {
+                hasAlpha = true; // couldn't inspect it; PNG loses nothing
+              }
+              resolve(hasAlpha ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.82));
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (photoUploadEl && photoInputEl) {
+        setPhotoState('idle');
+        photoUploadEl.addEventListener('click', function() {
+          if (typeof Homey.hapticFeedback === 'function') Homey.hapticFeedback();
+          photoInputEl.click();
+        });
+        photoInputEl.addEventListener('change', function() {
+          var file = photoInputEl.files && photoInputEl.files[0];
+          photoInputEl.value = ''; // so re-picking the same file fires again
+          if (!file) return;
+          setPhotoState('busy');
+          downscalePhoto(file)
+            .then(function(dataUrl) {
+              return Homey.api('POST', '/image', { deviceId: getSelectedDeviceId(), dataUrl: dataUrl });
+            })
+            .then(function() {
+              setPhotoState('idle');
+              fetchCarData();
+            })
+            .catch(failPhoto);
+        });
+      }
+
+      if (photoResetEl) {
+        photoResetEl.title = t.resetPhoto;
+        photoResetEl.addEventListener('click', function() {
+          if (typeof Homey.hapticFeedback === 'function') Homey.hapticFeedback();
+          setPhotoState('busy');
+          Homey.api('DELETE', '/image', { deviceId: getSelectedDeviceId() })
+            .then(function() {
+              setPhotoState('idle');
+              fetchCarData();
+            })
+            .catch(failPhoto);
         });
       }
 

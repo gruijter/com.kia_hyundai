@@ -5134,6 +5134,14 @@
         "carAction": {
           "method": "POST",
           "path": "/action"
+        },
+        "uploadImage": {
+          "method": "POST",
+          "path": "/image"
+        },
+        "deleteImage": {
+          "method": "DELETE",
+          "path": "/image"
         }
       },
       "id": "car"
