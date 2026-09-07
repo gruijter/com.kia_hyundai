@@ -26,18 +26,28 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const SRC = path.join(ROOT, 'brand', 'src');
 
-// Templates render to the same path they occupy under brand/src/.
+// Templates render to the same path they occupy under brand/src/. Only files
+// where a brand word sits *inside* a shared sentence belong here.
 const TEMPLATES = [
   ...fs.readdirSync(path.join(SRC, 'locales')).map((f) => `locales/${f}`),
   'drivers/car/driver.settings.compose.json',
-  'package.json',
-  '.homeycompose/app.json',
 ];
 
+// Files that are mostly shared but carry a few brand-specific keys. Only those
+// keys are patched, so everything around them — version, compatibility,
+// permissions, scripts, dependencies — is edited normally at the root and is
+// none of this tool's business. (These files used to be templated whole, which
+// meant bumping a version had to be done inside brand/src/: friction for a
+// value that is identical in both apps.)
+const PATCHED = {
+  '.homeycompose/app.json': (json, cfg) => Object.assign(json, cfg.appJson),
+  'package.json': (json, cfg) => Object.assign(json, { name: cfg.tokens.APP_ID }),
+};
+
 // Copied verbatim from brand/<brand>/: genuinely different content per brand
-// rather than a token swap — store copy, changelog history, artwork.
+// rather than a token swap — store copy and artwork. NOT the changelog: 18 of
+// its 19 entries were already identical, so it is shared and edited at root.
 const VERBATIM = [
-  '.homeychangelog.json',
   'assets/icon.svg',
   'assets/images/small.png',
   'assets/images/large.png',
@@ -53,22 +63,6 @@ const render = (text, tokens) => text.replace(/\{\{(\w+)\}\}/g, (match, name) =>
   return tokens[name];
 });
 
-// brandColor/description/tags are per-brand *values*, not token swaps, so the
-// template carries an "@brand:<key>" sentinel in their original position and
-// brand.json supplies the value — keeping rendered key order identical.
-const resolveSentinels = (node, cfg) => {
-  if (typeof node === 'string' && node.startsWith('@brand:')) {
-    const key = node.slice('@brand:'.length);
-    if (!(key in cfg)) throw Error(`brand.json is missing "${key}"`);
-    return cfg[key];
-  }
-  if (Array.isArray(node)) return node.map((v) => resolveSentinels(v, cfg));
-  if (node && typeof node === 'object') {
-    return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, resolveSentinels(v, cfg)]));
-  }
-  return node;
-};
-
 function build(brand) {
   const brandDir = path.join(ROOT, 'brand', brand);
   if (!fs.existsSync(brandDir)) throw Error(`No such brand: ${brand}`);
@@ -78,8 +72,17 @@ function build(brand) {
 
   for (const rel of TEMPLATES) {
     const text = render(fs.readFileSync(path.join(SRC, rel), 'utf8'), cfg.tokens);
-    const resolved = resolveSentinels(JSON.parse(text), cfg);
-    out.set(rel, Buffer.from(`${JSON.stringify(resolved, null, 2)}\n`));
+    out.set(rel, Buffer.from(`${JSON.stringify(JSON.parse(text), null, 2)}\n`));
+  }
+
+  // Patch in place: read what is on disk, overwrite only the brand keys, keep
+  // every other key and its position exactly as the author left it.
+  for (const [rel, patch] of Object.entries(PATCHED)) {
+    const target = path.join(ROOT, rel);
+    if (!fs.existsSync(target)) continue;
+    const json = JSON.parse(fs.readFileSync(target, 'utf8'));
+    patch(json, cfg);
+    out.set(rel, Buffer.from(`${JSON.stringify(json, null, 2)}\n`));
   }
 
   for (const rel of fs.readdirSync(brandDir).filter((f) => f.startsWith('README'))) {

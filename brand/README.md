@@ -21,17 +21,16 @@ entirely: the Hyundai text is not edited, it is produced.
 
 ## Layout
 
+Only what genuinely differs between the two apps lives here.
+
 ```
 brand/
-  src/                 templates shared by both brands, with {{TOKEN}} placeholders
-    locales/*.json
-    .homeycompose/app.json
+  src/                 shared sentences with {{TOKEN}} blanks — the ONLY files
+    locales/*.json       you must edit here instead of at the root
     drivers/car/driver.settings.compose.json
-    package.json
-  kia/                 what is Kia-specific
-    brand.json           token values + brandColor + description + tags
-    README*.txt          store copy (genuinely different text, not a token swap)
-    .homeychangelog.json per-app release history
+  kia/
+    brand.json           token values + the 5 app.json keys that differ
+    README*.txt          store copy (different text, not a token swap)
     assets/…             app + driver artwork
   hyundai/             same shape
   logos/               design sources, shipped by neither app
@@ -42,13 +41,18 @@ Tokens: `{{BRAND}}` `{{BRAND_UC}}` `{{SERVICE}}` `{{APPNAME}}` `{{SERVERS}}` `{{
 ## Daily work
 
 Work on `main` exactly as before — it *is* the Kia app, so `homey app run`
-just works. The one rule:
+just works. One rule:
 
-> Edit `brand/src/…`, never the rendered file.
+> **Changing user-facing text? Edit `brand/src/locales/…`.
+> Everything else: edit normally at the root.**
 
-Rendered files are `locales/*.json`, `package.json`, `.homeycompose/app.json`,
-`drivers/car/driver.settings.compose.json`, the `README*.txt` and the artwork.
-`npm run brand:check` fails if you edit one directly, and also fails if a
+`.homeycompose/app.json` and `package.json` are *not* owned by this tool — it
+patches only the handful of brand keys inside them (`id`, `name`, `brandColor`,
+`description`, `tags`, and the package `name`). Version bumps, compatibility,
+permissions, scripts, dependencies and `.homeychangelog.json` are edited at the
+root as they always were.
+
+`npm run brand:check` fails if you edit a rendered file directly, and also if a
 compose manifest picks up the other brand's wording.
 
 ## Shipping
