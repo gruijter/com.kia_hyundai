@@ -595,10 +595,14 @@ class CarDevice extends Homey.Device {
     this.restartDevice(500).catch((error) => this.error(error));
   }
 
-  setCapability(capability, value) {
+  // Async so callers that fire a flow trigger afterwards can await the write
+  // first: setCapabilityValue() resolves asynchronously, so a trigger fired
+  // without awaiting it races the capability update and the started flow can
+  // still read the previous value. Fire-and-forget callers end with .catch().
+  async setCapability(capability, value) {
     if (this.destroyed) return;
     if (this.hasCapability(capability) && value !== undefined) {
-      this.setCapabilityValue(capability, value).catch((error) => {
+      await this.setCapabilityValue(capability, value).catch((error) => {
         this.error(error);
         this.error(capability, value);
       });
@@ -621,7 +625,7 @@ class CarDevice extends Homey.Device {
   async doPoll({ forceOnce = false, logPoll = false }) {
     // console.log(forceOnce);
     try {
-      this.setCapability('refresh_status', true);
+      this.setCapability('refresh_status', true).catch((error) => this.error(error));
       const batSoc = this.getCapabilityValue('measure_battery.12V');
       const forcePollInterval = this.settings.pollIntervalForced
         && (this.settings.pollIntervalForced * 60 * 1000) < (Date.now() - this.lastRefresh)
@@ -708,7 +712,7 @@ class CarDevice extends Homey.Device {
 
       // update capabilities and flows
       await this.handleInfo(stsMapped).catch((error) => this.error(error));
-      this.setCapability('refresh_status', false);
+      this.setCapability('refresh_status', false).catch((error) => this.error(error));
 
       // variable polling interval based on active state
       if (this.settings.pollIntervalEngineOn && !this.pollMode && carJustActive) {
@@ -722,7 +726,7 @@ class CarDevice extends Homey.Device {
       return true;
     } catch (error) {
       this.error(error);
-      this.setCapability('refresh_status', false);
+      this.setCapability('refresh_status', false).catch((error) => this.error(error));
       throw error;
     }
   }
@@ -735,16 +739,18 @@ class CarDevice extends Homey.Device {
       const hasParked = this.isParking(info);
 
       // update capabilities
-      for (const [cap, val] of Object.entries(info)) {
-        this.setCapability(cap, val);
-      }
+      const capWrites = Object.entries(info).map(([cap, val]) => this.setCapability(cap, val));
       if (this.lastRefresh) {
         const ds = new Date(this.lastRefresh);
         const timeZone = this.homey.clock.getTimezone();
         const date = ds.toLocaleDateString('en-US', { month: 'short', day: '2-digit', timeZone });
         const time = ds.toLocaleTimeString('nl-NL', { hour12: false, timeZone }).substring(0, 5);
-        this.setCapability('last_refresh', `${date} ${time}`);
+        capWrites.push(this.setCapability('last_refresh', `${date} ${time}`));
       }
+      // Every capability value must be committed BEFORE any trigger below
+      // fires, otherwise a flow started by e.g. 'status_update' can still read
+      // the previous value (reported: the old battery SoC).
+      await Promise.all(capWrites);
 
       // update flow triggers
       const tokens = {};
@@ -1173,8 +1179,8 @@ class CarDevice extends Homey.Device {
       const schedule = raw.data.Departure?.[`Schedule${index}`];
       if (schedule) schedule.Enable = enabled ? 1 : 0;
     }
-    this.setCapability(`departure_schedule.${index}`, enabled);
-    this.setCapability('departure_time', this.formatDeparture(this.departureSlots()));
+    this.setCapability(`departure_schedule.${index}`, enabled).catch((error) => this.error(error));
+    this.setCapability('departure_time', this.formatDeparture(this.departureSlots())).catch((error) => this.error(error));
     return this.enQueue({ command: 'scheduleChargingAndClimate', args: options });
   }
 
@@ -1233,7 +1239,7 @@ class CarDevice extends Homey.Device {
     } else {
       this.log(`A/C off via ${source}`); // app or flow
       command = 'stop';
-      this.setCapability('defrost', false); // set defrost state to off
+      this.setCapability('defrost', false).catch((error) => this.error(error)); // set defrost state to off
     }
     return this.enQueue({ command, args });
   }
@@ -1275,7 +1281,7 @@ class CarDevice extends Homey.Device {
       // have to do it twice to get defrost reported as off; only the 2nd
       // result (returned below) is what the caller waits for
       this.enQueue({ command, args }).catch(() => {});
-      this.setCapability('climate_control', false); // set AC state to off
+      this.setCapability('climate_control', false).catch((error) => this.error(error)); // set AC state to off
     }
     return this.enQueue({ command, args });
   }
@@ -1416,7 +1422,7 @@ class CarDevice extends Homey.Device {
       this.log(`Refusing forced refresh via ${source}: 12V battery too low or unknown (${batSoc}% <= ${level}%)`);
       throw Error(this.homey.__('error_battery_too_low_for_refresh', { batSoc: batSoc ?? '?', level }));
     }
-    this.setCapability('refresh_status', true);
+    this.setCapability('refresh_status', true).catch((error) => this.error(error));
     this.log(`Forcing status refresh via ${source}`);
     if (source === 'app' || source === 'cloud') this.carLastActive = Date.now();
     return this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } });
@@ -1461,11 +1467,11 @@ class CarDevice extends Homey.Device {
       // completes (or the enQueue timeout races it), matching refresh_status.
       this.registerCapabilityListener('flash_lights', (pressed) => {
         if (!pressed) return true;
-        return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false));
+        return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false).catch((error) => this.error(error)));
       });
       this.registerCapabilityListener('flash_lights_and_honk', (pressed) => {
         if (!pressed) return true;
-        return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false));
+        return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false).catch((error) => this.error(error)));
       });
       // The trailing argument is a DEBOUNCE, not a command timeout: Homey waits
       // this long for the *other* capability in the list to be set before
