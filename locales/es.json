@@ -9,6 +9,8 @@
     "region_ca": "Canadá",
     "region_au": "Australia",
     "region_cn": "China",
+    "region_in": "India",
+    "region_br": "Brasil",
     "username": "Nombre de usuario",
     "password": "Contraseña",
     "pin": "PIN de 4 dígitos",

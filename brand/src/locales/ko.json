@@ -9,6 +9,8 @@
     "region_ca": "캐나다",
     "region_au": "호주",
     "region_cn": "중국",
+    "region_in": "인도",
+    "region_br": "브라질",
     "username": "사용자 이름",
     "password": "비밀번호",
     "pin": "4자리 PIN",

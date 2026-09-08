@@ -386,6 +386,42 @@
               "ar": "CN",
               "ko": "CN"
             }
+          },
+          {
+            "id": "IN",
+            "label": {
+              "en": "IN",
+              "nl": "IN",
+              "de": "IN",
+              "fr": "IN",
+              "es": "IN",
+              "it": "IN",
+              "da": "IN",
+              "sv": "IN",
+              "no": "IN",
+              "pl": "IN",
+              "ru": "IN",
+              "ar": "IN",
+              "ko": "IN"
+            }
+          },
+          {
+            "id": "BR",
+            "label": {
+              "en": "BR",
+              "nl": "BR",
+              "de": "BR",
+              "fr": "BR",
+              "es": "BR",
+              "it": "BR",
+              "da": "BR",
+              "sv": "BR",
+              "no": "BR",
+              "pl": "BR",
+              "ru": "BR",
+              "ar": "BR",
+              "ko": "BR"
+            }
           }
         ]
       },

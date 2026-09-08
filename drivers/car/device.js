@@ -1097,7 +1097,8 @@ class CarDevice extends Homey.Device {
   // back unchanged. Returns null when there's no reservation data yet.
   // Known lossiness (upstream's write model): preheat is one setting shared by
   // both slots (per-slot climate can't be expressed), and the off-peak flag is
-  // written as 1/2 so a car reporting the "unconfigured" 0 becomes 2.
+  // written as 1/2 so a car reporting the "unconfigured" 0 becomes 1
+  // ("prioritised" — the less restrictive of the two).
   buildScheduleOptions() {
     const r = this.rawReservation;
     if (!r || !r.data) return null;
@@ -1128,7 +1129,12 @@ class CarDevice extends Homey.Device {
         firstDeparture: slot(d.reservChargeInfo?.reservChargeInfoDetail),
         secondDeparture: slot(d.reserveChargeInfo2?.reservChargeInfoDetail),
         chargingEnabled: d.reservFlag === 1,
-        offPeakChargeOnlyEnabled: d.offpeakPowerInfo?.offPeakPowerFlag === 1,
+        // 2 = "off-peak tariffs only", 1 = "prioritised", 0 = not applied
+        // (upstream #1304). Must stay in step with the write side in
+        // ApiImplType1.js#scheduleChargingAndClimate — both were inverted, so
+        // the legacy echo-back round-tripped by accident; flipping only one
+        // of the two would start changing the car's setting.
+        offPeakChargeOnlyEnabled: d.offpeakPowerInfo?.offPeakPowerFlag === 2,
         offPeakStartTime: asHHMM(legacyReservationTimeOrNone(op?.starttime?.time, op?.starttime?.timeSection)),
         offPeakEndTime: asHHMM(legacyReservationTimeOrNone(op?.endtime?.time, op?.endtime?.timeSection)),
         climateEnabled: fatc?.airCtrl === 1,
