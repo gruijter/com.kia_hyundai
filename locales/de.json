@@ -38,5 +38,6 @@
   "error_device_gone": "Dieses Fahrzeug ist nicht mehr verfügbar.",
   "error_unknown_command": "Unbekannter Befehl: __command__",
   "error_invalid_window_state": "Ungültiger Fensterstatus: __state__",
-  "error_battery_too_low_for_refresh": "Erzwungene Aktualisierung nicht möglich: 12V-Batterie ist zu niedrig oder unbekannt (__batSoc__%, muss über __level__% liegen)."
+  "error_battery_too_low_for_refresh": "Erzwungene Aktualisierung nicht möglich: 12V-Batterie ist zu niedrig oder unbekannt (__batSoc__%, muss über __level__% liegen).",
+  "error_control_disabled": "Die Tür-/Fenstersteuerung ist in den Geräteeinstellungen deaktiviert."
 }

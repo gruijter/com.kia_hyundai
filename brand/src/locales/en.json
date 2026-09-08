@@ -38,5 +38,6 @@
   "error_device_gone": "This car is no longer available.",
   "error_unknown_command": "Unknown command: __command__",
   "error_invalid_window_state": "Invalid window state: __state__",
-  "error_battery_too_low_for_refresh": "Cannot force a refresh: 12V battery is too low or unknown (__batSoc__%, must be above __level__%)."
+  "error_battery_too_low_for_refresh": "Cannot force a refresh: 12V battery is too low or unknown (__batSoc__%, must be above __level__%).",
+  "error_control_disabled": "Door/window control is disabled in the device settings."
 }

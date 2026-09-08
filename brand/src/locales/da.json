@@ -38,5 +38,6 @@
   "error_device_gone": "Denne bil er ikke længere tilgængelig.",
   "error_unknown_command": "Ukendt kommando: __command__",
   "error_invalid_window_state": "Ugyldig rudetilstand: __state__",
-  "error_battery_too_low_for_refresh": "Kan ikke gennemtvinge en opdatering: 12V-batteriet er for lavt eller ukendt (__batSoc__%, skal være over __level__%)."
+  "error_battery_too_low_for_refresh": "Kan ikke gennemtvinge en opdatering: 12V-batteriet er for lavt eller ukendt (__batSoc__%, skal være over __level__%).",
+  "error_control_disabled": "Dør-/rudebetjening er deaktiveret i enhedsindstillingerne."
 }

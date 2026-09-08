@@ -149,7 +149,12 @@ class CarDevice extends Homey.Device {
         this.driver.capabilitiesMap[this.getSettings().engine],
         evidence,
       );
-      await DeviceMigrator.migrateCapabilities(this, correctCaps);
+      const capsChanged = await DeviceMigrator.migrateCapabilities(this, correctCaps);
+      // A removed-and-re-added capability comes back with the manifest's
+      // capability options, i.e. its control visible again — drop the marker
+      // so syncControlVisibility() below rewrites instead of trusting a cache
+      // the migration just invalidated.
+      if (capsChanged) await this.unsetStoreValue('appliedControlVisibility').catch((error) => this.error(error));
     } catch (error) {
       this.error(error);
     }
@@ -162,6 +167,15 @@ class CarDevice extends Homey.Device {
     // capability migration is one of the things that resets unit options.
     try {
       await DeviceMigrator.reconcileUnitMarkers(this);
+    } catch (error) {
+      this.error(error);
+    }
+
+    // Its own try/catch for the same reason as reconcileUnitMarkers() above:
+    // independent of the capability migration, and must still run for a device
+    // whose `engine` setting made that migration throw.
+    try {
+      await DeviceMigrator.syncControlVisibility(this, !!this.getSettings().disableDoorWindowControl);
     } catch (error) {
       this.error(error);
     }
@@ -1299,7 +1313,20 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command });
   }
 
+  // The `disableDoorWindowControl` setting hides the `locked`/`vent_windows`
+  // controls (DeviceMigrator#syncControlVisibility), which is presentation
+  // only — the capabilities stay setable and the widget's lock button is
+  // plain HTML. So the setting is enforced here too, on everything that comes
+  // from a GUI. Flows are never blocked: the whole point of the setting is to
+  // remove the accidental tap, not the automation.
+  assertControlAllowed(source) {
+    if (!this.getSettings().disableDoorWindowControl) return;
+    if (source !== 'app' && source !== 'widget') return;
+    throw Error(this.homey.__('error_control_disabled'));
+  }
+
   lock(locked, source) {
+    this.assertControlAllowed(source);
     let command;
     if (locked) {
       this.log(`locking doors via ${source}`);
@@ -1353,6 +1380,7 @@ class CarDevice extends Homey.Device {
   }
 
   setWindows(state, source) { // state: 'open', 'closed' or 'vent'
+    this.assertControlAllowed(source);
     this.log(`Windows set to ${state} via ${source}`);
     const command = { open: 'openWindows', closed: 'closeWindows', vent: 'ventWindows' }[state];
     if (!command) throw Error(this.homey.__('error_invalid_window_state', { state }));

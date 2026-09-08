@@ -1330,22 +1330,24 @@
         }
 
         // Action Controls Update
-        // Non-EV handling: adapt action bar columns & hide charge button if non-EV
+        // Two buttons are conditional: charge (EV only) and lock (dropped when
+        // the car's 'disable door/window control' setting is on), so the bar's
+        // column count is counted rather than hardcoded.
         var controlsBar = document.getElementById('controls-bar');
         var btnCharge = document.getElementById('btn-charge');
-        if (isEV) {
-          if (btnCharge) btnCharge.style.display = 'flex';
-          if (controlsBar) controlsBar.style.gridTemplateColumns = 'repeat(4, 1fr)';
-        } else {
-          if (btnCharge) btnCharge.style.display = 'none';
-          if (controlsBar) controlsBar.style.gridTemplateColumns = 'repeat(3, 1fr)';
-        }
+        var controlDisabled = !!(data && data.control_disabled);
+        var visibleButtons = 2; // climate + defrost, always shown
+        if (btnCharge) btnCharge.style.display = isEV ? 'flex' : 'none';
+        if (isEV) visibleButtons += 1;
+        if (!controlDisabled) visibleButtons += 1;
+        if (controlsBar) controlsBar.style.gridTemplateColumns = 'repeat(' + visibleButtons + ', 1fr)';
 
         // Button 1: Lock / Unlock
         var btnLock = document.getElementById('btn-lock');
         var lblLock = document.getElementById('lbl-btn-lock');
         var stateLock = document.getElementById('state-btn-lock');
         var lockShackle = document.getElementById('lock-shackle');
+        if (btnLock) btnLock.style.display = controlDisabled ? 'none' : 'flex';
         if (btnLock && stateLock) {
           btnLock.classList.remove('state-warning-red');
           if (isLocked) {
@@ -1454,6 +1456,7 @@
       var btnLock = document.getElementById('btn-lock');
       if (btnLock) {
         btnLock.addEventListener('click', function() {
+          if (currentCarData && currentCarData.control_disabled) return;
           var isLocked = getIsLocked(currentCarData);
           executeAction('lock', !isLocked, btnLock);
         });

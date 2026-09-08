@@ -38,5 +38,6 @@
   "error_device_gone": "Deze auto is niet meer beschikbaar.",
   "error_unknown_command": "Onbekend commando: __command__",
   "error_invalid_window_state": "Ongeldige raamstatus: __state__",
-  "error_battery_too_low_for_refresh": "Kan geen geforceerde vernieuwing uitvoeren: 12V-accu is te laag of onbekend (__batSoc__%, moet boven __level__% zijn)."
+  "error_battery_too_low_for_refresh": "Kan geen geforceerde vernieuwing uitvoeren: 12V-accu is te laag of onbekend (__batSoc__%, moet boven __level__% zijn).",
+  "error_control_disabled": "Deur-/raambediening is uitgeschakeld in de apparaatinstellingen."
 }
