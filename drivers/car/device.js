@@ -290,8 +290,13 @@ class CarDevice extends Homey.Device {
       this.busy = true;
       let needsFollowUpPoll = false;
       try {
-        let item = this.deQueue();
-        while (item) {
+        let nextItem = this.deQueue();
+        while (nextItem) {
+          // Per-iteration binding: the dispatch/then/catch closures below
+          // outlive the iteration that created them, so they must capture
+          // this item and not the loop variable that the last line of the
+          // body reassigns (eslint no-loop-func).
+          const item = nextItem;
           if (this.destroyed || this.queueGeneration !== generation) return;
           if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
@@ -368,7 +373,7 @@ class CarDevice extends Homey.Device {
           // eslint-disable-next-line no-await-in-loop
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
           if (this.destroyed || this.queueGeneration !== generation) return;
-          item = this.deQueue();
+          nextItem = this.deQueue();
         }
         needsFollowUpPoll = this.lastCommand !== 'doPoll';
       } catch (error) {
@@ -586,7 +591,7 @@ class CarDevice extends Homey.Device {
   }
 
   // this method is called when the Device is added
-  async onAdded() {
+  onAdded() {
     this.log(`Car added: ${this.getName()}`);
   }
 
@@ -661,7 +666,12 @@ class CarDevice extends Homey.Device {
       if (!this.vehicleConfig.ccuCCS2ProtocolSupport && !fullStatus.vehicleLocation) {
         await setTimeoutPromise(5000);
         const gpsDetail = await this.client.getLocation(this.vehicleConfig).catch((error) => this.error(error));
+        // Keep the speed alongside the coordinates, like
+        // forceRefreshVehicleState and _mergeCachedLocationPark already do —
+        // /location reports a live speed and dropping it left measure_speed
+        // unset on exactly this path.
         fullStatus.vehicleLocation = { coord: gpsDetail?.coord || {} };
+        if (gpsDetail?.speed) fullStatus.vehicleLocation.speed = gpsDetail.speed;
       }
 
       // log a redacted snapshot on the first poll after every app (re)start, so
@@ -737,10 +747,9 @@ class CarDevice extends Homey.Device {
         this.startPolling(this.settings.pollInterval).catch((error) => this.error(error));
       }
 
-      return true;
     } catch (error) {
       this.error(error);
-      this.setCapability('refresh_status', false).catch((error) => this.error(error));
+      this.setCapability('refresh_status', false).catch((err) => this.error(err));
       throw error;
     }
   }
@@ -944,7 +953,11 @@ class CarDevice extends Homey.Device {
       map.address = carLocString?.address;
 
       // determine chargeState
-      map['measure_power.charge'] = sts?.Green?.Electric?.SmartGrid?.RealTimePower * 1000;
+      // Guarded: on a CCS2 car that doesn't report SmartGrid this used to
+      // compute `undefined * 1000` = NaN, which setCapabilityValue() rejects
+      // on every poll. Clear the capability with null instead.
+      const realTimePower = sts?.Green?.Electric?.SmartGrid?.RealTimePower;
+      map['measure_power.charge'] = typeof realTimePower === 'number' ? realTimePower * 1000 : null;
       // Only unit 4 (km/kWh) is confirmed enough to convert numerically for
       // imperial (see lib/DeviceMigrator.js's FUEL_ECONOMY_UNITS comment);
       // other units are relabeled only, via syncFuelEconomyUnits().
@@ -1123,7 +1136,9 @@ class CarDevice extends Homey.Device {
       try {
         const celsius = convert.getTempFromCode(fatc?.airTemp?.value);
         if (typeof celsius === 'number') temperature = celsius;
-      } catch (error) { this.log('departure preheat temp out of range, using 21', error.message); }
+      } catch (error) {
+        this.log('departure preheat temp out of range, using 21', error.message);
+      }
       const op = d.offpeakPowerInfo?.offPeakPowerTime1;
       return {
         firstDeparture: slot(d.reservChargeInfo?.reservChargeInfoDetail),
