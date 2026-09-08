@@ -8,7 +8,10 @@
     "region_us": "États-Unis",
     "region_ca": "Canada",
     "region_au": "Australie",
+    "region_nz": "Nouvelle-Zélande",
     "region_cn": "Chine",
+    "region_in": "Inde",
+    "region_br": "Brésil",
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
     "pin": "Code PIN à 4 chiffres",
@@ -38,5 +41,6 @@
   "error_device_gone": "Cette voiture n'est plus disponible.",
   "error_unknown_command": "Commande inconnue : __command__",
   "error_invalid_window_state": "État de fenêtre invalide : __state__",
-  "error_battery_too_low_for_refresh": "Actualisation forcée impossible : batterie 12V trop faible ou inconnue (__batSoc__ %, doit être supérieure à __level__ %)."
+  "error_battery_too_low_for_refresh": "Actualisation forcée impossible : batterie 12V trop faible ou inconnue (__batSoc__ %, doit être supérieure à __level__ %).",
+  "error_control_disabled": "La commande portes/vitres est désactivée dans les réglages de l'appareil."
 }

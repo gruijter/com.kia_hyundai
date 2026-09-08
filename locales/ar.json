@@ -8,7 +8,10 @@
     "region_us": "الولايات المتحدة",
     "region_ca": "كندا",
     "region_au": "أستراليا",
+    "region_nz": "نيوزيلندا",
     "region_cn": "الصين",
+    "region_in": "الهند",
+    "region_br": "البرازيل",
     "username": "اسم المستخدم",
     "password": "كلمة المرور",
     "pin": "رقم سري مكون من 4 أرقام",
@@ -38,5 +41,6 @@
   "error_device_gone": "هذه السيارة لم تعد متاحة.",
   "error_unknown_command": "أمر غير معروف: __command__",
   "error_invalid_window_state": "حالة نافذة غير صالحة: __state__",
-  "error_battery_too_low_for_refresh": "تعذر فرض التحديث: بطارية 12 فولت منخفضة جدًا أو غير معروفة (__batSoc__٪، يجب أن تكون أعلى من __level__٪)."
+  "error_battery_too_low_for_refresh": "تعذر فرض التحديث: بطارية 12 فولت منخفضة جدًا أو غير معروفة (__batSoc__٪، يجب أن تكون أعلى من __level__٪).",
+  "error_control_disabled": "التحكم في الأبواب/النوافذ معطّل في إعدادات الجهاز."
 }

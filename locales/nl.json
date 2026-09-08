@@ -8,7 +8,10 @@
     "region_us": "VS",
     "region_ca": "Canada",
     "region_au": "Australië",
+    "region_nz": "Nieuw-Zeeland",
     "region_cn": "China",
+    "region_in": "India",
+    "region_br": "Brazilië",
     "username": "Gebruikersnaam",
     "password": "Wachtwoord",
     "pin": "4-cijferige pincode",
@@ -38,5 +41,6 @@
   "error_device_gone": "Deze auto is niet meer beschikbaar.",
   "error_unknown_command": "Onbekend commando: __command__",
   "error_invalid_window_state": "Ongeldige raamstatus: __state__",
-  "error_battery_too_low_for_refresh": "Kan geen geforceerde vernieuwing uitvoeren: 12V-accu is te laag of onbekend (__batSoc__%, moet boven __level__% zijn)."
+  "error_battery_too_low_for_refresh": "Kan geen geforceerde vernieuwing uitvoeren: 12V-accu is te laag of onbekend (__batSoc__%, moet boven __level__% zijn).",
+  "error_control_disabled": "Deur-/raambediening is uitgeschakeld in de apparaatinstellingen."
 }

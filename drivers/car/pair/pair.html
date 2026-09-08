@@ -9,13 +9,9 @@
 	<div class="homey-form-group">
 
 		<label class="homey-form-label" for="region" data-i18n="pair.region">Select your region</label>
-		<select class="homey-form-select" id="region">
-					<option value="EU" selected data-i18n="pair.region_eu">Europe</option>
-					<option value="US" data-i18n="pair.region_us">USA</option>
-					<option value="CA" data-i18n="pair.region_ca">Canada</option>
-					<option value="AU" data-i18n="pair.region_au">Australia</option>
-					<option value="CN" data-i18n="pair.region_cn">China</option>
-		</select>
+		<!-- Filled by loadRegions() below: which regions exist depends on the
+		     brand this app was published as (Brazil is Hyundai only). -->
+		<select class="homey-form-select" id="region"></select>
 
 		<label class="homey-form-label" for="username" data-i18n="pair.username">username</label>
 		<input class="homey-form-input" id="username" type="text" placeholder="" value="" />
@@ -63,6 +59,30 @@ async function validate() {
     Homey.alert(error, 'error');
   }
 }
+
+// The driver answers with the region ids its brand has a backend for
+// (lib/connect#regionsForBrand). The fallback list is what every brand
+// supports, so a failed request still leaves a usable picker.
+async function loadRegions() {
+  let regions = ['EU', 'US', 'CA', 'AU', 'CN'];
+  try {
+    const supported = await Homey.emit('regions');
+    if (Array.isArray(supported) && supported.length) regions = supported;
+  } catch (error) {
+    // keep the fallback list
+  }
+  const select = document.getElementById('region');
+  select.innerHTML = '';
+  regions.forEach((id, index) => {
+    const option = document.createElement('option');
+    option.value = id;
+    option.text = __('pair.region_' + id.toLowerCase());
+    option.selected = index === 0;
+    select.appendChild(option);
+  });
+}
+
+$(document).ready(loadRegions);
 
 // $(document).ready(async () => {
 //   Homey.setTitle(Homey.__('pair.start'));

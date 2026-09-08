@@ -8,7 +8,10 @@
     "region_us": "USA",
     "region_ca": "Canada",
     "region_au": "Australia",
+    "region_nz": "Nuova Zelanda",
     "region_cn": "Cina",
+    "region_in": "India",
+    "region_br": "Brasile",
     "username": "Nome utente",
     "password": "Password",
     "pin": "PIN a 4 cifre",
@@ -38,5 +41,6 @@
   "error_device_gone": "Questa auto non è più disponibile.",
   "error_unknown_command": "Comando sconosciuto: __command__",
   "error_invalid_window_state": "Stato del finestrino non valido: __state__",
-  "error_battery_too_low_for_refresh": "Impossibile forzare l'aggiornamento: batteria a 12V troppo bassa o sconosciuta (__batSoc__%, deve essere superiore a __level__%)."
+  "error_battery_too_low_for_refresh": "Impossibile forzare l'aggiornamento: batteria a 12V troppo bassa o sconosciuta (__batSoc__%, deve essere superiore a __level__%).",
+  "error_control_disabled": "Il controllo porte/finestrini è disattivato nelle impostazioni del dispositivo."
 }

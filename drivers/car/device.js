@@ -149,7 +149,12 @@ class CarDevice extends Homey.Device {
         this.driver.capabilitiesMap[this.getSettings().engine],
         evidence,
       );
-      await DeviceMigrator.migrateCapabilities(this, correctCaps);
+      const capsChanged = await DeviceMigrator.migrateCapabilities(this, correctCaps);
+      // A removed-and-re-added capability comes back with the manifest's
+      // capability options, i.e. its control visible again — drop the marker
+      // so syncControlVisibility() below rewrites instead of trusting a cache
+      // the migration just invalidated.
+      if (capsChanged) await this.unsetStoreValue('appliedControlVisibility').catch((error) => this.error(error));
     } catch (error) {
       this.error(error);
     }
@@ -162,6 +167,15 @@ class CarDevice extends Homey.Device {
     // capability migration is one of the things that resets unit options.
     try {
       await DeviceMigrator.reconcileUnitMarkers(this);
+    } catch (error) {
+      this.error(error);
+    }
+
+    // Its own try/catch for the same reason as reconcileUnitMarkers() above:
+    // independent of the capability migration, and must still run for a device
+    // whose `engine` setting made that migration throw.
+    try {
+      await DeviceMigrator.syncControlVisibility(this, !!this.getSettings().disableDoorWindowControl);
     } catch (error) {
       this.error(error);
     }
@@ -276,8 +290,13 @@ class CarDevice extends Homey.Device {
       this.busy = true;
       let needsFollowUpPoll = false;
       try {
-        let item = this.deQueue();
-        while (item) {
+        let nextItem = this.deQueue();
+        while (nextItem) {
+          // Per-iteration binding: the dispatch/then/catch closures below
+          // outlive the iteration that created them, so they must capture
+          // this item and not the loop variable that the last line of the
+          // body reassigns (eslint no-loop-func).
+          const item = nextItem;
           if (this.destroyed || this.queueGeneration !== generation) return;
           if (!this.vehicleConfig) {
             this.watchDogCounter -= 2;
@@ -354,7 +373,7 @@ class CarDevice extends Homey.Device {
           // eslint-disable-next-line no-await-in-loop
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
           if (this.destroyed || this.queueGeneration !== generation) return;
-          item = this.deQueue();
+          nextItem = this.deQueue();
         }
         needsFollowUpPoll = this.lastCommand !== 'doPoll';
       } catch (error) {
@@ -572,7 +591,7 @@ class CarDevice extends Homey.Device {
   }
 
   // this method is called when the Device is added
-  async onAdded() {
+  onAdded() {
     this.log(`Car added: ${this.getName()}`);
   }
 
@@ -595,10 +614,14 @@ class CarDevice extends Homey.Device {
     this.restartDevice(500).catch((error) => this.error(error));
   }
 
-  setCapability(capability, value) {
+  // Async so callers that fire a flow trigger afterwards can await the write
+  // first: setCapabilityValue() resolves asynchronously, so a trigger fired
+  // without awaiting it races the capability update and the started flow can
+  // still read the previous value. Fire-and-forget callers end with .catch().
+  async setCapability(capability, value) {
     if (this.destroyed) return;
     if (this.hasCapability(capability) && value !== undefined) {
-      this.setCapabilityValue(capability, value).catch((error) => {
+      await this.setCapabilityValue(capability, value).catch((error) => {
         this.error(error);
         this.error(capability, value);
       });
@@ -621,7 +644,7 @@ class CarDevice extends Homey.Device {
   async doPoll({ forceOnce = false, logPoll = false }) {
     // console.log(forceOnce);
     try {
-      this.setCapability('refresh_status', true);
+      this.setCapability('refresh_status', true).catch((error) => this.error(error));
       const batSoc = this.getCapabilityValue('measure_battery.12V');
       const forcePollInterval = this.settings.pollIntervalForced
         && (this.settings.pollIntervalForced * 60 * 1000) < (Date.now() - this.lastRefresh)
@@ -640,10 +663,20 @@ class CarDevice extends Homey.Device {
 
       // CCS2 status always includes Location inline; legacy (non-ccuCCS2)
       // vehicles sometimes don't — fetch it separately when missing.
-      if (!this.vehicleConfig.ccuCCS2ProtocolSupport && !fullStatus.vehicleLocation) {
+      // Keyed on the payload's own shape, not just the config flag: Brazil
+      // returns a CCS2-shaped status (Location is inline, under `Date`) while
+      // its vehicles report ccuCCS2ProtocolSupport: 0, so the flag alone sent
+      // every BR poll down this branch — a 5s wait plus an error, since
+      // HyundaiBlueLinkApiBR has no public getLocation() to call.
+      if (!this.vehicleConfig.ccuCCS2ProtocolSupport && !fullStatus.Date && !fullStatus.vehicleLocation) {
         await setTimeoutPromise(5000);
         const gpsDetail = await this.client.getLocation(this.vehicleConfig).catch((error) => this.error(error));
+        // Keep the speed alongside the coordinates, like
+        // forceRefreshVehicleState and _mergeCachedLocationPark already do —
+        // /location reports a live speed and dropping it left measure_speed
+        // unset on exactly this path.
         fullStatus.vehicleLocation = { coord: gpsDetail?.coord || {} };
+        if (gpsDetail?.speed) fullStatus.vehicleLocation.speed = gpsDetail.speed;
       }
 
       // log a redacted snapshot on the first poll after every app (re)start, so
@@ -708,7 +741,7 @@ class CarDevice extends Homey.Device {
 
       // update capabilities and flows
       await this.handleInfo(stsMapped).catch((error) => this.error(error));
-      this.setCapability('refresh_status', false);
+      this.setCapability('refresh_status', false).catch((error) => this.error(error));
 
       // variable polling interval based on active state
       if (this.settings.pollIntervalEngineOn && !this.pollMode && carJustActive) {
@@ -719,10 +752,9 @@ class CarDevice extends Homey.Device {
         this.startPolling(this.settings.pollInterval).catch((error) => this.error(error));
       }
 
-      return true;
     } catch (error) {
       this.error(error);
-      this.setCapability('refresh_status', false);
+      this.setCapability('refresh_status', false).catch((err) => this.error(err));
       throw error;
     }
   }
@@ -735,16 +767,18 @@ class CarDevice extends Homey.Device {
       const hasParked = this.isParking(info);
 
       // update capabilities
-      for (const [cap, val] of Object.entries(info)) {
-        this.setCapability(cap, val);
-      }
+      const capWrites = Object.entries(info).map(([cap, val]) => this.setCapability(cap, val));
       if (this.lastRefresh) {
         const ds = new Date(this.lastRefresh);
         const timeZone = this.homey.clock.getTimezone();
         const date = ds.toLocaleDateString('en-US', { month: 'short', day: '2-digit', timeZone });
         const time = ds.toLocaleTimeString('nl-NL', { hour12: false, timeZone }).substring(0, 5);
-        this.setCapability('last_refresh', `${date} ${time}`);
+        capWrites.push(this.setCapability('last_refresh', `${date} ${time}`));
       }
+      // Every capability value must be committed BEFORE any trigger below
+      // fires, otherwise a flow started by e.g. 'status_update' can still read
+      // the previous value (reported: the old battery SoC).
+      await Promise.all(capWrites);
 
       // update flow triggers
       const tokens = {};
@@ -864,7 +898,12 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.washer_fluid'] = sts?.washerFluidStatus;
       map['alarm_generic.brake_fluid'] = sts?.breakOilStatus;
       map['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
-      map['measure_battery.12V'] = sts?.battery?.batSoc;
+      // A sleeping car reports batSoc 0 (with batState still 1) instead of
+      // leaving it out, so 0 means "not measured", not a flat battery. Carry
+      // the last known value forward, or a parked car raises a 12V alarm out
+      // of nowhere and the forced-refresh guard starts refusing on "0%".
+      map['measure_battery.12V'] = sts?.battery?.batSoc || this.lastStatus?.['measure_battery.12V'];
+      const bat12V = map['measure_battery.12V'];
       map['measure_battery.health'] = sts?.evStatus?.batterySoh;
       const rangeField = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange;
       const rangeValue = rangeField?.value || sts?.dte?.value;
@@ -896,7 +935,8 @@ class CarDevice extends Homey.Device {
       map.departure_time = this.formatDeparture(departureSlots);
       map['departure_schedule.1'] = !!departureSlots[0]?.enabled;
       map['departure_schedule.2'] = !!departureSlots[1]?.enabled;
-      map['alarm_bat'] = (sts?.battery?.batSoc < this.settings.batteryAlarmLevel) || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
+      map['alarm_bat'] = (typeof bat12V === 'number' && bat12V < this.settings.batteryAlarmLevel)
+        || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.time;
     }
     // is new type status
@@ -918,7 +958,11 @@ class CarDevice extends Homey.Device {
       map.address = carLocString?.address;
 
       // determine chargeState
-      map['measure_power.charge'] = sts?.Green?.Electric?.SmartGrid?.RealTimePower * 1000;
+      // Guarded: on a CCS2 car that doesn't report SmartGrid this used to
+      // compute `undefined * 1000` = NaN, which setCapabilityValue() rejects
+      // on every poll. Clear the capability with null instead.
+      const realTimePower = sts?.Green?.Electric?.SmartGrid?.RealTimePower;
+      map['measure_power.charge'] = typeof realTimePower === 'number' ? realTimePower * 1000 : null;
       // Only unit 4 (km/kWh) is confirmed enough to convert numerically for
       // imperial (see lib/DeviceMigrator.js's FUEL_ECONOMY_UNITS comment);
       // other units are relabeled only, via syncFuelEconomyUnits().
@@ -989,7 +1033,8 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.washer_fluid'] = !!sts?.Body?.Windshield?.Front?.WasherFluid?.LevelLow;
       map['alarm_generic.brake_fluid'] = !!sts?.Chassis?.Brake?.Fluid?.Warning;
       map['alarm_generic.key_fob_battery'] = !!sts?.Electronics?.FOB?.LowBattery;
-      map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level;
+      map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level || this.lastStatus?.['measure_battery.12V']; // 0 = not measured, see legacy branch
+      const ccs2Bat12V = map['measure_battery.12V'];
       map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       if (typeof map.measure_range === 'number') map.measure_range = Math.round(map.measure_range * 10) / 10;
@@ -1009,7 +1054,8 @@ class CarDevice extends Homey.Device {
       map.departure_time = this.formatDeparture(ccs2DepartureSlots);
       map['departure_schedule.1'] = !!ccs2DepartureSlots[0]?.enabled;
       map['departure_schedule.2'] = !!ccs2DepartureSlots[1]?.enabled;
-      map['alarm_bat'] = (map['measure_battery.12V'] < this.settings.batteryAlarmLevel) || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
+      map['alarm_bat'] = (typeof ccs2Bat12V === 'number' && ccs2Bat12V < this.settings.batteryAlarmLevel)
+        || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
       map.Date = sts.Date;
     }
     return map;
@@ -1069,7 +1115,8 @@ class CarDevice extends Homey.Device {
   // back unchanged. Returns null when there's no reservation data yet.
   // Known lossiness (upstream's write model): preheat is one setting shared by
   // both slots (per-slot climate can't be expressed), and the off-peak flag is
-  // written as 1/2 so a car reporting the "unconfigured" 0 becomes 2.
+  // written as 1/2 so a car reporting the "unconfigured" 0 becomes 1
+  // ("prioritised" — the less restrictive of the two).
   buildScheduleOptions() {
     const r = this.rawReservation;
     if (!r || !r.data) return null;
@@ -1094,13 +1141,20 @@ class CarDevice extends Homey.Device {
       try {
         const celsius = convert.getTempFromCode(fatc?.airTemp?.value);
         if (typeof celsius === 'number') temperature = celsius;
-      } catch (error) { this.log('departure preheat temp out of range, using 21', error.message); }
+      } catch (error) {
+        this.log('departure preheat temp out of range, using 21', error.message);
+      }
       const op = d.offpeakPowerInfo?.offPeakPowerTime1;
       return {
         firstDeparture: slot(d.reservChargeInfo?.reservChargeInfoDetail),
         secondDeparture: slot(d.reserveChargeInfo2?.reservChargeInfoDetail),
         chargingEnabled: d.reservFlag === 1,
-        offPeakChargeOnlyEnabled: d.offpeakPowerInfo?.offPeakPowerFlag === 1,
+        // 2 = "off-peak tariffs only", 1 = "prioritised", 0 = not applied
+        // (upstream #1304). Must stay in step with the write side in
+        // ApiImplType1.js#scheduleChargingAndClimate — both were inverted, so
+        // the legacy echo-back round-tripped by accident; flipping only one
+        // of the two would start changing the car's setting.
+        offPeakChargeOnlyEnabled: d.offpeakPowerInfo?.offPeakPowerFlag === 2,
         offPeakStartTime: asHHMM(legacyReservationTimeOrNone(op?.starttime?.time, op?.starttime?.timeSection)),
         offPeakEndTime: asHHMM(legacyReservationTimeOrNone(op?.endtime?.time, op?.endtime?.timeSection)),
         climateEnabled: fatc?.airCtrl === 1,
@@ -1165,8 +1219,8 @@ class CarDevice extends Homey.Device {
       const schedule = raw.data.Departure?.[`Schedule${index}`];
       if (schedule) schedule.Enable = enabled ? 1 : 0;
     }
-    this.setCapability(`departure_schedule.${index}`, enabled);
-    this.setCapability('departure_time', this.formatDeparture(this.departureSlots()));
+    this.setCapability(`departure_schedule.${index}`, enabled).catch((error) => this.error(error));
+    this.setCapability('departure_time', this.formatDeparture(this.departureSlots())).catch((error) => this.error(error));
     return this.enQueue({ command: 'scheduleChargingAndClimate', args: options });
   }
 
@@ -1225,7 +1279,7 @@ class CarDevice extends Homey.Device {
     } else {
       this.log(`A/C off via ${source}`); // app or flow
       command = 'stop';
-      this.setCapability('defrost', false); // set defrost state to off
+      this.setCapability('defrost', false).catch((error) => this.error(error)); // set defrost state to off
     }
     return this.enQueue({ command, args });
   }
@@ -1267,7 +1321,7 @@ class CarDevice extends Homey.Device {
       // have to do it twice to get defrost reported as off; only the 2nd
       // result (returned below) is what the caller waits for
       this.enQueue({ command, args }).catch(() => {});
-      this.setCapability('climate_control', false); // set AC state to off
+      this.setCapability('climate_control', false).catch((error) => this.error(error)); // set AC state to off
     }
     return this.enQueue({ command, args });
   }
@@ -1285,7 +1339,20 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command });
   }
 
+  // The `disableDoorWindowControl` setting hides the `locked`/`vent_windows`
+  // controls (DeviceMigrator#syncControlVisibility), which is presentation
+  // only — the capabilities stay setable and the widget's lock button is
+  // plain HTML. So the setting is enforced here too, on everything that comes
+  // from a GUI. Flows are never blocked: the whole point of the setting is to
+  // remove the accidental tap, not the automation.
+  assertControlAllowed(source) {
+    if (!this.getSettings().disableDoorWindowControl) return;
+    if (source !== 'app' && source !== 'widget') return;
+    throw Error(this.homey.__('error_control_disabled'));
+  }
+
   lock(locked, source) {
+    this.assertControlAllowed(source);
     let command;
     if (locked) {
       this.log(`locking doors via ${source}`);
@@ -1339,6 +1406,7 @@ class CarDevice extends Homey.Device {
   }
 
   setWindows(state, source) { // state: 'open', 'closed' or 'vent'
+    this.assertControlAllowed(source);
     this.log(`Windows set to ${state} via ${source}`);
     const command = { open: 'openWindows', closed: 'closeWindows', vent: 'ventWindows' }[state];
     if (!command) throw Error(this.homey.__('error_invalid_window_state', { state }));
@@ -1408,7 +1476,7 @@ class CarDevice extends Homey.Device {
       this.log(`Refusing forced refresh via ${source}: 12V battery too low or unknown (${batSoc}% <= ${level}%)`);
       throw Error(this.homey.__('error_battery_too_low_for_refresh', { batSoc: batSoc ?? '?', level }));
     }
-    this.setCapability('refresh_status', true);
+    this.setCapability('refresh_status', true).catch((error) => this.error(error));
     this.log(`Forcing status refresh via ${source}`);
     if (source === 'app' || source === 'cloud') this.carLastActive = Date.now();
     return this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } });
@@ -1453,11 +1521,11 @@ class CarDevice extends Homey.Device {
       // completes (or the enQueue timeout races it), matching refresh_status.
       this.registerCapabilityListener('flash_lights', (pressed) => {
         if (!pressed) return true;
-        return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false));
+        return this.flashLights(false, 'app').finally(() => this.setCapability('flash_lights', false).catch((error) => this.error(error)));
       });
       this.registerCapabilityListener('flash_lights_and_honk', (pressed) => {
         if (!pressed) return true;
-        return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false));
+        return this.flashLights(true, 'app').finally(() => this.setCapability('flash_lights_and_honk', false).catch((error) => this.error(error)));
       });
       // The trailing argument is a DEBOUNCE, not a command timeout: Homey waits
       // this long for the *other* capability in the list to be set before

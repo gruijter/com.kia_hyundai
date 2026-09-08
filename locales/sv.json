@@ -8,7 +8,10 @@
     "region_us": "USA",
     "region_ca": "Kanada",
     "region_au": "Australien",
+    "region_nz": "Nya Zeeland",
     "region_cn": "Kina",
+    "region_in": "Indien",
+    "region_br": "Brasilien",
     "username": "Användarnamn",
     "password": "Lösenord",
     "pin": "4-siffrig PIN-kod",
@@ -38,5 +41,6 @@
   "error_device_gone": "Den här bilen är inte längre tillgänglig.",
   "error_unknown_command": "Okänt kommando: __command__",
   "error_invalid_window_state": "Ogiltigt fönstertillstånd: __state__",
-  "error_battery_too_low_for_refresh": "Det går inte att tvinga fram en uppdatering: 12V-batteriet är för lågt eller okänt (__batSoc__%, måste vara över __level__%)."
+  "error_battery_too_low_for_refresh": "Det går inte att tvinga fram en uppdatering: 12V-batteriet är för lågt eller okänt (__batSoc__%, måste vara över __level__%).",
+  "error_control_disabled": "Dörr-/fönsterstyrning är inaktiverad i enhetsinställningarna."
 }

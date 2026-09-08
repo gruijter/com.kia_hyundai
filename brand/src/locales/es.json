@@ -8,7 +8,10 @@
     "region_us": "EE. UU.",
     "region_ca": "Canadá",
     "region_au": "Australia",
+    "region_nz": "Nueva Zelanda",
     "region_cn": "China",
+    "region_in": "India",
+    "region_br": "Brasil",
     "username": "Nombre de usuario",
     "password": "Contraseña",
     "pin": "PIN de 4 dígitos",
@@ -38,5 +41,6 @@
   "error_device_gone": "Este coche ya no está disponible.",
   "error_unknown_command": "Comando desconocido: __command__",
   "error_invalid_window_state": "Estado de ventana no válido: __state__",
-  "error_battery_too_low_for_refresh": "No se puede forzar una actualización: la batería de 12V es demasiado baja o desconocida (__batSoc__ %, debe superar el __level__ %)."
+  "error_battery_too_low_for_refresh": "No se puede forzar una actualización: la batería de 12V es demasiado baja o desconocida (__batSoc__ %, debe superar el __level__ %).",
+  "error_control_disabled": "El control de puertas/ventanillas está desactivado en los ajustes del dispositivo."
 }
