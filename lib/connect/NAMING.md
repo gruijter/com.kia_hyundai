@@ -22,6 +22,8 @@ having to understand the rest of this codebase.
 | `KiaUvoApiCA.py`                | `native/regions/KiaUvoApiCA.js`              |
 | `KiaUvoApiUSA.py`               | `native/regions/KiaUvoApiUSA.js`             |
 | `HyundaiBlueLinkApiUSA.py`      | `native/regions/HyundaiBlueLinkApiUSA.js`    |
+| `KiaUvoApiIN.py`                | `native/regions/KiaUvoApiIN.js`              |
+| `HyundaiBlueLinkApiBR.py`       | `native/regions/HyundaiBlueLinkApiBR.js`     |
 | `VehicleManager.py`             | `native/VehicleManager.js`                   |
 | `Token.py`                      | `native/Token.js`                            |
 | *(no upstream equivalent)*      | `index.js`                                   |
@@ -80,6 +82,37 @@ by an actual live call — **not wired into the Homey app** (no
 capability/flow card/device.js call anywhere yet). Port a UI for them once
 there's a concrete Homey feature that needs them.
 
+## The status shape every region must return
+
+`device.js#mapStatus()` reads one shape, whatever the region:
+
+```
+{ vehicleStatus: { time, ... }, vehicleLocation: { coord, speed }, odometer: { value, unit } }
+```
+
+for legacy (non-CCS2) cars, or the bare CCS2 `Vehicle` object (recognised by
+its `Date` key) for CCS2 cars. Two details are load-bearing and easy to miss
+when porting a region, because upstream has no equivalent constraint — it
+parses each region's own field names into a `Vehicle` dataclass instead:
+
+- **`vehicleStatus.time` gates the entire legacy branch.** No `time`, nothing
+  maps at all — not the lock state, battery, climate, range or alarms.
+  Upstream's own per-region timestamp field is `time` on EU/AU/CN/IN, but
+  `lastStatusDate` on CA and `dateTime` on Hyundai USA, so those two regions
+  must alias it.
+- **`odometer` sits next to `vehicleStatus`, not inside it.** EU's
+  `resMsg.vehicleStatusInfo` happens to deliver it there already; AU/NZ/CN
+  carry it *inside* their status and must hoist it; CA takes it from the
+  separate `nxtsvc` call and IN from `setting/alert/maintenance`, exactly as
+  upstream's `_update_vehicle_properties_service` /
+  `_update_vehicle_maintenance_alert` do.
+
+Each region does this in one place (`_normalizeStatus`, or `_buildStatus` on
+Hyundai USA). Both mistakes shipped undetected in every non-EU region until
+2026-09-08, because there is no test account for any of them — a status shape
+regression is silent, it just yields a device with no data. When adding or
+reworking a region, check both against a real response before anything else.
+
 ## No bluelinky-shaped layer — call VehicleManager directly
 
 The `bluelinky` dependency has been fully removed (no fallback left — all
@@ -137,6 +170,33 @@ to do anything extra for this — just pass `logger` through to
 `ApiImplSession` (see any existing region file as an example) and the HTTP
 layer logs automatically.
 
+## Which regions a brand may pick
+
+`index.js#regionsForBrand(brand)` is the single source of truth for the region
+picker in `drivers/car/pair/pair.html` and `repair.html` — both ask the driver
+for it (`session.setHandler('regions', ...)` in `drivers/car/driver.js`) rather
+than hardcoding a list, because the two published apps do not support the same
+set: **Brazil is Hyundai only** (the region has no Kia backend at all;
+`HyundaiBlueLinkApiBR` throws for any other brand, matching upstream).
+
+The `region` dropdown on the device settings page still lists every region for
+both brands — it is static per-app JSON and the advanced/repair path, so a Kia
+device pointed at Brazil there fails at login with that same explicit error
+rather than being prevented up front.
+
+## Upstream sync point
+
+Last compared against upstream **v4.29.1** (2026-09-05, commit `9164367`) on
+2026-09-08. Everything through v4.28.0 plus the 4.29.x EU location fixes is
+ported. Deliberately not ported, with the reason, so the next diff doesn't
+re-open them:
+
+| Upstream | Why not |
+|---|---|
+| #1284 `GspaApiEU` / `HyundaiCciApiEU` / `KiaCciApiEU`, `REGION_EUROPE_CCI` (v4.29.0) | A *parallel* EU region, not a replacement — `REGION_EUROPE` still dispatches to `KiaUvoApiEU` for every brand upstream. `KiaCciApiEU.update_vehicle_with_cached_state` and `prewakeup` still raise `NotImplementedError` there, and it needs the ~250 KB per-brand `gspa/*_cipher_params.json` blobs. Revisit once upstream has live fixtures. |
+| #1292 (EU forced-refresh location time is UTC) | N/A here. Upstream's fix relabels the timezone of `gpsDetail.time`; this port never reads that field — `forceRefreshVehicleState` keeps only `coord` and `speed` from `/location`. |
+| #1293 (CCS2 `BatteryPreCondition.Status` 0/2/6 off, 3/4 on) | N/A here. No battery-precondition capability exists in the app; nothing reads that field. |
+
 ## Validation status per region
 
 Besides the live EU test below, all regions have also been tested with a
@@ -149,9 +209,11 @@ further than login.
 | Region | Status | Known risks |
 |-------|--------|-------------------|
 | EU (Kia + Hyundai) | **Live validated** (real Kia Niro HEV/PHEV + Niro EV, 2026-08-04; OneApp/CCI login re-validated 2026-08-17 via `homey app run --remote` against real accounts on both branches — Kia: 1 device, 4 vehicles found; Hyundai (`com.hyundai` branch): 2 devices, 2 vehicles each — all logins OK, full flow incl. CCI token exchange + CCS re-exchange, status fetched, no errors). Password login was ported to the OneApp/CCI flow that day (upstream #1273/#1277-#1279, WAF block on the old IDPConnect authorize endpoint). `_refreshCciToken` (token refresh, ~24h CCS TTL) is ported faithfully but not yet observed live — neither session ran long enough to hit a refresh. | `KiaUvoApiEU.js#_loginWithPasswordCci` step 1 (authorize call) can miss Set-Cookie headers on intermediate redirect hops — Node's `fetch` with `redirect:'follow'` only returns the headers of the final response, Python's `requests.Session` accumulates across all hops. Hasn't proven to be a problem in the live test yet, but is the first checkpoint for a login issue. |
-| AU (Kia + Hyundai + Kia NZ) | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct `401 Require authentication` on fake credentials — request shape works | Simpler login flow than EU (no RSA), otherwise 1:1 with EU's Type1 base. Raw status shape normalized from upstream's `status.*` to `vehicleStatus.*`. Status/control after login untested. |
-| CN (Kia + Hyundai) | Mock-tested against the live server (2026-08-04): **fails already on the very first call** (`notifications/register` → `4002 Invalid parameter`), before credentials are even sent | Payload/headers were checked 1:1 against the Python source and are correct — the cause is unknown (possibly a server-side change, or a pre-existing issue in the Python source itself, which also gets little testing on this endpoint). **First thing to investigate once a CN account is available.** Login also does two sequential OAuth calls (see code comment); `refreshToken` is literally stored as `"<type> <access_token>"` — not a typo, upstream does it the same way. |
-| CA (Kia + Hyundai) | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "incorrect login" error on fake credentials — request shape works | **OTP not wired up to a pairing UI** — `sendOtp`/`verifyOtpAndCompleteLogin` exist on `VehicleManager`, but `driver.js` has no step that calls them. For an account that requires OTP, pairing fails with a clear `AuthenticationOTPRequired` error instead of a crash. Device id uses a hand-written UUID5 (Node has no built-in one). Status/control after login untested. |
+| AU (Kia + Hyundai) / NZ (Kia) | Mock-tested against the live server (AU 2026-08-04, NZ 2026-09-08): device registration succeeds (`retCode S`, real deviceId) and `/user/signin` answers a correct `401 4010 Require authentication` on fake credentials — request shape works. | Simpler login flow than EU (no RSA), otherwise 1:1 with EU's Type1 base. Raw status shape normalized from upstream's `status.*` to `vehicleStatus.*`. **New Zealand was unreachable until 2026-09-08**: the class carried the NZ constants but nothing could select them — there was no `REGION_NZ` in `const.js`, no `NZ` in `index.js#REGION_MAP`, and the dispatcher only routed `REGION_AUSTRALIA` here, so the branch required a brand that is neither Kia nor Hyundai. NZ is Kia only (no Hyundai NZ backend), which `regionsForBrand()` now enforces in the pairing picker and the dispatcher rejects explicitly. Both share `Australia/Sydney` as data timezone, as upstream does. Status/control after login untested. |
+| IN (Kia + Hyundai) | Mock-tested against the live server (2026-09-08): **device registration actually succeeds** (`/spa/notifications/register` returns `retCode S` and a real deviceId for both brands), the authorize page loads, and `/user/signin` answers a correct `401 4010 Require authentication` on fake credentials — request shape works up to the credential check, further than any other untested region got | Classic Type1 login (cookies -> signin -> code -> token), no RSA and no OTP, so it needs no pairing-UI work. Two upstream oddities ported verbatim: the access and refresh tokens come from two separate `oauth2/token` calls, and the second one stores its *access* token as the refresh token. `_ccs2State()` is a deliberate deviation — upstream feeds the raw `/ccs2/` `resMsg` to a legacy-only parser, so its CCS2 path cannot work as written; here `resMsg.state.Vehicle` is unwrapped like every other region, with a fallback. Status/control after login untested. |
+| BR (Hyundai only) | Mock-tested against the live server (2026-09-08): authorize page loads and `/user/signin` answers `401 4010 Require authentication`, surfaced as a readable `AuthenticationError` — request shape works | **Hyundai only** — see the section above. Cached status is CCS2-shaped even though BR vehicles report `ccuCCS2ProtocolSupport: 0`; `/status/latest` is the command-result feed there and always 503s, so it is never used. Force refresh is asynchronous (wake, wait 25s, re-read `/latest`) and refuses to return data whose `lastUpdateTime` did not advance. Every remote command needs the PIN control token, so a PIN-less pairing works but cannot control the car. No valet mode. Windows move all together. Type1's `USER_API_URL`/`SPA_API_URL*` are set here (upstream leaves them undefined, so its inherited methods raise) — a deviation that only makes inherited calls target the right host. For the same reason `_getControlToken` is aliased to BR's own `_ensureControlToken`: `ApiImplType1#_getControlHeaders` calls the former, so without the alias every command BR does not override (all the charging/navigation ones) used the EU-shaped PIN URL and failed as "PIN verification failed". Status/control after login untested. |
+| CN (Kia + Hyundai) | Mock-tested against the live server (2026-09-08, after porting upstream's 2026-09 rewrite #1295 / v4.28.0): reaches `/join/account/loginInit.do` and `/api/v1/user/oauth2/authorize` (both 200) and gets a correct `401 4010 Require authentication` from `/user/signin` on fake credentials — the same signature as every working region. The **previous** port died on its very first call (`/spa/notifications/register` -> `400 resCode 4002`, reproduced live the same day for both brands) because it carried a stale API surface: dead APP_IDs, a Hyundai `BASIC_AUTHORIZATION` that decoded to the placeholder `<id>:secret`, and `pushType: GCM`. | Upstream rewrote this from the current China Bluelink iOS app and verified it end-to-end against `prd.cn-ccapi.hyundai.com` with a real account — but that is the PR author's own single test, merged with no review comments and with no independent user report since (checked 2026-09-08). **Only the Hyundai side is live-verified upstream**; the Kia constants come from the same binary. Login now runs through the UARS service (`uars-{k|h}.hmgmobility.com.cn`), which redeems the OAuth code server-side and returns the token bundle embedded in an HTML page — hence `extractUarsLoginBundle()`, the only HTML-scraping step in this whole port; if login breaks, that parser is the first suspect. Device registration happens *after* signin (step 5), so the mock test above does not exercise it. Access tokens live 6h and refresh via `/user/silentsignin` (session cookie, no password). Everything marked `CN-UNVERIFIED` here is marked the same way upstream: the PIN/control-token path, the legacy force-refresh path, CCS2 anything, and `setChargeLimits`. Status/control after login untested. |
+| CA (Kia + Hyundai) | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "incorrect login" error on fake credentials — request shape works. Status normalization (`time` aliased from `lastStatusDate`, odometer from `nxtsvc`) and upstream's location gate (#1294/#1296) added 2026-09-08 | **OTP not wired up to a pairing UI** — `sendOtp`/`verifyOtpAndCompleteLogin` exist on `VehicleManager`, but `driver.js` has no step that calls them. For an account that requires OTP, pairing fails with a clear `AuthenticationOTPRequired` error instead of a crash. Device id uses a hand-written UUID5 (Node has no built-in one). The location gate keeps the last known position in memory per vehicle (`_locationState`), standing in for upstream's `vehicle.location` / `vehicle._location_fetch_attempted` — without it every poll would spend a `vrfypin` + `fndmcr` pair, and returning `null` instead would just make `device.js#doPoll()` fetch it anyway. Status/control after login untested. |
 | US — Kia | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "Invalid Email or Password" error on fake credentials — request shape works (incl. the TLS cipher workaround and gzip decompression, see below) | Completely different backend (`api.owners.kia.com`, session-header auth instead of OAuth) with a very different raw status shape — translated here to the common `vehicleStatus.*` shape, but **only for the fields `mapStatus()` uses**, not 1:1 with upstream's full parsing (so status/control after login is untested). OTP on an unrecognized device isn't wired up to a pairing UI (same limitation as CA). |
 | US — Hyundai | Mock-tested against the live server (2026-08-04): reaches the server, gets a correct "Incorrect username or password" error on fake credentials — request shape works | Different backend than Kia USA (`api.telematics.hyundaiusa.com`), but the raw status shape is already nearly identical to the EU convention — barely any normalization needed. Status/control after login untested. |
 

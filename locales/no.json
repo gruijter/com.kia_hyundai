@@ -8,7 +8,10 @@
     "region_us": "USA",
     "region_ca": "Canada",
     "region_au": "Australia",
+    "region_nz": "New Zealand",
     "region_cn": "Kina",
+    "region_in": "India",
+    "region_br": "Brasil",
     "username": "Brukernavn",
     "password": "Passord",
     "pin": "4-sifret PIN-kode",
@@ -38,5 +41,6 @@
   "error_device_gone": "Denne bilen er ikke lenger tilgjengelig.",
   "error_unknown_command": "Ukjent kommando: __command__",
   "error_invalid_window_state": "Ugyldig vindustilstand: __state__",
-  "error_battery_too_low_for_refresh": "Kan ikke tvinge frem en oppdatering: 12V-batteriet er for lavt eller ukjent (__batSoc__%, må være over __level__%)."
+  "error_battery_too_low_for_refresh": "Kan ikke tvinge frem en oppdatering: 12V-batteriet er for lavt eller ukjent (__batSoc__%, må være over __level__%).",
+  "error_control_disabled": "Dør-/vindusstyring er deaktivert i enhetsinnstillingene."
 }

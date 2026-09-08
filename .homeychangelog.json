@@ -1,30 +1,30 @@
 {
-  "2.0.0": {
-    "en": "Complete rewrite of the vehicle connection layer, now also supporting AU, CN, CA and US regions. Added flow cards for find-my-car, remote windows, charge port, charging current, V2L discharge limit and valet mode. Fixed engine-type detection for some EVs/PHEVs, an odometer crash, the tire-pressure alarm not triggering, a locked-status false negative on sunroof-less cars, and broken distance-changed/is-moving flow cards. Devices now show a clear reason when they become unavailable."
-  },
-  "1.3.0": {
-    "en": "Fixed login for new API endpoints."
-  },
-  "1.2.2": {
-    "en": "Fixed detection of ccuCCS2 HEV. Added HP2016/2019 warning in readme. Fixed support link."
-  },
-  "1.2.1": {
-    "en": "Minor usability tweaks."
-  },
-  "1.2.0": {
-    "en": "Fixed car parked detection. Updated icons. Added capability migration."
-  },
-  "1.1.1": {
-    "en": "Added Ceed support. Updated images."
-  },
-  "1.1.0": {
-    "en": "Removed Homey Cloud compatibility."
+  "1.0.0": {
+    "en": "First release"
   },
   "1.0.1": {
     "en": "Updated icons. Refresh button state fix. Minor improvements."
   },
-  "1.0.0": {
-    "en": "First release"
+  "1.1.0": {
+    "en": "Removed Homey Cloud compatibility."
+  },
+  "1.1.1": {
+    "en": "Added Ceed support. Updated images."
+  },
+  "1.2.0": {
+    "en": "Fixed car parked detection. Updated icons. Added capability migration."
+  },
+  "1.2.1": {
+    "en": "Minor usability tweaks."
+  },
+  "1.2.2": {
+    "en": "Fixed detection of ccuCCS2 HEV. Added HP2016/2019 warning in readme. Fixed support link."
+  },
+  "1.3.0": {
+    "en": "Fixed login for new API endpoints."
+  },
+  "2.0.0": {
+    "en": "Complete rewrite of the vehicle connection layer, now also supporting AU, CN, CA and US regions. Added flow cards for find-my-car, remote windows, charge port, charging current, V2L discharge limit and valet mode. Fixed engine-type detection for some EVs/PHEVs, an odometer crash, the tire-pressure alarm not triggering, a locked-status false negative on sunroof-less cars, and broken distance-changed/is-moving flow cards. Devices now show a clear reason when they become unavailable."
   },
   "2.1.0": {
     "en": "Fix for new API blocks"
@@ -58,5 +58,8 @@
   },
   "2.5.2": {
     "en": "Fixed dashboard widget previews. Added option to upload own car image. Added branch-brand dev tooling."
+  },
+  "2.6.0": {
+    "en": "Add India and Brazil region support. Fix New Zealand and China region support. Add disable door/window control setting. Fix time/odo in some regions. Fix CA PIN cache. Improve API error message. Fix 12V battery alarm init. Fix flow tags race issue. Fix getLocation on non-ccs2. Fix offPeakPowerFlag inversion on ccs2. Stability improvements."
   }
 }

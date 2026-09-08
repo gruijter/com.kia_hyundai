@@ -8,7 +8,10 @@
     "region_us": "USA",
     "region_ca": "Kanada",
     "region_au": "Australia",
+    "region_nz": "Nowa Zelandia",
     "region_cn": "Chiny",
+    "region_in": "Indie",
+    "region_br": "Brazylia",
     "username": "Nazwa użytkownika",
     "password": "Hasło",
     "pin": "4-cyfrowy kod PIN",
@@ -38,5 +41,6 @@
   "error_device_gone": "Ten samochód nie jest już dostępny.",
   "error_unknown_command": "Nieznane polecenie: __command__",
   "error_invalid_window_state": "Nieprawidłowy stan szyby: __state__",
-  "error_battery_too_low_for_refresh": "Nie można wymusić odświeżenia: akumulator 12V jest zbyt niski lub nieznany (__batSoc__%, musi przekraczać __level__%)."
+  "error_battery_too_low_for_refresh": "Nie można wymusić odświeżenia: akumulator 12V jest zbyt niski lub nieznany (__batSoc__%, musi przekraczać __level__%).",
+  "error_control_disabled": "Sterowanie drzwiami/szybami jest wyłączone w ustawieniach urządzenia."
 }

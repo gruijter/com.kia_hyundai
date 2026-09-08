@@ -127,6 +127,10 @@ module.exports = {
       refresh_status: device.hasCapability('refresh_status') ? device.getCapabilityValue('refresh_status') : null,
       measure_odo: device.hasCapability('measure_odo') ? device.getCapabilityValue('measure_odo') : null,
       is_ev: !!device.isEV,
+      // `disableDoorWindowControl` device setting — the widget hides its
+      // lock button on it. Refusing the action is device.js's job
+      // (assertControlAllowed), this is only what the UI reads.
+      control_disabled: !!device.getSettings().disableDoorWindowControl,
       default_image: defaultImage,
       custom_image: customImage,
     };

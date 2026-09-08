@@ -20,7 +20,7 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const { createClient, exceptions } = require('../../lib/connect');
+const { createClient, regionsForBrand, exceptions } = require('../../lib/connect');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
@@ -245,6 +245,13 @@ module.exports = class MyDriver extends Homey.Driver {
     };
   }
 
+  // The region picker in pair.html/repair.html is built from this rather than
+  // hardcoded, so each published brand only offers regions it has a backend
+  // for (Brazil is Hyundai only). Both views ask for it on load.
+  registerRegionsHandler(session) {
+    session.setHandler('regions', async () => regionsForBrand(this.homey.manifest.id.replace('com.', '')));
+  }
+
   onPair(session) {
     try {
       this.log('Pairing of car started');
@@ -252,6 +259,8 @@ module.exports = class MyDriver extends Homey.Driver {
       let settings;
       let manager;
       let vehicleConfigs = [];
+
+      this.registerRegionsHandler(session);
 
       session.setHandler('validate', async (data) => {
         settings = data;
@@ -306,6 +315,8 @@ module.exports = class MyDriver extends Homey.Driver {
     let credentials;
     let manager;
     let vehicleConfigs = [];
+
+    this.registerRegionsHandler(session);
 
     session.setHandler('validate', async (data) => {
       credentials = data;
