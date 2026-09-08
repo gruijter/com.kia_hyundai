@@ -663,7 +663,12 @@ class CarDevice extends Homey.Device {
 
       // CCS2 status always includes Location inline; legacy (non-ccuCCS2)
       // vehicles sometimes don't — fetch it separately when missing.
-      if (!this.vehicleConfig.ccuCCS2ProtocolSupport && !fullStatus.vehicleLocation) {
+      // Keyed on the payload's own shape, not just the config flag: Brazil
+      // returns a CCS2-shaped status (Location is inline, under `Date`) while
+      // its vehicles report ccuCCS2ProtocolSupport: 0, so the flag alone sent
+      // every BR poll down this branch — a 5s wait plus an error, since
+      // HyundaiBlueLinkApiBR has no public getLocation() to call.
+      if (!this.vehicleConfig.ccuCCS2ProtocolSupport && !fullStatus.Date && !fullStatus.vehicleLocation) {
         await setTimeoutPromise(5000);
         const gpsDetail = await this.client.getLocation(this.vehicleConfig).catch((error) => this.error(error));
         // Keep the speed alongside the coordinates, like
