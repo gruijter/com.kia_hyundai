@@ -60,6 +60,6 @@
     "en": "Fixed dashboard widget previews. Added option to upload own car image. Added branch-brand dev tooling."
   },
   "2.6.0": {
-    "en": "Add India and Brazil region support. Fix China region support. Add disable door/window control setting. Fix 12V battery alarm init. Fix flow tags race issue. Fix getLocation on non-ccs2. Fix offPeakPowerFlag inversion on ccs2."
+    "en": "Add India and Brazil region support. Fix New Zealand and China region support. Add disable door/window control setting. Fix 12V battery alarm init. Fix flow tags race issue. Fix getLocation on non-ccs2. Fix offPeakPowerFlag inversion on ccs2."
   }
 }

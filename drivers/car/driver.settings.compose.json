@@ -370,6 +370,24 @@
             }
           },
           {
+            "id": "NZ",
+            "label": {
+              "en": "NZ",
+              "nl": "NZ",
+              "de": "NZ",
+              "fr": "NZ",
+              "es": "NZ",
+              "it": "NZ",
+              "da": "NZ",
+              "sv": "NZ",
+              "no": "NZ",
+              "pl": "NZ",
+              "ru": "NZ",
+              "ar": "NZ",
+              "ko": "NZ"
+            }
+          },
+          {
             "id": "CN",
             "label": {
               "en": "CN",
