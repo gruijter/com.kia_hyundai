@@ -61,5 +61,8 @@
   },
   "2.6.0": {
     "en": "Add India and Brazil region support. Fix New Zealand and China region support. Add disable door/window control setting. Fix time/odo in some regions. Fix CA PIN cache. Improve API error message. Fix 12V battery alarm init. Fix flow tags race issue. Fix getLocation on non-ccs2. Fix offPeakPowerFlag inversion on ccs2. Stability improvements."
+  },
+  "2.6.1": {
+    "en": "Fixed and improved dashboard widget."
   }
 }
