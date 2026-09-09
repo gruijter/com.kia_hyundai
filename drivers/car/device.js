@@ -44,6 +44,18 @@ const allWindows = (state) => ({
   frontLeft: state, frontRight: state, backLeft: state, backRight: state,
 });
 
+// The inert first entry of the charge_target_slow/charge_target_fast enums.
+// It exists solely to absorb the value Homey's mobile app emits when a device
+// page is opened — see the capability listener in startListeners() — so it must
+// stay first in BOTH capability value lists (.homeycompose/capabilities/) and
+// must never be a number the car would accept.
+const CHARGE_TARGET_GUARD = 'none';
+
+// How long to wait before putting the real value back after the guard is
+// written. Homey applies a capability's new value only once its listener has
+// resolved, so this has to outlast that write rather than race it.
+const GUARD_RESTORE_MS = 1000;
+
 // Seconds to wait after a command before the queue picks up the next item —
 // the car's cloud API rejects requests sent too close together.
 const ITEM_WAIT_SECONDS = {
@@ -1412,6 +1424,16 @@ class CarDevice extends Homey.Device {
     return this.enQueue({ command, args });
   }
 
+  // A charge target as a number, or null when it cannot be determined —
+  // CHARGE_TARGET_GUARD, an unpopulated capability and a malformed value all
+  // land here. Number() alone is not enough: Number(null) is 0, which is both
+  // falsy (so a `||` fallback loops back onto it) and a value the car accepts.
+  readChargeTarget(capability, sent) {
+    const raw = sent !== undefined ? sent : this.getCapabilityValue(capability);
+    const value = Number(raw);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
   setChargeTargets(targets = { fast: 100, slow: 80 }, source) {
     if (!this.isEV) throw Error(this.homey.__('error_not_ev'));
     this.log(`Charge target is set by ${source} to slow:${targets.slow} fast:${targets.fast}`);
@@ -1566,11 +1588,48 @@ class CarDevice extends Homey.Device {
       // once; two slider changes further apart than that now queue as two
       // commands, which is fine — each one sends both values (the other read
       // back from its capability), so the last one still wins.
+      // Both charge-target enums start with an inert CHARGE_TARGET_GUARD entry
+      // that is never a real target, because Homey's MOBILE app sets a picker's
+      // FIRST enum value whenever the device page is opened — no user
+      // interaction, no corrective follow-up. Confirmed live 2026-09-09 on an
+      // e-Niro: every tile open delivered {"charge_target_fast":"100"} while
+      // the capability held "80", and this listener faithfully reprogrammed the
+      // car (POST /charge/target), which is how users found their DC target
+      // silently on 100% (community report #1075-#1078).
+      // Nothing downstream can tell that emit apart from a genuine pick — it
+      // carries no opts ({}) and arrives alone, so neither a debounce nor a
+      // differs-from-current check helps. Absorbing it on a value the user has
+      // no reason to choose is the only defence that keeps the picker usable;
+      // `setable: false` also stops it, but trades the silent write for a
+      // "Capability not settable" error on every single tile open.
+      // Restoring has to be deferred: Homey applies the new value only AFTER
+      // this listener resolves, so setting it back synchronously here would be
+      // overwritten by the guard.
       this.registerMultipleCapabilityListener(['charge_target_slow', 'charge_target_fast'], async (values) => {
-        const slow = Number(values.charge_target_slow) || Number(this.getCapabilityValue('charge_target_slow'));
-        const fast = Number(values.charge_target_fast) || Number(this.getCapabilityValue('charge_target_fast'));
-        const targets = { slow, fast };
-        return this.setChargeTargets(targets, 'app');
+        const real = {};
+        for (const [cap, value] of Object.entries(values)) {
+          if (value !== CHARGE_TARGET_GUARD) {
+            real[cap] = value;
+            continue;
+          }
+          const previous = this.getCapabilityValue(cap);
+          this.homey.setTimeout(
+            () => this.setCapability(cap, previous).catch((error) => this.error(error)),
+            GUARD_RESTORE_MS,
+          );
+        }
+        // Guard only (the spurious open-emit): never reaches the car.
+        if (!Object.keys(real).length) return;
+        const slow = this.readChargeTarget('charge_target_slow', real.charge_target_slow);
+        const fast = this.readChargeTarget('charge_target_fast', real.charge_target_fast);
+        // Each command sends BOTH targets, so an unreadable counterpart (the
+        // guard still showing mid-restore, or a capability never populated)
+        // would otherwise be coerced to 0 by Number() and written to the car.
+        if (slow === null || fast === null) {
+          this.log('Charge target set ignored, counterpart unknown:', JSON.stringify(values));
+          return;
+        }
+        await this.setChargeTargets({ slow, fast }, 'app');
       }, 500);
       this.listenersSet = true;
     }

@@ -64,5 +64,8 @@
   },
   "2.6.1": {
     "en": "Fixed and improved dashboard widget."
+  },
+  "2.6.2": {
+    "en": "Fixed DC charge target using workaround."
   }
 }

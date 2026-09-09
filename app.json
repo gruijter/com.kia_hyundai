@@ -5416,6 +5416,24 @@
       },
       "values": [
         {
+          "id": "none",
+          "title": {
+            "en": "—",
+            "nl": "—",
+            "de": "—",
+            "fr": "—",
+            "es": "—",
+            "it": "—",
+            "da": "—",
+            "sv": "—",
+            "no": "—",
+            "pl": "—",
+            "ru": "—",
+            "ar": "—",
+            "ko": "—"
+          }
+        },
+        {
           "id": "100",
           "title": {
             "en": "100%",
@@ -5524,7 +5542,6 @@
           }
         }
       ],
-      "value": "100",
       "getable": true,
       "setable": true,
       "uiComponent": "picker"
@@ -5548,6 +5565,24 @@
       },
       "values": [
         {
+          "id": "none",
+          "title": {
+            "en": "—",
+            "nl": "—",
+            "de": "—",
+            "fr": "—",
+            "es": "—",
+            "it": "—",
+            "da": "—",
+            "sv": "—",
+            "no": "—",
+            "pl": "—",
+            "ru": "—",
+            "ar": "—",
+            "ko": "—"
+          }
+        },
+        {
           "id": "100",
           "title": {
             "en": "100%",
@@ -5656,7 +5691,6 @@
           }
         }
       ],
-      "value": "100",
       "getable": true,
       "setable": true,
       "uiComponent": "picker"
