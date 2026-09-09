@@ -60,20 +60,36 @@ async function getCustomCarImage(homey, deviceKey) {
 
 // getCarData()/carAction() both resolved the device by hand; upload/delete need
 // the same lookup, so it lives here once. `id` comes from query or body.
+//
+// What the widget sends is Homey's device UUID (`Homey.getDeviceIds()`), which is
+// NOT `getData().id` (that is the VIN) and NOT `device.id` (no such property on a
+// Device - it was always `undefined` here). The UUID lives on the undocumented
+// `device.__id`; verified live 2026-09-09 against a real Homey by dumping
+// `Object.getOwnPropertyNames(device)` inside this handler. Matching the VIN too
+// costs nothing and keeps a hand-built request working.
 function findDevice(homey, id) {
   const driver = homey.drivers.getDriver('car');
   if (!driver) return null;
   const devices = driver.getDevices();
-  let device;
-  if (id) {
-    const targetId = String(id).trim();
-    device = devices.find((d) => {
-      const data = (typeof d.getData === 'function' && d.getData()) || {};
-      return String(d.id) === targetId || String(data.id) === targetId;
-    });
-  }
-  if (!device && devices.length > 0) [device] = devices;
-  return device || null;
+  if (devices.length === 0) return null;
+
+  // No device selected in the widget's settings: only one car can be meant.
+  if (!id) return devices[0];
+
+  const targetId = String(id).trim();
+  const device = devices.find((d) => {
+    const data = (typeof d.getData === 'function' && d.getData()) || {};
+    return String(d.__id) === targetId || String(data.id) === targetId;
+  });
+  if (device) return device;
+
+  // Falling back to devices[0] on a failed match is what made this bug both
+  // invisible and misleading (issue: widget always showed the first car, with
+  // another car's uploaded photo, because uploadImage keyed on it too). With
+  // several cars paired, showing nothing beats confidently showing the wrong one.
+  if (devices.length === 1) return devices[0];
+  homey.app.error(`Widget: no car device matches id ${targetId}`);
+  return null;
 }
 
 // The identity getCarData() already reports as `id`; images are keyed on it so
