@@ -632,7 +632,7 @@
     <!-- Battery Overview -->
     <section class="battery-overview" id="battery-overview">
       <div class="battery-header">
-        <div class="battery-main-val">
+        <div class="battery-main-val" id="battery-soc">
           <span id="battery-val">--</span>
           <span class="battery-main-unit">%</span>
         </div>
@@ -642,7 +642,7 @@
           <span class="battery-main-unit" id="range-hero-unit">km</span>
         </div>
       </div>
-      <div class="battery-bar-track">
+      <div class="battery-bar-track" id="battery-bar-track">
         <div id="battery-bar" class="battery-bar-fill"></div>
         <div id="battery-bar-target" class="battery-bar-target"></div>
       </div>
@@ -653,7 +653,19 @@
 
     <!-- Kia-inspired Quick Actions Controls Bar -->
     <section class="controls-bar" id="controls-bar">
-      <!-- Control 1: Lock / Unlock -->
+      <!-- Control 1: Charge Start / Stop -->
+      <button id="btn-charge" class="action-btn" type="button" aria-label="Charge">
+        <div class="action-icon-wrapper">
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <div class="action-spinner"></div>
+        </div>
+        <span class="action-label" id="lbl-btn-charge">Charge</span>
+        <span class="action-state" id="state-btn-charge">--</span>
+      </button>
+
+      <!-- Control 2: Lock / Unlock -->
       <button id="btn-lock" class="action-btn" type="button" aria-label="Lock / Unlock">
         <div class="action-icon-wrapper">
           <svg class="action-icon" id="icon-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -665,18 +677,6 @@
         </div>
         <span class="action-label" id="lbl-btn-lock">Lock</span>
         <span class="action-state" id="state-btn-lock">--</span>
-      </button>
-
-      <!-- Control 2: Charge Start / Stop -->
-      <button id="btn-charge" class="action-btn" type="button" aria-label="Charge">
-        <div class="action-icon-wrapper">
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-          <div class="action-spinner"></div>
-        </div>
-        <span class="action-label" id="lbl-btn-charge">Charge</span>
-        <span class="action-state" id="state-btn-charge">--</span>
       </button>
 
       <!-- Control 3: A/C On / Off -->
@@ -1533,6 +1533,13 @@
         var battBarEl = document.getElementById('battery-bar');
         var rangeHeroEl = document.getElementById('range-hero-val');
 
+        // An ICE car has no state of charge, but its range (fuel DTE) is real -
+        // so the row stays, without the percentage and the bar.
+        var socEl = document.getElementById('battery-soc');
+        var trackEl = document.getElementById('battery-bar-track');
+        if (socEl) socEl.style.display = isEV ? 'flex' : 'none';
+        if (trackEl) trackEl.style.display = isEV ? 'block' : 'none';
+
         if (typeof battVal === 'number' && !isNaN(battVal)) {
           if (battOverview) battOverview.style.display = 'flex';
           var roundedBatt = Math.round(battVal);
@@ -1571,9 +1578,14 @@
           plugged_in_discharging: t.discharging,
           plugged_out: t.notPluggedIn,
         };
+        // Which limit applies depends on the plug: DC (fast) charging stops at
+        // charge_target_fast, AC at charge_target_slow. Unplugged there is no
+        // answer, so the bar keeps marking the AC limit - that is the one that
+        // applies when the car is next plugged in at home.
+        var chargeGoalSource = data.charge_plug_type === 'dc' ? data.charge_target_fast : data.charge_target_slow;
         // Capability holds the limit as a string ('80'); absent on non-EVs and
         // on cars whose API never reported a targetSOClist.
-        var chargeGoal = parseInt(data.charge_target_slow, 10);
+        var chargeGoal = parseInt(chargeGoalSource, 10);
         var hasGoal = isEV && !isNaN(chargeGoal) && chargeGoal > 0 && chargeGoal <= 100;
         var stateLabel = isEV ? stateLabels[data.ev_charging_state] : null;
         // `charge` is the app's own charging flag; it can be true while the enum
@@ -1581,12 +1593,14 @@
         if (!stateLabel && isCharging) stateLabel = t.charging;
 
         if (stateLabel) {
-          var isPluggedAny = isCharging || String(data.ev_charging_state || '').indexOf('plugged_in') === 0;
           // The pill used to carry the live charging power; this row is the only
           // place left for it.
           var pwr = data['measure_power.charge'];
           if (isCharging && pwr && pwr > 0) stateLabel = '\u26a1 ' + pwr.toFixed(1) + ' kW';
-          chargeStateEl.innerText = (isPluggedAny && hasGoal) ? stateLabel + ' \u2192 ' + chargeGoal + '%' : stateLabel;
+          // Only while actually charging: "Plugged in \u2192 90%" reads as if the car
+          // were on its way there, when it is sitting still. The bar's tick keeps
+          // showing the goal in every state.
+          chargeStateEl.innerText = (isCharging && hasGoal) ? stateLabel + ' \u2192 ' + chargeGoal + '%' : stateLabel;
           chargeStateEl.hidden = false;
         } else {
           chargeStateEl.hidden = true;
@@ -1595,7 +1609,8 @@
         if (hasGoal) {
           targetEl.style.left = chargeGoal + '%';
           targetEl.style.display = 'block';
-          targetEl.title = t.chargeGoal + ' ' + chargeGoal + '%';
+          targetEl.title = t.chargeGoal + ' ' + chargeGoal + '%'
+            + (data.charge_plug_type ? ' (' + data.charge_plug_type.toUpperCase() + ')' : '');
         } else {
           targetEl.style.display = 'none';
         }

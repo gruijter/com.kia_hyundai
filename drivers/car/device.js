@@ -871,6 +871,9 @@ class CarDevice extends Homey.Device {
       // determine chargeState
       const charge = sts?.evStatus?.batteryCharge;
       let charger = sts?.evStatus?.batteryPlugin; // 0=none 1=fast 2=slow/normal
+      // Which of the two charge targets applies right now; read before the +2
+      // below rewrites the code. Null when nothing is plugged in.
+      this.chargePlugType = { 1: 'dc', 2: 'ac' }[charger] || null;
       if (charger && !charge) charger += 2; // 3= fast off, 4 = slow off
       let evChargingState;
       if (charger === 1 || charger === 2) {
@@ -986,6 +989,10 @@ class CarDevice extends Homey.Device {
       map['meter_power.fuel_economy'] = fuelEconomy;
       const charge = !!sts?.Green?.ChargingInformation?.Charging?.RemainTime;
       let charger = sts?.Green?.ChargingInformation?.ConnectorFastening?.State; // 0=none 1=fast 2=slow/normal
+      // Same 0/1/2 convention this branch already assumes for the state itself;
+      // only ever seen as 0 in the CCS2 fixtures, so 1=dc/2=ac is inherited
+      // from the legacy branch, not separately confirmed against a live car.
+      this.chargePlugType = { 1: 'dc', 2: 'ac' }[charger] || null;
       if (charger && !charge) charger += 2; // 3= fast off, 4 = slow off
       let evChargingState;
       if (charger === 1 || charger === 2) {
