@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.hyundai",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "compatibility": ">=12.4.5",
   "sdk": 3,
   "platforms": [
@@ -5429,6 +5429,24 @@
       },
       "values": [
         {
+          "id": "none",
+          "title": {
+            "en": "—",
+            "nl": "—",
+            "de": "—",
+            "fr": "—",
+            "es": "—",
+            "it": "—",
+            "da": "—",
+            "sv": "—",
+            "no": "—",
+            "pl": "—",
+            "ru": "—",
+            "ar": "—",
+            "ko": "—"
+          }
+        },
+        {
           "id": "100",
           "title": {
             "en": "100%",
@@ -5537,7 +5555,6 @@
           }
         }
       ],
-      "value": "100",
       "getable": true,
       "setable": true,
       "uiComponent": "picker"
@@ -5561,6 +5578,24 @@
       },
       "values": [
         {
+          "id": "none",
+          "title": {
+            "en": "—",
+            "nl": "—",
+            "de": "—",
+            "fr": "—",
+            "es": "—",
+            "it": "—",
+            "da": "—",
+            "sv": "—",
+            "no": "—",
+            "pl": "—",
+            "ru": "—",
+            "ar": "—",
+            "ko": "—"
+          }
+        },
+        {
           "id": "100",
           "title": {
             "en": "100%",
@@ -5669,7 +5704,6 @@
           }
         }
       ],
-      "value": "100",
       "getable": true,
       "setable": true,
       "uiComponent": "picker"
