@@ -128,6 +128,9 @@ module.exports = {
       'measure_battery.12V': device.hasCapability('measure_battery.12V') ? device.getCapabilityValue('measure_battery.12V') : null,
       measure_range: device.hasCapability('measure_range') ? device.getCapabilityValue('measure_range') : null,
       closed_locked: device.hasCapability('closed_locked') ? device.getCapabilityValue('closed_locked') : null,
+      // Which part keeps closed_locked false ('door' | 'trunk' | 'hood' |
+      // 'window' | 'sunroof'), stashed on the device by mapStatus().
+      open_parts: Array.isArray(device.openParts) ? device.openParts : [],
       locked: device.hasCapability('locked') ? device.getCapabilityValue('locked') : null,
       engine: device.hasCapability('engine') ? device.getCapabilityValue('engine') : null,
       climate_control: device.hasCapability('climate_control') ? device.getCapabilityValue('climate_control') : null,
@@ -145,6 +148,13 @@ module.exports = {
       defrost: device.hasCapability('defrost') ? device.getCapabilityValue('defrost') : null,
       refresh_status: device.hasCapability('refresh_status') ? device.getCapabilityValue('refresh_status') : null,
       measure_odo: device.hasCapability('measure_odo') ? device.getCapabilityValue('measure_odo') : null,
+      // Alarms, for the widget's alert row. Absent capabilities stay null so the
+      // row can tell "no alarm" from "this car never reports it".
+      alarm_tire_pressure: device.hasCapability('alarm_tire_pressure') ? device.getCapabilityValue('alarm_tire_pressure') : null,
+      alarm_bat: device.hasCapability('alarm_bat') ? device.getCapabilityValue('alarm_bat') : null,
+      'alarm_generic.washer_fluid': device.hasCapability('alarm_generic.washer_fluid') ? device.getCapabilityValue('alarm_generic.washer_fluid') : null,
+      'alarm_generic.brake_fluid': device.hasCapability('alarm_generic.brake_fluid') ? device.getCapabilityValue('alarm_generic.brake_fluid') : null,
+      'alarm_generic.key_fob_battery': device.hasCapability('alarm_generic.key_fob_battery') ? device.getCapabilityValue('alarm_generic.key_fob_battery') : null,
       is_ev: !!device.isEV,
       // `disableDoorWindowControl` device setting — the widget hides its
       // lock button on it. Refusing the action is device.js's job

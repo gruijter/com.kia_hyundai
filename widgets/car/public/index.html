@@ -118,19 +118,8 @@
       transition: all 0.3s ease;
     }
 
-    .status-badge.charging {
-      background-color: rgba(52, 199, 89, 0.16);
-      color: var(--accent-green);
-      border-color: rgba(52, 199, 89, 0.3);
-    }
-
-    .status-badge.plugged {
-      background-color: rgba(10, 132, 255, 0.16);
-      color: var(--accent-blue);
-      border-color: rgba(10, 132, 255, 0.3);
-    }
-
-    .status-badge.driving {
+    /* Locked, but the capability's "closed and locked" is still false. */
+    .status-badge.ajar {
       background-color: rgba(255, 159, 10, 0.16);
       color: var(--accent-orange);
       border-color: rgba(255, 159, 10, 0.3);
@@ -140,22 +129,6 @@
       background-color: rgba(255, 69, 58, 0.16);
       color: var(--accent-red);
       border-color: rgba(255, 69, 58, 0.3);
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background-color: currentColor;
-    }
-
-    .status-badge.charging .status-dot {
-      animation: pulse-dot 1.5s infinite ease-in-out;
-    }
-
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.25); }
     }
 
     /* Showcase & Car Visual */
@@ -397,6 +370,29 @@
       transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
     }
 
+    /* Alerts: only rendered when a car alarm is actually on, so the widget
+       stays the same size in the normal case (see syncWidgetHeight()). */
+    .alerts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .alert-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background-color: rgba(255, 159, 10, 0.16);
+      color: var(--accent-orange);
+      border: 1px solid rgba(255, 159, 10, 0.3);
+      white-space: nowrap;
+    }
+
     /* Kia-inspired Controls Action Bar */
     .controls-bar {
       display: grid;
@@ -603,7 +599,6 @@
         </div>
       </div>
       <div id="status-badge" class="status-badge">
-        <span class="status-dot"></span>
         <span id="status-badge-text">--</span>
       </div>
     </header>
@@ -652,6 +647,9 @@
         <div id="battery-bar-target" class="battery-bar-target"></div>
       </div>
     </section>
+
+    <!-- Car alarms; empty and hidden unless one is active -->
+    <section class="alerts-row" id="alerts-row" hidden></section>
 
     <!-- Kia-inspired Quick Actions Controls Bar -->
     <section class="controls-bar" id="controls-bar">
@@ -735,13 +733,39 @@
 
   <script>
     function onHomeyReady(Homey) {
-      Homey.ready({ height: 440 });
+      // The height declared in widget.compose.json; the alerts row is the only
+      // thing that changes it (see syncWidgetHeight).
+      var BASE_HEIGHT = 440;
+      var lastHeight = BASE_HEIGHT;
+
+      Homey.ready({ height: BASE_HEIGHT });
+
+      // Only grow while an alert is actually shown, and only when the number
+      // changes - this runs on every 30s poll.
+      function syncWidgetHeight(alertsEl) {
+        var extra = alertsEl.hidden ? 0 : alertsEl.offsetHeight + 10;
+        var wanted = BASE_HEIGHT + extra;
+        if (wanted === lastHeight || typeof Homey.setHeight !== 'function') return;
+        lastHeight = wanted;
+        Homey.setHeight(wanted).catch(function() { /* host may refuse; the row still renders */ });
+      }
 
       var I18N = {
         en: {
           car: 'Car',
           locked: 'Locked',
           secured: 'Secured',
+          alarmTire: 'Tire pressure',
+          alarmBat12V: '12V battery',
+          alarmWasher: 'Washer fluid',
+          alarmBrake: 'Brake fluid',
+          alarmKeyFob: 'Key fob battery',
+          doorOpen: 'Door open',
+          trunkOpen: 'Trunk open',
+          hoodOpen: 'Hood open',
+          windowOpen: 'Window open',
+          sunroofOpen: 'Sunroof open',
+          notClosed: 'Not closed',
           unlocked: 'Unlocked',
           charging: 'Charging',
           pluggedIn: 'Plugged in',
@@ -749,7 +773,6 @@
           chargePaused: 'Paused',
           discharging: 'Discharging',
           chargeGoal: 'Charge goal',
-          driving: 'Driving',
           climate: 'Climate',
           range: 'Range',
           location: 'Location',
@@ -779,6 +802,17 @@
           car: 'Auto',
           locked: 'Vergrendeld',
           secured: 'Beveiligd',
+          alarmTire: 'Bandenspanning',
+          alarmBat12V: '12V-accu',
+          alarmWasher: 'Ruitensproeiervloeistof',
+          alarmBrake: 'Remvloeistof',
+          alarmKeyFob: 'Sleutelbatterij',
+          doorOpen: 'Deur open',
+          trunkOpen: 'Kofferbak open',
+          hoodOpen: 'Motorkap open',
+          windowOpen: 'Raam open',
+          sunroofOpen: 'Schuifdak open',
+          notClosed: 'Niet gesloten',
           unlocked: 'Ontgrendeld',
           charging: 'Opladen',
           pluggedIn: 'Aangesloten',
@@ -786,7 +820,6 @@
           chargePaused: 'Gepauzeerd',
           discharging: 'Ontladen',
           chargeGoal: 'Laaddoel',
-          driving: 'Rijden',
           climate: 'Klimaat',
           range: 'Bereik',
           location: 'Locatie',
@@ -816,6 +849,17 @@
           car: 'Auto',
           locked: 'Verriegelt',
           secured: 'Gesichert',
+          alarmTire: 'Reifendruck',
+          alarmBat12V: '12V-Batterie',
+          alarmWasher: 'Wischwasser',
+          alarmBrake: 'Bremsflüssigkeit',
+          alarmKeyFob: 'Schlüsselbatterie',
+          doorOpen: 'Tür offen',
+          trunkOpen: 'Kofferraum offen',
+          hoodOpen: 'Motorhaube offen',
+          windowOpen: 'Fenster offen',
+          sunroofOpen: 'Schiebedach offen',
+          notClosed: 'Nicht geschlossen',
           unlocked: 'Entriegelt',
           charging: 'Lädt',
           pluggedIn: 'Angeschlossen',
@@ -823,7 +867,6 @@
           chargePaused: 'Pausiert',
           discharging: 'Wird entladen',
           chargeGoal: 'Ladeziel',
-          driving: 'Fahrt',
           climate: 'Klima',
           range: 'Reichweite',
           location: 'Standort',
@@ -853,6 +896,17 @@
           car: 'Voiture',
           locked: 'Verrouillé',
           secured: 'Sécurisé',
+          alarmTire: 'Pression des pneus',
+          alarmBat12V: 'Batterie 12V',
+          alarmWasher: 'Lave-glace',
+          alarmBrake: 'Liquide de frein',
+          alarmKeyFob: 'Pile de la clé',
+          doorOpen: 'Porte ouverte',
+          trunkOpen: 'Coffre ouvert',
+          hoodOpen: 'Capot ouvert',
+          windowOpen: 'Fenêtre ouverte',
+          sunroofOpen: 'Toit ouvrant ouvert',
+          notClosed: 'Non fermé',
           unlocked: 'Déverrouillé',
           charging: 'En charge',
           pluggedIn: 'Branché',
@@ -860,7 +914,6 @@
           chargePaused: 'En pause',
           discharging: 'Décharge en cours',
           chargeGoal: 'Objectif de charge',
-          driving: 'En route',
           climate: 'Climatisation',
           range: 'Autonomie',
           location: 'Position',
@@ -890,6 +943,17 @@
           car: 'Coche',
           locked: 'Bloqueado',
           secured: 'Asegurado',
+          alarmTire: 'Presión de neumáticos',
+          alarmBat12V: 'Batería 12V',
+          alarmWasher: 'Líquido limpiaparabrisas',
+          alarmBrake: 'Líquido de frenos',
+          alarmKeyFob: 'Pila de la llave',
+          doorOpen: 'Puerta abierta',
+          trunkOpen: 'Maletero abierto',
+          hoodOpen: 'Capó abierto',
+          windowOpen: 'Ventana abierta',
+          sunroofOpen: 'Techo solar abierto',
+          notClosed: 'No cerrado',
           unlocked: 'Desbloqueado',
           charging: 'Cargando',
           pluggedIn: 'Enchufado',
@@ -897,7 +961,6 @@
           chargePaused: 'En pausa',
           discharging: 'Descarga',
           chargeGoal: 'Objetivo de carga',
-          driving: 'En marcha',
           climate: 'Clima',
           range: 'Autonomía',
           location: 'Ubicación',
@@ -927,6 +990,17 @@
           car: 'Auto',
           locked: 'Bloccato',
           secured: 'Protetto',
+          alarmTire: 'Pressione pneumatici',
+          alarmBat12V: 'Batteria 12V',
+          alarmWasher: 'Liquido lavavetri',
+          alarmBrake: 'Liquido freni',
+          alarmKeyFob: 'Batteria chiave',
+          doorOpen: 'Porta aperta',
+          trunkOpen: 'Bagagliaio aperto',
+          hoodOpen: 'Cofano aperto',
+          windowOpen: 'Finestrino aperto',
+          sunroofOpen: 'Tetto apribile aperto',
+          notClosed: 'Non chiuso',
           unlocked: 'Sbloccato',
           charging: 'In carica',
           pluggedIn: 'Collegato',
@@ -934,7 +1008,6 @@
           chargePaused: 'In pausa',
           discharging: 'Si sta scaricando',
           chargeGoal: 'Obiettivo di carica',
-          driving: 'In marcia',
           climate: 'Clima',
           range: 'Autonomia',
           location: 'Posizione',
@@ -964,6 +1037,17 @@
           car: 'Bil',
           locked: 'Låst',
           secured: 'Sikret',
+          alarmTire: 'Dæktryk',
+          alarmBat12V: '12V-batteri',
+          alarmWasher: 'Sprinklervæske',
+          alarmBrake: 'Bremsevæske',
+          alarmKeyFob: 'Nøglebatteri',
+          doorOpen: 'Dør åben',
+          trunkOpen: 'Bagagerum åbent',
+          hoodOpen: 'Motorhjelm åben',
+          windowOpen: 'Vindue åbent',
+          sunroofOpen: 'Soltag åbent',
+          notClosed: 'Ikke lukket',
           unlocked: 'Ulåst',
           charging: 'Oplader',
           pluggedIn: 'Tilsluttet',
@@ -971,7 +1055,6 @@
           chargePaused: 'På pause',
           discharging: 'Aflader',
           chargeGoal: 'Opladningsmål',
-          driving: 'Kører',
           climate: 'Klima',
           range: 'Rækkevidde',
           location: 'Placering',
@@ -1001,6 +1084,17 @@
           car: 'Bil',
           locked: 'Låst',
           secured: 'Säkrad',
+          alarmTire: 'Däcktryck',
+          alarmBat12V: '12V-batteri',
+          alarmWasher: 'Spolarvätska',
+          alarmBrake: 'Bromsvätska',
+          alarmKeyFob: 'Nyckelbatteri',
+          doorOpen: 'Dörr öppen',
+          trunkOpen: 'Baklucka öppen',
+          hoodOpen: 'Motorhuv öppen',
+          windowOpen: 'Fönster öppet',
+          sunroofOpen: 'Soltak öppet',
+          notClosed: 'Inte stängd',
           unlocked: 'Olåst',
           charging: 'Laddar',
           pluggedIn: 'Ansluten',
@@ -1008,7 +1102,6 @@
           chargePaused: 'Pausad',
           discharging: 'Urladdning',
           chargeGoal: 'Laddmål',
-          driving: 'Kör',
           climate: 'Klimat',
           range: 'Räckvidd',
           location: 'Plats',
@@ -1038,6 +1131,17 @@
           car: 'Bil',
           locked: 'Låst',
           secured: 'Sikret',
+          alarmTire: 'Dekktrykk',
+          alarmBat12V: '12V-batteri',
+          alarmWasher: 'Spylervæske',
+          alarmBrake: 'Bremsevæske',
+          alarmKeyFob: 'Nøkkelbatteri',
+          doorOpen: 'Dør åpen',
+          trunkOpen: 'Bagasjerom åpent',
+          hoodOpen: 'Panser åpent',
+          windowOpen: 'Vindu åpent',
+          sunroofOpen: 'Soltak åpent',
+          notClosed: 'Ikke lukket',
           unlocked: 'Ulåst',
           charging: 'Lader',
           pluggedIn: 'Tilkoblet',
@@ -1045,7 +1149,6 @@
           chargePaused: 'Satt på pause',
           discharging: 'Lades ut',
           chargeGoal: 'Lademål',
-          driving: 'Kjører',
           climate: 'Klima',
           range: 'Rekkevidde',
           location: 'Posisjon',
@@ -1075,6 +1178,17 @@
           car: 'Samochód',
           locked: 'Zablokowany',
           secured: 'Zabezpieczony',
+          alarmTire: 'Ciśnienie opon',
+          alarmBat12V: 'Akumulator 12V',
+          alarmWasher: 'Płyn do spryskiwaczy',
+          alarmBrake: 'Płyn hamulcowy',
+          alarmKeyFob: 'Bateria kluczyka',
+          doorOpen: 'Drzwi otwarte',
+          trunkOpen: 'Bagażnik otwarty',
+          hoodOpen: 'Maska otwarta',
+          windowOpen: 'Okno otwarte',
+          sunroofOpen: 'Szyberdach otwarty',
+          notClosed: 'Niezamknięty',
           unlocked: 'Odblokowany',
           charging: 'Ładowanie',
           pluggedIn: 'Podłączony',
@@ -1082,7 +1196,6 @@
           chargePaused: 'Wstrzymane',
           discharging: 'Rozładowywanie',
           chargeGoal: 'Cel ładowania',
-          driving: 'Jazda',
           climate: 'Klimatyzacja',
           range: 'Zasięg',
           location: 'Lokalizacja',
@@ -1112,6 +1225,17 @@
           car: 'Автомобиль',
           locked: 'Заблокирован',
           secured: 'На охране',
+          alarmTire: 'Давление в шинах',
+          alarmBat12V: 'Батарея 12В',
+          alarmWasher: 'Жидкость омывателя',
+          alarmBrake: 'Тормозная жидкость',
+          alarmKeyFob: 'Батарея ключа',
+          doorOpen: 'Дверь открыта',
+          trunkOpen: 'Багажник открыт',
+          hoodOpen: 'Капот открыт',
+          windowOpen: 'Окно открыто',
+          sunroofOpen: 'Люк открыт',
+          notClosed: 'Не закрыто',
           unlocked: 'Разблокирован',
           charging: 'Заряжается',
           pluggedIn: 'Подключен',
@@ -1119,7 +1243,6 @@
           chargePaused: 'На паузе',
           discharging: 'Разряжается',
           chargeGoal: 'Цель зарядки',
-          driving: 'В пути',
           climate: 'Климат',
           range: 'Запас хода',
           location: 'Местоположение',
@@ -1149,6 +1272,17 @@
           car: 'سيارة',
           locked: 'مقفل',
           secured: 'مؤمن',
+          alarmTire: 'ضغط الإطارات',
+          alarmBat12V: 'بطارية 12 فولت',
+          alarmWasher: 'سائل الغسيل',
+          alarmBrake: 'سائل الفرامل',
+          alarmKeyFob: 'بطارية المفتاح',
+          doorOpen: 'الباب مفتوح',
+          trunkOpen: 'الصندوق مفتوح',
+          hoodOpen: 'غطاء المحرك مفتوح',
+          windowOpen: 'النافذة مفتوحة',
+          sunroofOpen: 'فتحة السقف مفتوحة',
+          notClosed: 'غير مغلق',
           unlocked: 'مفتوح',
           charging: 'جارٍ الشحن',
           pluggedIn: 'متصل',
@@ -1156,7 +1290,6 @@
           chargePaused: 'متوقف مؤقتًا',
           discharging: 'قيد التفريغ',
           chargeGoal: 'هدف الشحن',
-          driving: 'قيادة',
           climate: 'المكيف',
           range: 'المدى',
           location: 'الموقع',
@@ -1186,6 +1319,17 @@
           car: '자동차',
           locked: '잠김',
           secured: '보안 중',
+          alarmTire: '타이어 공기압',
+          alarmBat12V: '12V 배터리',
+          alarmWasher: '워셔액',
+          alarmBrake: '브레이크액',
+          alarmKeyFob: '키 배터리',
+          doorOpen: '문 열림',
+          trunkOpen: '트렁크 열림',
+          hoodOpen: '후드 열림',
+          windowOpen: '창문 열림',
+          sunroofOpen: '선루프 열림',
+          notClosed: '닫히지 않음',
           unlocked: '열림',
           charging: '충전 중',
           pluggedIn: '연결됨',
@@ -1193,7 +1337,6 @@
           chargePaused: '일시 중지됨',
           discharging: '외부 전원 공급 중',
           chargeGoal: '충전 목표',
-          driving: '주행 중',
           climate: '공조',
           range: '주행 가능 거리',
           location: '위치',
@@ -1328,20 +1471,26 @@
 
         var isEV = Boolean(data.is_ev);
         var isCharging = isEV && (data.ev_charging_state === 'plugged_in_charging' || (data.charge && isEV));
-        var isPlugged = isEV && data.ev_charging_state === 'plugged_in';
-        var isDriving = data.engine === true;
         var isLocked = getIsLocked(data);
 
-        if (isCharging) {
-          badgeEl.classList.add('charging');
-          var pwr = data['measure_power.charge'];
-          badgeTextEl.innerText = (pwr && pwr > 0) ? '⚡ ' + pwr.toFixed(1) + ' kW' : '⚡ ' + t.charging;
-        } else if (isPlugged) {
-          badgeEl.classList.add('plugged');
-          badgeTextEl.innerText = '🔌 ' + t.pluggedIn;
-        } else if (isDriving) {
-          badgeEl.classList.add('driving');
-          badgeTextEl.innerText = '🚗 ' + t.driving;
+        // The pill is the lock/closed state, always - charging, plugged-in and
+        // the charge goal have their own place in the battery row now, and a
+        // charging car used to hide whether it was even locked.
+        if (isLocked && data.closed_locked === false) {
+          // Locked but not fully closed - the exact case the `closed_locked`
+          // capability calls false while `locked` is true. Naming the part beats
+          // a yes/no, but only while there is one: with several open, the pill
+          // has no room to list them.
+          var openParts = Array.isArray(data.open_parts) ? data.open_parts : [];
+          var partLabels = {
+            door: t.doorOpen,
+            trunk: t.trunkOpen,
+            hood: t.hoodOpen,
+            window: t.windowOpen,
+            sunroof: t.sunroofOpen,
+          };
+          badgeEl.classList.add('ajar');
+          badgeTextEl.innerText = '⚠️ ' + ((openParts.length === 1 && partLabels[openParts[0]]) || t.notClosed);
         } else if (isLocked) {
           badgeTextEl.innerText = '🔒 ' + t.secured;
         } else {
@@ -1433,6 +1582,10 @@
 
         if (stateLabel) {
           var isPluggedAny = isCharging || String(data.ev_charging_state || '').indexOf('plugged_in') === 0;
+          // The pill used to carry the live charging power; this row is the only
+          // place left for it.
+          var pwr = data['measure_power.charge'];
+          if (isCharging && pwr && pwr > 0) stateLabel = '\u26a1 ' + pwr.toFixed(1) + ' kW';
           chargeStateEl.innerText = (isPluggedAny && hasGoal) ? stateLabel + ' \u2192 ' + chargeGoal + '%' : stateLabel;
           chargeStateEl.hidden = false;
         } else {
@@ -1446,6 +1599,27 @@
         } else {
           targetEl.style.display = 'none';
         }
+
+        // Car alarms. A capability the car never reports comes through as null,
+        // which is not an alarm - only `true` is.
+        var alertsEl = document.getElementById('alerts-row');
+        var alarms = [
+          { on: data.alarm_tire_pressure, icon: '\u26a0\ufe0f', label: t.alarmTire },
+          { on: data.alarm_bat, icon: '\ud83d\udd0b', label: t.alarmBat12V },
+          { on: data['alarm_generic.washer_fluid'], icon: '\ud83d\udca7', label: t.alarmWasher },
+          { on: data['alarm_generic.brake_fluid'], icon: '\ud83d\uded1', label: t.alarmBrake },
+          { on: data['alarm_generic.key_fob_battery'], icon: '\ud83d\udd11', label: t.alarmKeyFob },
+        ].filter(function(a) { return a.on === true; });
+
+        alertsEl.innerHTML = '';
+        alarms.forEach(function(a) {
+          var chip = document.createElement('span');
+          chip.className = 'alert-chip';
+          chip.innerText = a.icon + ' ' + a.label;
+          alertsEl.appendChild(chip);
+        });
+        alertsEl.hidden = alarms.length === 0;
+        syncWidgetHeight(alertsEl);
 
         // Action Controls Update
         // Two buttons are conditional: charge (EV only) and lock (dropped when

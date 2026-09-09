@@ -885,7 +885,19 @@ class CarDevice extends Homey.Device {
       map.locked = sts.doorLock;
       map.defrost = sts.defrost;
       map.engine = sts.engine;
-      map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && Object.keys(sts.doorOpen).reduce((closedAccu, door) => closedAccu || !sts.doorOpen[door], true);
+      // What is actually open, for the widget's status badge to name. Windows
+      // are deliberately left out here: legacy closed_locked doesn't count them
+      // (only CCS2 does), so naming one would contradict the capability.
+      const doorsOpen = Object.keys(sts.doorOpen || {}).filter((door) => sts.doorOpen[door]);
+      this.openParts = [
+        ...(doorsOpen.length ? ['door'] : []),
+        ...(sts.trunkOpen ? ['trunk'] : []),
+        ...(sts.hoodOpen ? ['hood'] : []),
+      ];
+      // Was `reduce((accu, door) => accu || !doorOpen[door], true)`, which is an
+      // OR over "this door is closed" — true as soon as ANY door was closed, so
+      // an open door never made closed_locked false on legacy cars.
+      map.closed_locked = sts.doorLock && !sts.trunkOpen && !sts.hoodOpen && !doorsOpen.length;
       // Non-CCS2 cars can't be sent window commands, so they don't get the
       // vent_windows capability and setCapability() drops this — mapped anyway
       // because some of them (Niro EV '23, Sorento PHEV) do report the state,
@@ -1022,6 +1034,15 @@ class CarDevice extends Homey.Device {
       const sunroofClosed = [undefined, 0].includes(sts?.Body?.Sunroof?.Glass?.Open);
       map.locked = allDoorsLocked;
       map.closed_locked = allDoorsClosed && allDoorsLocked && allWindowsClosed && trunkClosed && hoodClosed && sunroofClosed;
+      // Same list as closed_locked's terms, minus the lock itself, so the
+      // widget can say which part is keeping it false.
+      this.openParts = [
+        ...(allDoorsClosed ? [] : ['door']),
+        ...(trunkClosed ? [] : ['trunk']),
+        ...(hoodClosed ? [] : ['hood']),
+        ...(windows.length && !allWindowsClosed ? ['window'] : []),
+        ...(sunroofClosed ? [] : ['sunroof']),
+      ];
       map.engine = !!sts.DrivingReady;
       const tires = [
         sts?.Chassis?.Axle?.Row1?.Left?.Tire,
