@@ -353,6 +353,33 @@
       line-height: 1;
     }
 
+    /* Charge state, centered between the SoC and the range in the same row. */
+    .battery-charge-state {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 6px;
+    }
+
+    /* The AC charge limit, as a tick on the bar at that percentage. */
+    .battery-bar-target {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      margin-left: -1px;
+      border-radius: 1px;
+      background-color: var(--text-main);
+      opacity: 0.5;
+      display: none;
+    }
+
     .battery-bar-track {
       width: 100%;
       height: 8px;
@@ -614,6 +641,7 @@
           <span id="battery-val">--</span>
           <span class="battery-main-unit">%</span>
         </div>
+        <div class="battery-charge-state" id="charge-state" hidden></div>
         <div class="battery-range-val">
           <span id="range-hero-val">--</span>
           <span class="battery-main-unit" id="range-hero-unit">km</span>
@@ -621,6 +649,7 @@
       </div>
       <div class="battery-bar-track">
         <div id="battery-bar" class="battery-bar-fill"></div>
+        <div id="battery-bar-target" class="battery-bar-target"></div>
       </div>
     </section>
 
@@ -716,6 +745,10 @@
           unlocked: 'Unlocked',
           charging: 'Charging',
           pluggedIn: 'Plugged in',
+          notPluggedIn: 'Not plugged in',
+          chargePaused: 'Paused',
+          discharging: 'Discharging',
+          chargeGoal: 'Charge goal',
           driving: 'Driving',
           climate: 'Climate',
           range: 'Range',
@@ -749,6 +782,10 @@
           unlocked: 'Ontgrendeld',
           charging: 'Opladen',
           pluggedIn: 'Aangesloten',
+          notPluggedIn: 'Niet aangesloten',
+          chargePaused: 'Gepauzeerd',
+          discharging: 'Ontladen',
+          chargeGoal: 'Laaddoel',
           driving: 'Rijden',
           climate: 'Klimaat',
           range: 'Bereik',
@@ -782,6 +819,10 @@
           unlocked: 'Entriegelt',
           charging: 'Lädt',
           pluggedIn: 'Angeschlossen',
+          notPluggedIn: 'Nicht eingesteckt',
+          chargePaused: 'Pausiert',
+          discharging: 'Wird entladen',
+          chargeGoal: 'Ladeziel',
           driving: 'Fahrt',
           climate: 'Klima',
           range: 'Reichweite',
@@ -815,6 +856,10 @@
           unlocked: 'Déverrouillé',
           charging: 'En charge',
           pluggedIn: 'Branché',
+          notPluggedIn: 'Non branché',
+          chargePaused: 'En pause',
+          discharging: 'Décharge en cours',
+          chargeGoal: 'Objectif de charge',
           driving: 'En route',
           climate: 'Climatisation',
           range: 'Autonomie',
@@ -848,6 +893,10 @@
           unlocked: 'Desbloqueado',
           charging: 'Cargando',
           pluggedIn: 'Enchufado',
+          notPluggedIn: 'No enchufado',
+          chargePaused: 'En pausa',
+          discharging: 'Descarga',
+          chargeGoal: 'Objetivo de carga',
           driving: 'En marcha',
           climate: 'Clima',
           range: 'Autonomía',
@@ -881,6 +930,10 @@
           unlocked: 'Sbloccato',
           charging: 'In carica',
           pluggedIn: 'Collegato',
+          notPluggedIn: 'Cavo non collegato',
+          chargePaused: 'In pausa',
+          discharging: 'Si sta scaricando',
+          chargeGoal: 'Obiettivo di carica',
           driving: 'In marcia',
           climate: 'Clima',
           range: 'Autonomia',
@@ -914,6 +967,10 @@
           unlocked: 'Ulåst',
           charging: 'Oplader',
           pluggedIn: 'Tilsluttet',
+          notPluggedIn: 'Ikke tilsluttet',
+          chargePaused: 'På pause',
+          discharging: 'Aflader',
+          chargeGoal: 'Opladningsmål',
           driving: 'Kører',
           climate: 'Klima',
           range: 'Rækkevidde',
@@ -947,6 +1004,10 @@
           unlocked: 'Olåst',
           charging: 'Laddar',
           pluggedIn: 'Ansluten',
+          notPluggedIn: 'Inte ansluten',
+          chargePaused: 'Pausad',
+          discharging: 'Urladdning',
+          chargeGoal: 'Laddmål',
           driving: 'Kör',
           climate: 'Klimat',
           range: 'Räckvidd',
@@ -980,6 +1041,10 @@
           unlocked: 'Ulåst',
           charging: 'Lader',
           pluggedIn: 'Tilkoblet',
+          notPluggedIn: 'Ikke tilkoblet',
+          chargePaused: 'Satt på pause',
+          discharging: 'Lades ut',
+          chargeGoal: 'Lademål',
           driving: 'Kjører',
           climate: 'Klima',
           range: 'Rekkevidde',
@@ -1013,6 +1078,10 @@
           unlocked: 'Odblokowany',
           charging: 'Ładowanie',
           pluggedIn: 'Podłączony',
+          notPluggedIn: 'Niepodłączone',
+          chargePaused: 'Wstrzymane',
+          discharging: 'Rozładowywanie',
+          chargeGoal: 'Cel ładowania',
           driving: 'Jazda',
           climate: 'Klimatyzacja',
           range: 'Zasięg',
@@ -1046,6 +1115,10 @@
           unlocked: 'Разблокирован',
           charging: 'Заряжается',
           pluggedIn: 'Подключен',
+          notPluggedIn: 'Не подключено',
+          chargePaused: 'На паузе',
+          discharging: 'Разряжается',
+          chargeGoal: 'Цель зарядки',
           driving: 'В пути',
           climate: 'Климат',
           range: 'Запас хода',
@@ -1079,6 +1152,10 @@
           unlocked: 'مفتوح',
           charging: 'جارٍ الشحن',
           pluggedIn: 'متصل',
+          notPluggedIn: 'غير موصول',
+          chargePaused: 'متوقف مؤقتًا',
+          discharging: 'قيد التفريغ',
+          chargeGoal: 'هدف الشحن',
           driving: 'قيادة',
           climate: 'المكيف',
           range: 'المدى',
@@ -1112,6 +1189,10 @@
           unlocked: '열림',
           charging: '충전 중',
           pluggedIn: '연결됨',
+          notPluggedIn: '충전구 연결되지 않음',
+          chargePaused: '일시 중지됨',
+          discharging: '외부 전원 공급 중',
+          chargeGoal: '충전 목표',
           driving: '주행 중',
           climate: '공조',
           range: '주행 가능 거리',
@@ -1327,6 +1408,43 @@
           rangeHeroEl.innerText = Math.round(data.measure_range);
         } else {
           rangeHeroEl.innerText = '--';
+        }
+
+        // Charge state (centered in the same row) and the AC charge limit as a
+        // tick on the bar. The state pill top-right only ever shows charging or
+        // plugged-in; paused/discharging/unplugged are only visible here.
+        var chargeStateEl = document.getElementById('charge-state');
+        var targetEl = document.getElementById('battery-bar-target');
+        var stateLabels = {
+          plugged_in_charging: t.charging,
+          plugged_in: t.pluggedIn,
+          plugged_in_paused: t.chargePaused,
+          plugged_in_discharging: t.discharging,
+          plugged_out: t.notPluggedIn,
+        };
+        // Capability holds the limit as a string ('80'); absent on non-EVs and
+        // on cars whose API never reported a targetSOClist.
+        var chargeGoal = parseInt(data.charge_target_slow, 10);
+        var hasGoal = isEV && !isNaN(chargeGoal) && chargeGoal > 0 && chargeGoal <= 100;
+        var stateLabel = isEV ? stateLabels[data.ev_charging_state] : null;
+        // `charge` is the app's own charging flag; it can be true while the enum
+        // still reports the previous state, so treat it as charging too.
+        if (!stateLabel && isCharging) stateLabel = t.charging;
+
+        if (stateLabel) {
+          var isPluggedAny = isCharging || String(data.ev_charging_state || '').indexOf('plugged_in') === 0;
+          chargeStateEl.innerText = (isPluggedAny && hasGoal) ? stateLabel + ' \u2192 ' + chargeGoal + '%' : stateLabel;
+          chargeStateEl.hidden = false;
+        } else {
+          chargeStateEl.hidden = true;
+        }
+
+        if (hasGoal) {
+          targetEl.style.left = chargeGoal + '%';
+          targetEl.style.display = 'block';
+          targetEl.title = t.chargeGoal + ' ' + chargeGoal + '%';
+        } else {
+          targetEl.style.display = 'none';
         }
 
         // Action Controls Update

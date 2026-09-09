@@ -134,6 +134,9 @@ module.exports = {
       target_temperature: device.hasCapability('target_temperature') ? device.getCapabilityValue('target_temperature') : null,
       ev_charging_state: device.hasCapability('ev_charging_state') ? device.getCapabilityValue('ev_charging_state') : null,
       charge: device.hasCapability('charge') ? device.getCapabilityValue('charge') : null,
+      // The AC ('slow') charge limit the car is set to, shown as a marker on the
+      // widget's battery bar. Capability holds it as a string ('80').
+      charge_target_slow: device.hasCapability('charge_target_slow') ? device.getCapabilityValue('charge_target_slow') : null,
       'measure_power.charge': device.hasCapability('measure_power.charge') ? device.getCapabilityValue('measure_power.charge') : null,
       location: device.hasCapability('location') ? device.getCapabilityValue('location') : '',
       meter_distance: device.hasCapability('meter_distance') ? device.getCapabilityValue('meter_distance') : null,
