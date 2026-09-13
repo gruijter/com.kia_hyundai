@@ -22,7 +22,8 @@
     "no_vehicles": "No vehicles found for this account.",
     "pairing_failed": "Pairing failed: __error__",
     "repair_failed": "Re-pairing failed: __error__",
-    "network_error": "Hyundai server not reachable. Try again later."
+    "network_error": "Hyundai server not reachable. Try again later.",
+    "rate_limited": "Too many login attempts, Hyundai server is temporarily blocking requests. Wait at least an hour and try again."
   },
   "departure_not_set": "Not set",
   "migrating": "Migrating device, please wait...",

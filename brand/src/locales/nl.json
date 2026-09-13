@@ -22,7 +22,8 @@
     "no_vehicles": "Geen voertuigen gevonden voor dit account.",
     "pairing_failed": "Koppelen mislukt: __error__",
     "repair_failed": "Opnieuw koppelen mislukt: __error__",
-    "network_error": "{{SERVERS}}-server niet bereikbaar. Probeer het later opnieuw."
+    "network_error": "{{SERVERS}}-server niet bereikbaar. Probeer het later opnieuw.",
+    "rate_limited": "Te veel inlogpogingen, de {{SERVERS}}-server blokkeert tijdelijk verzoeken. Wacht minstens een uur en probeer het opnieuw."
   },
   "departure_not_set": "Niet ingesteld",
   "migrating": "Apparaat wordt gemigreerd, even geduld...",

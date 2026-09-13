@@ -22,7 +22,8 @@
     "no_vehicles": "No se han encontrado vehículos para esta cuenta.",
     "pairing_failed": "Error de vinculación: __error__",
     "repair_failed": "Error al volver a vincular: __error__",
-    "network_error": "Servidor Hyundai no accesible. Inténtalo más tarde."
+    "network_error": "Servidor Hyundai no accesible. Inténtalo más tarde.",
+    "rate_limited": "Demasiados intentos de inicio de sesión, el servidor Hyundai bloquea temporalmente las solicitudes. Espera al menos una hora e inténtalo de nuevo."
   },
   "departure_not_set": "Sin definir",
   "migrating": "Migrando dispositivo, espera un momento...",

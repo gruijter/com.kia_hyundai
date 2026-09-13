@@ -22,7 +22,8 @@
     "no_vehicles": "Ingen kjøretøy funnet for denne kontoen.",
     "pairing_failed": "Sammenkobling mislyktes: __error__",
     "repair_failed": "Ny sammenkobling mislyktes: __error__",
-    "network_error": "{{SERVERS}}-serveren er ikke tilgjengelig. Prøv igjen senere."
+    "network_error": "{{SERVERS}}-serveren er ikke tilgjengelig. Prøv igjen senere.",
+    "rate_limited": "For mange innloggingsforsøk, {{SERVERS}}-serveren blokkerer midlertidig forespørsler. Vent minst én time og prøv igjen."
   },
   "departure_not_set": "Ikke angitt",
   "migrating": "Migrerer enhet, vennligst vent...",

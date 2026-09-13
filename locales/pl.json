@@ -22,7 +22,8 @@
     "no_vehicles": "Nie znaleziono pojazdów dla tego konta.",
     "pairing_failed": "Parowanie nie powiodło się: __error__",
     "repair_failed": "Ponowne parowanie nie powiodło się: __error__",
-    "network_error": "Serwer Hyundai niedostępny. Spróbuj ponownie później."
+    "network_error": "Serwer Hyundai niedostępny. Spróbuj ponownie później.",
+    "rate_limited": "Zbyt wiele prób logowania, serwer Hyundai tymczasowo blokuje żądania. Odczekaj co najmniej godzinę i spróbuj ponownie."
   },
   "departure_not_set": "Nie ustawiono",
   "migrating": "Migracja urządzenia, proszę czekać...",
