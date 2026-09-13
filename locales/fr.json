@@ -22,7 +22,8 @@
     "no_vehicles": "Aucun véhicule trouvé pour ce compte.",
     "pairing_failed": "Échec de l'association : __error__",
     "repair_failed": "Échec de la nouvelle association : __error__",
-    "network_error": "Serveur Kia/Hyundai injoignable. Réessayez plus tard."
+    "network_error": "Serveur Kia/Hyundai injoignable. Réessayez plus tard.",
+    "rate_limited": "Trop de tentatives de connexion, le serveur Kia/Hyundai bloque temporairement les requêtes. Attendez au moins une heure et réessayez."
   },
   "departure_not_set": "Non défini",
   "migrating": "Migration de l'appareil, veuillez patienter...",

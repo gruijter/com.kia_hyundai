@@ -181,6 +181,9 @@ module.exports = class MyDriver extends Homey.Driver {
       if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
         throw Error(this.homey.__('pair.network_error'));
       }
+      if (error instanceof exceptions.RateLimitingError) {
+        throw Error(this.homey.__('pair.rate_limited'));
+      }
       throw Error(this.homey.__(failedKey, { error: error.message || error }));
     }
     if (!vehicleConfigs || !Array.isArray(vehicleConfigs) || vehicleConfigs.length < 1) {
