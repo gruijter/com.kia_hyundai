@@ -67,5 +67,8 @@
   },
   "2.6.2": {
     "en": "Fixed DC charge target using workaround."
+  },
+  "2.6.3": {
+    "en": "Improved rate limit and messaging during pair. Improved non-ccs2 position updates."
   }
 }
