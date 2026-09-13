@@ -186,13 +186,14 @@ rather than being prevented up front.
 
 ## Upstream sync point
 
-Last compared against upstream **v4.29.1** (2026-09-05, commit `9164367`) on
-2026-09-08. Everything through v4.28.0 plus the 4.29.x EU location fixes is
-ported. Deliberately not ported, with the reason, so the next diff doesn't
-re-open them:
+Last compared against upstream **v4.31.0** (2026-09-11, commit `c653c80`) on
+2026-09-13. Everything through v4.28.0 plus the 4.29.x EU location fixes is
+ported; 4.30.0 and 4.31.0 contain only the SVM feature below. Deliberately not
+ported, with the reason, so the next diff doesn't re-open them:
 
 | Upstream | Why not |
 |---|---|
+| #1203 / #1310 SVM / Find My Car camera images (v4.30.0, v4.31.0) | New feature, not a fix. Only Hyundai BlueLink USA (`svm/getSVMDetails`, `svm/findMyCarSVM`) and the unported EU CCI region (`GspaApiEU`) implement it; every region this port uses still raises `NotImplementedError` upstream. Would need a new Homey image/flow surface and a live Hyundai USA car with SVM to validate. |
 | #1284 `GspaApiEU` / `HyundaiCciApiEU` / `KiaCciApiEU`, `REGION_EUROPE_CCI` (v4.29.0) | A *parallel* EU region, not a replacement — `REGION_EUROPE` still dispatches to `KiaUvoApiEU` for every brand upstream. `KiaCciApiEU.update_vehicle_with_cached_state` and `prewakeup` still raise `NotImplementedError` there, and it needs the ~250 KB per-brand `gspa/*_cipher_params.json` blobs. Revisit once upstream has live fixtures. |
 | #1292 (EU forced-refresh location time is UTC) | N/A here. Upstream's fix relabels the timezone of `gpsDetail.time`; this port never reads that field — `forceRefreshVehicleState` keeps only `coord` and `speed` from `/location`. |
 | #1293 (CCS2 `BatteryPreCondition.Status` 0/2/6 off, 3/4 on) | N/A here. No battery-precondition capability exists in the app; nothing reads that field. |

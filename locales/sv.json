@@ -22,7 +22,8 @@
     "no_vehicles": "Inga fordon hittades för det här kontot.",
     "pairing_failed": "Anslutning misslyckades: __error__",
     "repair_failed": "Återanslutning misslyckades: __error__",
-    "network_error": "Kia/Hyundai-servern kan inte nås. Försök igen senare."
+    "network_error": "Kia/Hyundai-servern kan inte nås. Försök igen senare.",
+    "rate_limited": "För många inloggningsförsök, Kia/Hyundai-servern blockerar tillfälligt förfrågningar. Vänta minst en timme och försök igen."
   },
   "departure_not_set": "Inte inställd",
   "migrating": "Migrerar enhet, vänta...",
