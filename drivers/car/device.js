@@ -56,6 +56,25 @@ const CHARGE_TARGET_GUARD = 'none';
 // resolved, so this has to outlast that write rather than race it.
 const GUARD_RESTORE_MS = 1000;
 
+// A cached legacy (non-CCS2) status whose location fix is this much newer than
+// its vehicleStatus means the car pushed a park fix without a status update;
+// see doPoll(). The car pushes both within seconds of each other on a normal
+// park (live 2026-09-26: fix 14:03:50, status 14:03:48).
+const PARK_WITHOUT_STATUS_MS = 5 * 60 * 1000;
+
+// Odometer increase (in the car's own reported unit, km or mi) since a
+// location fix was first seen that marks that fix as stale; see doPoll().
+const STALE_FIX_ODO_DELTA = 0.5;
+
+// Parses a server-local YYYYMMDDHHmmss time as if it were UTC, so it is only
+// meaningful as a difference against another time on the same server clock.
+// NaN when absent or malformed, which makes any comparison false.
+function serverClockMs(time) {
+  const m = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(String(time || ''));
+  if (!m) return NaN;
+  return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6]));
+}
+
 // Seconds to wait after a command before the queue picks up the next item —
 // the car's cloud API rejects requests sent too close together.
 const ITEM_WAIT_SECONDS = {
@@ -691,6 +710,20 @@ class CarDevice extends Homey.Device {
         if (gpsDetail?.speed) fullStatus.vehicleLocation.speed = gpsDetail.speed;
       }
 
+      // A forced legacy (non-CCS2) /status response is only the vehicleStatus
+      // block; the odometer sits next to it in the cached feed, not inside it
+      // (confirmed live 2026-09-26 on an e-Niro; upstream's
+      // _get_forced_vehicle_state has the same shape and keeps the old value),
+      // so measure_odo stayed on the pre-refresh reading. The cached feed has
+      // caught up by the time the forced refresh returns (live: forced status
+      // 14:49:17, cached fix 14:49:18 five seconds later) — take the odometer
+      // from there via odometer() (EU: a cached read, doesn't wake the car).
+      if (refresh && fullStatus.vehicleStatus && !fullStatus.odometer) {
+        const odometer = await this.client.odometer(this.vehicleConfig).catch((error) => this.error(error));
+        if (this.destroyed) return;
+        if (odometer?.value) fullStatus.odometer = odometer;
+      }
+
       // log a redacted snapshot on the first poll after every app (re)start, so
       // it ends up in a diagnostics report after a user is asked to restart the
       // app and send one; see lib/connect/native/debugDump.js and
@@ -762,6 +795,45 @@ class CarDevice extends Homey.Device {
       } else if (this.pollMode && !carJustActive) {
         this.pollMode = 0; // normal poll mode
         this.startPolling(this.settings.pollInterval).catch((error) => this.error(error));
+      }
+
+      // A non-CCS2 car can push its park fix without a status update, leaving
+      // SoC, odometer and last_refresh on the pre-trip values until something
+      // forces a refresh (live 2026-09-26, e-Niro: parked 15:24, the cached
+      // poll at 15:34 showed the new location but a status from 14:49, which
+      // stayed until a manual forced refresh at 15:54). The car also sends
+      // nothing while driving, so server polling can't see the trip at all.
+      //
+      // The reverse can happen too: a status update without a new fix. Fix age
+      // alone can't show that (a parked car's fix is legitimately old while its
+      // status keeps updating, e.g. when charging), but an odometer that moved
+      // on since the fix was first seen can. Only the cached legacy status
+      // carries the odometer — the forced /status response doesn't.
+      //
+      // Either way, force one refresh per fix and per cause; remembering the
+      // fix keeps a refresh that doesn't fix things from repeating every poll.
+      // Separate memos, as both can hit the same fix: parked without a status
+      // update, then driven off again without a new fix.
+      const locTime = fullStatus.vehicleLocation?.time;
+      const stsTime = fullStatus.vehicleStatus?.time;
+      const odo = fullStatus.odometer?.value;
+      const odoValid = typeof odo === 'number' && odo > 0; // 0 is a known glitch, see measure_odo repair above
+      if (locTime && odoValid && locTime !== this.fixSeen?.time) this.fixSeen = { time: locTime, odo };
+      if (!refresh && !this.pollMode && batSoCGood && locTime) {
+        let reason;
+        if (locTime !== this.parkRefreshFixTime
+          && serverClockMs(locTime) - serverClockMs(stsTime) > PARK_WITHOUT_STATUS_MS) {
+          this.parkRefreshFixTime = locTime;
+          reason = `park fix ${locTime} is newer than status ${stsTime}`;
+        } else if (locTime !== this.odoRefreshFixTime && odoValid && this.fixSeen?.time === locTime
+          && odo - this.fixSeen.odo >= STALE_FIX_ODO_DELTA) {
+          this.odoRefreshFixTime = locTime;
+          reason = `odometer moved ${this.fixSeen.odo} -> ${odo} since fix ${locTime}`;
+        }
+        if (reason) {
+          this.log(`${this.getName()} ${reason}, forcing one refresh`);
+          this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+        }
       }
 
     } catch (error) {
@@ -931,7 +1003,7 @@ class CarDevice extends Homey.Device {
       // of nowhere and the forced-refresh guard starts refusing on "0%".
       map['measure_battery.12V'] = sts?.battery?.batSoc || this.lastStatus?.['measure_battery.12V'];
       const bat12V = map['measure_battery.12V'];
-      map['measure_battery.health'] = sts?.evStatus?.batterySoh;
+      map['measure_battery.health'] = sts?.evStatus?.batterySoh || undefined; // 0 = not reported (upstream #1318)
       const rangeField = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange;
       const rangeValue = rangeField?.value || sts?.dte?.value;
       const rangeUnit = rangeField?.value ? rangeField?.unit : sts?.dte?.unit;
@@ -1075,7 +1147,7 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.key_fob_battery'] = !!sts?.Electronics?.FOB?.LowBattery;
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level || this.lastStatus?.['measure_battery.12V']; // 0 = not measured, see legacy branch
       const ccs2Bat12V = map['measure_battery.12V'];
-      map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
+      map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio || undefined; // 0 = not reported (upstream #1318)
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       if (typeof map.measure_range === 'number') map.measure_range = Math.round(map.measure_range * 10) / 10;
       map.measure_battery = sts?.Green?.BatteryManagement?.BatteryRemain.Ratio;
@@ -1169,7 +1241,7 @@ class CarDevice extends Homey.Device {
         const day = Array.isArray(detail?.reservInfo?.day) ? detail.reservInfo.day : [];
         return {
           enabled: !!detail?.reservChargeSet,
-          days: day.length ? day : [0],
+          days: day.length ? day : [9], // [9] = no days selected, see scheduleChargingAndClimate
           time: asHHMM(legacyReservationTimeOrNone(detail?.reservInfo?.time?.time, detail?.reservInfo?.time?.timeSection)),
           // A never-configured slot reports day: [9] + a sentinel time — not a
           // real schedule to turn on. A configured one has weekdays in 0-6.

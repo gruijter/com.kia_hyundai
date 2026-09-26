@@ -70,5 +70,8 @@
   },
   "2.6.3": {
     "en": "Improved rate limit and messaging during pair. Improved non-ccs2 position updates."
+  },
+  "2.6.4": {
+    "en": "Fix location refresh. Force refresh after data change with stale data. Fix departure schedule EV6/EV9. Hide SoH when reported as 0."
   }
 }
