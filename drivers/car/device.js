@@ -710,6 +710,20 @@ class CarDevice extends Homey.Device {
         if (gpsDetail?.speed) fullStatus.vehicleLocation.speed = gpsDetail.speed;
       }
 
+      // A forced legacy (non-CCS2) /status response is only the vehicleStatus
+      // block; the odometer sits next to it in the cached feed, not inside it
+      // (confirmed live 2026-09-26 on an e-Niro; upstream's
+      // _get_forced_vehicle_state has the same shape and keeps the old value),
+      // so measure_odo stayed on the pre-refresh reading. The cached feed has
+      // caught up by the time the forced refresh returns (live: forced status
+      // 14:49:17, cached fix 14:49:18 five seconds later) — take the odometer
+      // from there via odometer() (EU: a cached read, doesn't wake the car).
+      if (refresh && fullStatus.vehicleStatus && !fullStatus.odometer) {
+        const odometer = await this.client.odometer(this.vehicleConfig).catch((error) => this.error(error));
+        if (this.destroyed) return;
+        if (odometer?.value) fullStatus.odometer = odometer;
+      }
+
       // log a redacted snapshot on the first poll after every app (re)start, so
       // it ends up in a diagnostics report after a user is asked to restart the
       // app and send one; see lib/connect/native/debugDump.js and
