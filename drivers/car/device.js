@@ -56,6 +56,21 @@ const CHARGE_TARGET_GUARD = 'none';
 // resolved, so this has to outlast that write rather than race it.
 const GUARD_RESTORE_MS = 1000;
 
+// A cached legacy (non-CCS2) status whose location fix is this much newer than
+// its vehicleStatus means the car pushed a park fix without a status update;
+// see doPoll(). The car pushes both within seconds of each other on a normal
+// park (live 2026-09-26: fix 14:03:50, status 14:03:48).
+const PARK_WITHOUT_STATUS_MS = 5 * 60 * 1000;
+
+// Parses a server-local YYYYMMDDHHmmss time as if it were UTC, so it is only
+// meaningful as a difference against another time on the same server clock.
+// NaN when absent or malformed, which makes any comparison false.
+function serverClockMs(time) {
+  const m = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(String(time || ''));
+  if (!m) return NaN;
+  return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6]));
+}
+
 // Seconds to wait after a command before the queue picks up the next item —
 // the car's cloud API rejects requests sent too close together.
 const ITEM_WAIT_SECONDS = {
@@ -762,6 +777,23 @@ class CarDevice extends Homey.Device {
       } else if (this.pollMode && !carJustActive) {
         this.pollMode = 0; // normal poll mode
         this.startPolling(this.settings.pollInterval).catch((error) => this.error(error));
+      }
+
+      // A non-CCS2 car can push its park fix without a status update, leaving
+      // SoC, odometer and last_refresh on the pre-trip values until something
+      // forces a refresh (live 2026-09-26, e-Niro: parked 15:24, the cached
+      // poll at 15:34 showed the new location but a status from 14:49, which
+      // stayed until a manual forced refresh at 15:54). The car also sends
+      // nothing while driving, so server polling can't see the trip at all.
+      // Force one refresh per such park fix; remembering the fix keeps a
+      // refresh that doesn't produce a newer status from repeating every poll.
+      const locTime = fullStatus.vehicleLocation?.time;
+      const stsTime = fullStatus.vehicleStatus?.time;
+      if (!refresh && !this.pollMode && batSoCGood && locTime && locTime !== this.parkRefreshFixTime
+        && serverClockMs(locTime) - serverClockMs(stsTime) > PARK_WITHOUT_STATUS_MS) {
+        this.parkRefreshFixTime = locTime;
+        this.log(`${this.getName()} park fix ${locTime} is newer than status ${stsTime}, forcing one refresh`);
+        this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
       }
 
     } catch (error) {
