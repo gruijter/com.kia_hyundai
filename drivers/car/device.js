@@ -62,6 +62,10 @@ const GUARD_RESTORE_MS = 1000;
 // park (live 2026-09-26: fix 14:03:50, status 14:03:48).
 const PARK_WITHOUT_STATUS_MS = 5 * 60 * 1000;
 
+// Odometer increase (in the car's own reported unit, km or mi) since a
+// location fix was first seen that marks that fix as stale; see doPoll().
+const STALE_FIX_ODO_DELTA = 0.5;
+
 // Parses a server-local YYYYMMDDHHmmss time as if it were UTC, so it is only
 // meaningful as a difference against another time on the same server clock.
 // NaN when absent or malformed, which makes any comparison false.
@@ -785,15 +789,37 @@ class CarDevice extends Homey.Device {
       // poll at 15:34 showed the new location but a status from 14:49, which
       // stayed until a manual forced refresh at 15:54). The car also sends
       // nothing while driving, so server polling can't see the trip at all.
-      // Force one refresh per such park fix; remembering the fix keeps a
-      // refresh that doesn't produce a newer status from repeating every poll.
+      //
+      // The reverse can happen too: a status update without a new fix. Fix age
+      // alone can't show that (a parked car's fix is legitimately old while its
+      // status keeps updating, e.g. when charging), but an odometer that moved
+      // on since the fix was first seen can. Only the cached legacy status
+      // carries the odometer — the forced /status response doesn't.
+      //
+      // Either way, force one refresh per fix and per cause; remembering the
+      // fix keeps a refresh that doesn't fix things from repeating every poll.
+      // Separate memos, as both can hit the same fix: parked without a status
+      // update, then driven off again without a new fix.
       const locTime = fullStatus.vehicleLocation?.time;
       const stsTime = fullStatus.vehicleStatus?.time;
-      if (!refresh && !this.pollMode && batSoCGood && locTime && locTime !== this.parkRefreshFixTime
-        && serverClockMs(locTime) - serverClockMs(stsTime) > PARK_WITHOUT_STATUS_MS) {
-        this.parkRefreshFixTime = locTime;
-        this.log(`${this.getName()} park fix ${locTime} is newer than status ${stsTime}, forcing one refresh`);
-        this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+      const odo = fullStatus.odometer?.value;
+      const odoValid = typeof odo === 'number' && odo > 0; // 0 is a known glitch, see measure_odo repair above
+      if (locTime && odoValid && locTime !== this.fixSeen?.time) this.fixSeen = { time: locTime, odo };
+      if (!refresh && !this.pollMode && batSoCGood && locTime) {
+        let reason;
+        if (locTime !== this.parkRefreshFixTime
+          && serverClockMs(locTime) - serverClockMs(stsTime) > PARK_WITHOUT_STATUS_MS) {
+          this.parkRefreshFixTime = locTime;
+          reason = `park fix ${locTime} is newer than status ${stsTime}`;
+        } else if (locTime !== this.odoRefreshFixTime && odoValid && this.fixSeen?.time === locTime
+          && odo - this.fixSeen.odo >= STALE_FIX_ODO_DELTA) {
+          this.odoRefreshFixTime = locTime;
+          reason = `odometer moved ${this.fixSeen.odo} -> ${odo} since fix ${locTime}`;
+        }
+        if (reason) {
+          this.log(`${this.getName()} ${reason}, forcing one refresh`);
+          this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+        }
       }
 
     } catch (error) {
