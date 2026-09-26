@@ -186,16 +186,24 @@ rather than being prevented up front.
 
 ## Upstream sync point
 
-Last compared against upstream **v4.31.0** (2026-09-11, commit `c653c80`) on
-2026-09-13. Everything through v4.28.0 plus the 4.29.x EU location fixes is
-ported; 4.30.0 and 4.31.0 contain only the SVM feature below. Deliberately not
-ported, with the reason, so the next diff doesn't re-open them:
+Last compared against upstream **v4.34.0** (2026-09-26, commit `f74b2ed`) on
+2026-09-26. Everything through v4.28.0 plus the 4.29.x EU location fixes is
+ported. From 4.32.0-4.34.0: #1318 (EU battery SoH 0 = unknown, applied in
+`device.js#mapStatus()` and `driver.js#extractCheckableStatus()`), #1324 (USA
+login `status` type-guard; the port has only the one `login()` site, the other
+three upstream sites have no JS equivalent), #1328 (EV5 two-scope schedule write
+waits for the `/charge` action record before `/hvac`) and the `[9]` "no days
+selected" departure default from #1303. Deliberately not ported, with the
+reason, so the next diff doesn't re-open them:
 
 | Upstream | Why not |
 |---|---|
 | #1203 / #1310 SVM / Find My Car camera images (v4.30.0, v4.31.0) | New feature, not a fix. Only Hyundai BlueLink USA (`svm/getSVMDetails`, `svm/findMyCarSVM`) and the unported EU CCI region (`GspaApiEU`) implement it; every region this port uses still raises `NotImplementedError` upstream. Would need a new Homey image/flow surface and a live Hyundai USA car with SVM to validate. |
 | #1284 `GspaApiEU` / `HyundaiCciApiEU` / `KiaCciApiEU`, `REGION_EUROPE_CCI` (v4.29.0) | A *parallel* EU region, not a replacement — `REGION_EUROPE` still dispatches to `KiaUvoApiEU` for every brand upstream. `KiaCciApiEU.update_vehicle_with_cached_state` and `prewakeup` still raise `NotImplementedError` there, and it needs the ~250 KB per-brand `gspa/*_cipher_params.json` blobs. Revisit once upstream has live fixtures. |
-| #1292 (EU forced-refresh location time is UTC) | N/A here. Upstream's fix relabels the timezone of `gpsDetail.time`; this port never reads that field — `forceRefreshVehicleState` keeps only `coord` and `speed` from `/location`. |
+| #1292 (EU forced-refresh location time is UTC) | Not ported as such (no `Vehicle.location` timestamp here), but its finding is relied on: `/location` `time` is UTC while `/location/park` and the cached feed are region-local — confirmed live 2026-09-26 on an e-Niro. `KiaUvoApiEU.js#forceRefreshVehicleState` judges the live fix by its own age (UTC) rather than string-comparing it with the park fix, which v2.6.3 did and got wrong by the UTC offset. |
+| #1303 "None = leave unchanged" schedule options (v4.32.0) | Only the `[9]` day default is ported. The fill-from-vehicle logic needs upstream's parsed `Vehicle` object, which this port doesn't have; the only caller (`device.js#buildScheduleOptions()`) already echoes back every field from the raw reservation. Its per-scope endpoint skip on the EV5 path is therefore moot (both scopes are always sent, hence #1328 always sequences). Its temperature guard is not needed either: the CCS2 status does carry `Green.Reservation.Departure.Climate.Temperature` (`"22.0"`, or `"OFF"` with `Activation: 0`, per the EU fixtures), which `buildScheduleOptions()` reads. |
+| b1fdd79 VehicleManager retries login with the configured password when a 48-char refresh-token `token.password` fails to refresh (kia_uvo #1888, v4.33.0) | N/A here. It only fires when `token.password` differs from the manager's own password — an HA token persisted across a credentials change. This port never persists or restores a `Token`: every one is built by `login()` from `VehicleManager#password`, and a settings change restarts the device with a new manager, so the two are always equal. |
+| #1305 GSPA remote commands for Hyundai CCI, #1314 SVM image rendering (v4.33.0, v4.34.0) | Same reasons as #1284 and #1203/#1310 above: unported region, new feature. |
 | #1293 (CCS2 `BatteryPreCondition.Status` 0/2/6 off, 3/4 on) | N/A here. No battery-precondition capability exists in the app; nothing reads that field. |
 
 ## Validation status per region

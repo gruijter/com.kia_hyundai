@@ -1003,7 +1003,7 @@ class CarDevice extends Homey.Device {
       // of nowhere and the forced-refresh guard starts refusing on "0%".
       map['measure_battery.12V'] = sts?.battery?.batSoc || this.lastStatus?.['measure_battery.12V'];
       const bat12V = map['measure_battery.12V'];
-      map['measure_battery.health'] = sts?.evStatus?.batterySoh;
+      map['measure_battery.health'] = sts?.evStatus?.batterySoh || undefined; // 0 = not reported (upstream #1318)
       const rangeField = sts?.evStatus?.drvDistance?.[0]?.rangeByFuel?.totalAvailableRange;
       const rangeValue = rangeField?.value || sts?.dte?.value;
       const rangeUnit = rangeField?.value ? rangeField?.unit : sts?.dte?.unit;
@@ -1147,7 +1147,7 @@ class CarDevice extends Homey.Device {
       map['alarm_generic.key_fob_battery'] = !!sts?.Electronics?.FOB?.LowBattery;
       map['measure_battery.12V'] = sts?.Electronics?.Battery?.Level || this.lastStatus?.['measure_battery.12V']; // 0 = not measured, see legacy branch
       const ccs2Bat12V = map['measure_battery.12V'];
-      map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
+      map['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio || undefined; // 0 = not reported (upstream #1318)
       map.measure_range = sts?.Drivetrain?.FuelSystem?.DTE.Total;
       if (typeof map.measure_range === 'number') map.measure_range = Math.round(map.measure_range * 10) / 10;
       map.measure_battery = sts?.Green?.BatteryManagement?.BatteryRemain.Ratio;
@@ -1241,7 +1241,7 @@ class CarDevice extends Homey.Device {
         const day = Array.isArray(detail?.reservInfo?.day) ? detail.reservInfo.day : [];
         return {
           enabled: !!detail?.reservChargeSet,
-          days: day.length ? day : [0],
+          days: day.length ? day : [9], // [9] = no days selected, see scheduleChargingAndClimate
           time: asHHMM(legacyReservationTimeOrNone(detail?.reservInfo?.time?.time, detail?.reservInfo?.time?.timeSection)),
           // A never-configured slot reports day: [9] + a sentinel time — not a
           // real schedule to turn on. A configured one has weekdays in 0-6.

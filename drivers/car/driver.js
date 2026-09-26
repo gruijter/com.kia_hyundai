@@ -108,14 +108,14 @@ module.exports = class MyDriver extends Homey.Driver {
       result['alarm_generic.washer_fluid'] = sts?.washerFluidStatus;
       result['alarm_generic.brake_fluid'] = sts?.breakOilStatus;
       result['alarm_generic.key_fob_battery'] = sts?.smartKeyBatteryWarning;
-      result['measure_battery.health'] = sts?.evStatus?.batterySoh;
+      result['measure_battery.health'] = sts?.evStatus?.batterySoh || undefined; // 0 = not reported (upstream #1318)
       result['measure_power.charge'] = undefined; // never reported on legacy status
     }
     if (sts.Date) { // CCS2 status
       result['alarm_generic.washer_fluid'] = sts?.Body?.Windshield?.Front?.WasherFluid?.LevelLow;
       result['alarm_generic.brake_fluid'] = sts?.Chassis?.Brake?.Fluid?.Warning;
       result['alarm_generic.key_fob_battery'] = sts?.Electronics?.FOB?.LowBattery;
-      result['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio;
+      result['measure_battery.health'] = sts?.Green?.BatteryManagement?.SoH?.Ratio || undefined; // 0 = not reported (upstream #1318)
       result['measure_power.charge'] = sts?.Green?.Electric?.SmartGrid?.RealTimePower;
     }
     return result;
