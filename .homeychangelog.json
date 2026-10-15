@@ -78,6 +78,6 @@
     "en": "Fix EU login. Added optional refresh after parking at home. EU max. temperature 31.5."
   },
   "2.6.6": {
-    "en": "Added verification code (OTP) login for Canada and Kia USA."
+    "en": "Added verification code (OTP) login for Canada and USA."
   }
 }
