@@ -470,6 +470,7 @@ class CarDevice extends Homey.Device {
       pin: this.settings.pin,
       brand: this.homey.manifest.id.replace('com.', ''), // 'kia' or 'hyundai'
       logger: { log: this.log.bind(this), error: this.error.bind(this) },
+      deviceAuth: this.getStoreValue('deviceAuth') || undefined, // CA / Kia US after an OTP login
     };
     this.client = createClient(options);
 

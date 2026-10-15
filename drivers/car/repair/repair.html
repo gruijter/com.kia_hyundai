@@ -5,7 +5,7 @@
   </p>
 </header>
 
-<form class="homey-form">
+<form class="homey-form" id="loginForm">
 	<div class="homey-form-group">
 
 		<label class="homey-form-label" for="region" data-i18n="pair.region">Select your region</label>
@@ -27,6 +27,34 @@
 </form>
 <br>
 <button class="homey-button-primary-full" id="runTest" onclick="validate()" data-i18n="pair.validate" >continue</button>
+
+<!-- Only shown when a CA / Kia US login answers with an OTP challenge. -->
+<form class="homey-form" id="otpForm" style="display: none;">
+	<fieldset class="homey-form-fieldset">
+		<legend class="homey-form-legend" data-i18n="pair.otp_title"></legend>
+		<p class="homey-subtitle" data-i18n="pair.otp_intro"></p>
+		<fieldset class="homey-form-radio-set">
+			<label class="homey-form-radio" id="otpEmailRow">
+				<input class="homey-form-radio-input" type="radio" name="otpTarget" value="EMAIL" checked />
+				<span class="homey-form-radio-checkmark"></span>
+				<span class="homey-form-radio-text" id="otpEmailText"></span>
+			</label>
+			<label class="homey-form-radio" id="otpSmsRow">
+				<input class="homey-form-radio-input" type="radio" name="otpTarget" value="SMS" />
+				<span class="homey-form-radio-checkmark"></span>
+				<span class="homey-form-radio-text" id="otpSmsText"></span>
+			</label>
+		</fieldset>
+		<div class="homey-form-group" id="otpCodeGroup" style="display: none;">
+			<label class="homey-form-label" for="otpCode" data-i18n="pair.otp_code"></label>
+			<input class="homey-form-input" id="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" value="" />
+		</div>
+	</fieldset>
+</form>
+<br>
+<button class="homey-button-primary-full" id="otpSend" style="display: none;" onclick="sendOtp()" data-i18n="pair.otp_send"></button>
+<br>
+<button class="homey-button-primary-full" id="otpVerify" style="display: none;" onclick="verifyOtp()" data-i18n="pair.otp_verify"></button>
 
 <script type="text/javascript">
 
@@ -51,7 +79,52 @@ async function validate() {
     };
     // Continue to back-end, pass along data
     Homey.showLoadingOverlay();
-    await Homey.emit('validate', settings);
+    const result = await Homey.emit('validate', settings);
+    if (result && result.otp) {
+      Homey.hideLoadingOverlay();
+      showOtp(result.otp);
+      return;
+    }
+    await Homey.emit('repair');
+    Homey.hideLoadingOverlay();
+    Homey.done();
+  } catch (error) {
+    Homey.hideLoadingOverlay();
+    Homey.alert(error, 'error');
+  }
+}
+
+function showOtp(otp) {
+  $('#loginForm').hide();
+  $('#runTest').hide();
+  $('#otpEmailText').text(__('pair.otp_email') + (otp.email ? ` (${otp.email})` : ''));
+  $('#otpSmsText').text(__('pair.otp_sms') + (otp.sms ? ` (${otp.sms})` : ''));
+  $('#otpEmailRow').toggle(otp.hasEmail !== false);
+  $('#otpSmsRow').toggle(!!otp.hasSms);
+  if (otp.hasEmail === false) $('input[name="otpTarget"][value="SMS"]').prop('checked', true);
+  $('#otpForm').show();
+  $('#otpSend').show();
+}
+
+async function sendOtp() {
+  try {
+    Homey.showLoadingOverlay();
+    await Homey.emit('otp_send', $('input[name="otpTarget"]:checked').val());
+    Homey.hideLoadingOverlay();
+    $('#otpCodeGroup').show();
+    $('#otpVerify').show();
+  } catch (error) {
+    Homey.hideLoadingOverlay();
+    Homey.alert(error, 'error');
+  }
+}
+
+async function verifyOtp() {
+  try {
+    const code = $('#otpCode').val().trim();
+    if (code === '') throw Error(__('pair.required'));
+    Homey.showLoadingOverlay();
+    await Homey.emit('otp_verify', code);
     await Homey.emit('repair');
     Homey.hideLoadingOverlay();
     Homey.done();
