@@ -1,2 +1,2 @@
-KIA se guía por su visión de crear soluciones de movilidad sostenible que inspiren movimiento y conexión. Con la aplicación KIA para Homey, integra sin problemas tu vehículo KIA en tu hogar inteligente, con funciones como el seguimiento del estado, comandos remotos y automatizaciones adaptadas a tu rutina diaria
+Hyundai está comprometida con el progreso de la humanidad ofreciendo soluciones de movilidad inteligente que enriquecen la vida. Con la aplicación Hyundai para Homey, integra tu vehículo Hyundai sin problemas en tu hogar inteligente, lo que te permite supervisar su estado, ejecutar acciones remotas y crear automatizaciones que se adaptan a tu estilo de vida.
 

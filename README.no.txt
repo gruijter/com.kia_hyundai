@@ -1,2 +1,2 @@
-KIA drives av sin visjon om å skape bærekraftige mobilitetsløsninger som inspirerer til bevegelse og tilknytning. Med KIA-appen for Homey integrerer du KIA-bilen din sømløst i det smarte hjemmet ditt, med funksjoner som statusovervåking, fjernstyring og automatiseringer tilpasset din daglige rutine
+Hyundai er dedikert til fremskritt for menneskeheten ved å levere smarte mobilitetsløsninger som beriker livet. Med Hyundai-appen for Homey integrerer du sømløst Hyundai-kjøretøyet ditt i det smarte hjemmet ditt, slik at du kan overvåke statusen, utføre fjernkommandoer og lage automatiseringer som passer livsstilen din.
 
