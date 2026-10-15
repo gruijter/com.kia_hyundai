@@ -61,17 +61,30 @@ compose manifest picks up the other brand's wording.
 npm run brand:check                 # on main: tree matches the Kia render
 
 # Kia
-git checkout com.kia && git reset --hard main
-homey app build && homey app publish
+git checkout com.kia
+git merge -s ours --no-commit main  # keeps the branch history: Sync stays a plain push
+git read-tree -u --reset main       # ...but takes main's files exactly
+homey app build
+git add -A && git commit -m "vX.Y.Z (Kia)"
+homey app publish
 
 # Hyundai
-git checkout com.hyundai && git reset --hard main
+git checkout com.hyundai
+git merge -s ours --no-commit main
+git read-tree -u --reset main
 npm run brand -- hyundai
 homey app build                     # regenerates app.json from .homeycompose
-git commit -am "Render com.hyundai from main"
+git add -A && git commit -m "vX.Y.Z (Hyundai)"
 homey app publish
 ```
 
-Both branches are disposable: anything on them that `main` plus `brand/` cannot
-reproduce is a bug. Per existing convention the version bump and changelog entry
+Then Sync each branch. The commit has the old branch and `main` as parents, so
+the push is a fast-forward. Never `git reset --hard main` a branded branch: it
+drops the history GitHub has, and Sync then refuses until a force push.
+
+The `-s ours` merge takes no content from either side; `read-tree` replaces
+everything with `main`, and the render produces the brand. So a brand string
+still cannot leak through a merge.
+
+Anything on a branded branch that `main` plus `brand/` cannot reproduce is a bug. Per existing convention the version bump and changelog entry
 are made on `main` only.

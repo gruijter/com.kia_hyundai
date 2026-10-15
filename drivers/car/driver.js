@@ -20,7 +20,9 @@ along with com.kia_hyundai. If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const { createClient, regionsForBrand, exceptions } = require('../../lib/connect');
+const {
+  createClient, regionsForBrand, exceptions, constants,
+} = require('../../lib/connect');
 
 const LOGIN_TIMEOUT_MS = 15 * 1000;
 
@@ -160,7 +162,9 @@ module.exports = class MyDriver extends Homey.Driver {
   // PIN. Shared so a repair validates exactly what pairing validates; only
   // the wrapper message differs, hence failedKey (a repair that fails should
   // not report "Pairing failed").
-  async validateCredentials(settings, failedKey = 'pair.pairing_failed') {
+  // CA / Kia US can answer with an OTP challenge instead: then `otpRequest`
+  // is returned and the view continues via registerOtpHandlers().
+  async validateCredentials(settings, failedKey = 'pair.pairing_failed', deviceAuth = undefined) {
     this.log('validating credentials');
     if (settings.pin.length !== 4) {
       throw Error(this.homey.__('pair.invalid_pin'));
@@ -172,20 +176,33 @@ module.exports = class MyDriver extends Homey.Driver {
       brand: this.homey.manifest.id.replace('com.', ''), // 'kia' or 'hyundai'
       region: settings.region,
       logger: { log: this.log.bind(this), error: this.error.bind(this) },
+      deviceAuth,
     });
     let vehicleConfigs;
     try {
       vehicleConfigs = await Promise.race([manager.login(), timeout(this.homey, LOGIN_TIMEOUT_MS)]);
     } catch (error) {
-      this.error(error);
-      if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
-        throw Error(this.homey.__('pair.network_error'));
+      if (error instanceof exceptions.AuthenticationOTPRequired && error.otpRequest) {
+        this.log('OTP required');
+        return { manager, otpRequest: error.otpRequest };
       }
-      if (error instanceof exceptions.RateLimitingError) {
-        throw Error(this.homey.__('pair.rate_limited'));
-      }
-      throw Error(this.homey.__(failedKey, { error: error.message || error }));
+      this.throwLoginError(error, failedKey);
     }
+    return { manager, vehicleConfigs: await this.checkVehicles(manager, vehicleConfigs) };
+  }
+
+  throwLoginError(error, failedKey) {
+    this.error(error);
+    if (error instanceof exceptions.NetworkError || error instanceof exceptions.RequestTimeoutError) {
+      throw Error(this.homey.__('pair.network_error'));
+    }
+    if (error instanceof exceptions.RateLimitingError) {
+      throw Error(this.homey.__('pair.rate_limited'));
+    }
+    throw Error(this.homey.__(failedKey, { error: error.message || error }));
+  }
+
+  async checkVehicles(manager, vehicleConfigs) {
     if (!vehicleConfigs || !Array.isArray(vehicleConfigs) || vehicleConfigs.length < 1) {
       this.error('No vehicles in this account!');
       throw Error(this.homey.__('pair.no_vehicles'));
@@ -197,7 +214,56 @@ module.exports = class MyDriver extends Homey.Driver {
       throw Error(this.homey.__('pair.invalid_pin'));
     }
     this.log('CREDENTIALS OK!');
-    return { manager, vehicleConfigs };
+    return vehicleConfigs;
+  }
+
+  // The OTP steps of pair.html/repair.html. Only reachable after a CA / Kia US
+  // login answered with an OTP challenge. ctx is the session's shared state.
+  registerOtpHandlers(session, ctx, failedKey) {
+    session.setHandler('otp_send', async (notifyType) => {
+      if (!ctx.otpRequest) throw Error(this.homey.__(failedKey, { error: 'no OTP request' }));
+      let result;
+      try {
+        result = await Promise.race([
+          ctx.manager.sendOtp(ctx.otpRequest, constants.OTP_NOTIFY_TYPE[notifyType]),
+          timeout(this.homey, LOGIN_TIMEOUT_MS),
+        ]);
+      } catch (error) {
+        this.throwLoginError(error, failedKey);
+      }
+      // Kia US answers in-band; upstream ignores it, but then no code arrives.
+      if (result && result.status && result.status.statusCode) {
+        this.throwLoginError(Error(result.status.errorMessage || 'sendOTP failed'), failedKey);
+      }
+      return true;
+    });
+
+    session.setHandler('otp_verify', async (code) => {
+      if (!ctx.otpRequest) throw Error(this.homey.__(failedKey, { error: 'no OTP request' }));
+      let vehicleConfigs;
+      try {
+        vehicleConfigs = await Promise.race([
+          ctx.manager.verifyOtpAndCompleteLogin(String(code).trim(), ctx.otpRequest),
+          timeout(this.homey, LOGIN_TIMEOUT_MS),
+        ]);
+      } catch (error) {
+        this.throwLoginError(error, failedKey);
+      }
+      ctx.vehicleConfigs = await this.checkVehicles(ctx.manager, vehicleConfigs);
+      ctx.deviceAuth = ctx.manager.getDeviceAuth();
+      return true;
+    });
+  }
+
+  // What the pair/repair view's 'validate' emit resolves to: `true` when
+  // logged in, or the OTP destinations the view should offer.
+  validateResult(otpRequest) {
+    if (!otpRequest) return true;
+    return {
+      otp: {
+        hasEmail: otpRequest.hasEmail, hasSms: otpRequest.hasSms, email: otpRequest.email, sms: otpRequest.sms,
+      },
+    };
   }
 
   // Which capabilitiesMap bucket this vehicle belongs in. Derived from a raw
@@ -260,22 +326,23 @@ module.exports = class MyDriver extends Homey.Driver {
       this.log('Pairing of car started');
 
       let settings;
-      let manager;
-      let vehicleConfigs = [];
+      const ctx = { vehicleConfigs: [] };
 
       this.registerRegionsHandler(session);
+      this.registerOtpHandlers(session, ctx, 'pair.pairing_failed');
 
       session.setHandler('validate', async (data) => {
         settings = data;
-        ({ manager, vehicleConfigs } = await this.validateCredentials(data));
-        return true;
+        Object.assign(ctx, { otpRequest: null, deviceAuth: null, vehicleConfigs: [] });
+        Object.assign(ctx, await this.validateCredentials(data));
+        return this.validateResult(ctx.otpRequest);
       });
 
       session.setHandler('list_devices', async () => {
         this.log('listing of devices started');
-        const devices = vehicleConfigs.map(async (vehicleConfig) => {
+        const devices = ctx.vehicleConfigs.map(async (vehicleConfig) => {
           this.log(vehicleConfig);
-          const status = await manager.updateVehicleWithCachedState(vehicleConfig);
+          const status = await ctx.manager.updateVehicleWithCachedState(vehicleConfig);
           // console.dir(status, { depth: null, colors: true });
           const engine = this.deriveEngine(status, vehicleConfig);
           const checkable = this.extractCheckableStatus(status);
@@ -294,7 +361,10 @@ module.exports = class MyDriver extends Homey.Driver {
             // capability remove/re-add on the very first onInit(), after which
             // the three re-added alarm_generic.* capabilities sat unfilled
             // forever, because the car never reports them.
-            store: { seenCaps: this.buildSeenCaps(checkable) },
+            store: {
+              seenCaps: this.buildSeenCaps(checkable),
+              ...(ctx.deviceAuth && { deviceAuth: ctx.deviceAuth }),
+            },
           };
         });
         // console.log(await Promise.all(devices));
@@ -316,26 +386,30 @@ module.exports = class MyDriver extends Homey.Driver {
   // firmware update) — neither of which any restart can fix.
   onRepair(session, device) {
     let credentials;
-    let manager;
-    let vehicleConfigs = [];
+    const ctx = { vehicleConfigs: [] };
+    const storedAuth = device.getStoreValue('deviceAuth') || undefined;
 
     this.registerRegionsHandler(session);
+    this.registerOtpHandlers(session, ctx, 'pair.repair_failed');
 
     session.setHandler('validate', async (data) => {
       credentials = data;
-      ({ manager, vehicleConfigs } = await this.validateCredentials(data, 'pair.repair_failed'));
-      return true;
+      Object.assign(ctx, { otpRequest: null, deviceAuth: null, vehicleConfigs: [] });
+      const auth = data.region === device.getSettings().region ? storedAuth : undefined;
+      Object.assign(ctx, await this.validateCredentials(data, 'pair.repair_failed', auth));
+      if (auth && !ctx.otpRequest) ctx.deviceAuth = ctx.manager.getDeviceAuth();
+      return this.validateResult(ctx.otpRequest);
     });
 
     session.setHandler('repair', async () => {
       const vin = device.getData().id;
       this.log(`repairing ${device.getName()} (${vin})`);
-      const vehicleConfig = vehicleConfigs.find((vc) => vc.vin === vin);
+      const vehicleConfig = ctx.vehicleConfigs.find((vc) => vc.vin === vin);
       // The account no longer holds this car (sold, or unshared) — the same
       // situation Device#setupClient() reports, so the same message.
       if (!vehicleConfig) throw Error(this.homey.__('device_no_vehicle', { vin }));
 
-      const status = await manager.updateVehicleWithCachedState(vehicleConfig);
+      const status = await ctx.manager.updateVehicleWithCachedState(vehicleConfig);
       const engine = this.deriveEngine(status, vehicleConfig);
       await device.setSettings(this.buildDeviceSettings(credentials, vehicleConfig, engine, device.getSettings().language));
       // The capability migration is deliberately NOT run here. It settles 2s
@@ -356,6 +430,8 @@ module.exports = class MyDriver extends Homey.Driver {
       const stale = ['lastStatus', 'parkLocation', 'appliedDistanceUnits', 'appliedSpeedUnits', 'appliedFuelEconomyUnits'];
       await Promise.all(stale.map((key) => device.unsetStoreValue(key).catch((error) => this.error(error))));
       await device.setStoreValue('seenCaps', seenCaps).catch((error) => this.error(error));
+      if (ctx.deviceAuth) await device.setStoreValue('deviceAuth', ctx.deviceAuth).catch((error) => this.error(error));
+      else if (storedAuth) await device.unsetStoreValue('deviceAuth').catch((error) => this.error(error));
       this.log(`repair of ${device.getName()} done, engine=${engine}`);
       // cancelRestart() first: a device is usually repaired *because* it sits
       // in a pending restart backoff (15 min on device_auth_failed, 60 on OTP
