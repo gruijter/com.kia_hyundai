@@ -4928,6 +4928,44 @@
               "min": 0,
               "value": 0,
               "step": 15
+            },
+            {
+              "id": "pollAfterHomePark",
+              "type": "number",
+              "label": {
+                "en": "Refresh after parking at home (minutes)",
+                "nl": "Vernieuwen na thuis parkeren (minuten)",
+                "de": "Aktualisieren nach Parken zu Hause (Minuten)",
+                "fr": "Actualiser après stationnement au domicile (minutes)",
+                "es": "Actualizar tras aparcar en casa (minutos)",
+                "it": "Aggiorna dopo il parcheggio a casa (minuti)",
+                "da": "Opdater efter parkering hjemme (minutter)",
+                "sv": "Uppdatera efter parkering hemma (minuter)",
+                "no": "Oppdater etter parkering hjemme (minutter)",
+                "pl": "Odśwież po zaparkowaniu w domu (minuty)",
+                "ru": "Обновить после парковки дома (минуты)",
+                "ar": "التحديث بعد الركن في المنزل (بالدقائق)",
+                "ko": "집에 주차 후 새로고침(분)"
+              },
+              "hint": {
+                "en": "Wakes the car once, this many minutes after it parks at home, so the plug-in state is correct.\nDisable this function by setting the time to 0.",
+                "nl": "Wekt de auto eenmalig, dit aantal minuten nadat hij thuis parkeert, zodat de aansluitstatus klopt.\nSchakel deze functie uit door de tijd op 0 te zetten.",
+                "de": "Weckt das Fahrzeug einmalig so viele Minuten nach dem Parken zu Hause, damit der Ladekabelstatus stimmt.\nDeaktivieren Sie diese Funktion, indem Sie die Zeit auf 0 setzen.",
+                "fr": "Réveille le véhicule une fois, ce nombre de minutes après son stationnement au domicile, pour que l'état de branchement soit correct.\nDésactivez cette fonction en réglant la durée sur 0.",
+                "es": "Despierta el coche una vez, estos minutos después de aparcar en casa, para que el estado de conexión sea correcto.\nDesactive esta función poniendo el tiempo a 0.",
+                "it": "Risveglia l'auto una volta, questi minuti dopo il parcheggio a casa, così lo stato di collegamento è corretto.\nDisattiva questa funzione impostando il tempo a 0.",
+                "da": "Vækker bilen én gang, så mange minutter efter den parkerer hjemme, så tilslutningsstatus er korrekt.\nDeaktiver denne funktion ved at sætte tiden til 0.",
+                "sv": "Väcker bilen en gång, så många minuter efter att den parkerat hemma, så att anslutningsstatus stämmer.\nInaktivera funktionen genom att sätta tiden till 0.",
+                "no": "Vekker bilen én gang, så mange minutter etter at den parkerer hjemme, slik at tilkoblingsstatus stemmer.\nDeaktiver denne funksjonen ved å sette tiden til 0.",
+                "pl": "Wybudza samochód jeden raz, tyle minut po zaparkowaniu w domu, aby stan podłączenia był poprawny.\nWyłącz tę funkcję, ustawiając czas na 0.",
+                "ru": "Один раз будит автомобиль через указанное число минут после парковки дома, чтобы статус подключения был верным.\nОтключите эту функцию, установив время 0.",
+                "ar": "يوقظ السيارة مرة واحدة بعد هذا العدد من الدقائق من ركنها في المنزل، لتكون حالة التوصيل صحيحة.\nعطّل هذه الوظيفة بضبط الوقت على 0.",
+                "ko": "집에 주차한 후 이 시간(분)이 지나면 차량을 한 번 깨워 충전 케이블 연결 상태를 정확하게 합니다.\n시간을 0으로 설정하면 이 기능이 비활성화됩니다."
+              },
+              "min": 0,
+              "max": 60,
+              "value": 0,
+              "step": 1
             }
           ]
         },

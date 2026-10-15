@@ -66,6 +66,10 @@ const PARK_WITHOUT_STATUS_MS = 5 * 60 * 1000;
 // location fix was first seen that marks that fix as stale; see doPoll().
 const STALE_FIX_ODO_DELTA = 0.5;
 
+// Radius around the home location setting that counts as parked at home, for
+// the pollAfterHomePark refresh; see doPoll().
+const HOME_RADIUS_KM = 0.2;
+
 // Parses a server-local YYYYMMDDHHmmss time as if it were UTC, so it is only
 // meaningful as a difference against another time on the same server clock.
 // NaN when absent or malformed, which makes any comparison false.
@@ -603,6 +607,7 @@ class CarDevice extends Homey.Device {
   markDestroyed() {
     this.destroyed = true;
     this.cancelRestart();
+    this.homey.clearTimeout(this.homeParkTimeout);
     this.stopPolling();
     this.flushQueue();
   }
@@ -833,6 +838,26 @@ class CarDevice extends Homey.Device {
         if (reason) {
           this.log(`${this.getName()} ${reason}, forcing one refresh`);
           this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+        }
+      }
+
+      // The car pushes its status when switched off, usually before the cable
+      // is plugged in, and doesn't always push again on plug-in. One delayed
+      // forced refresh per arrival home picks up the plug state. An arrival is
+      // a higher odometer than at the previous one, so a round trip back to the
+      // same spot counts too.
+      const homeOdo = this.getStoreValue('homeParkOdo');
+      if (this.settings.pollAfterHomePark && this.isEV && !stsMapped.engine
+        && (this.settings.lat || this.settings.lon) && this.distance(stsMapped) < HOME_RADIUS_KM
+        && typeof stsMapped.measure_odo === 'number' && stsMapped.measure_odo !== homeOdo) {
+        await this.setStoreValue('homeParkOdo', stsMapped.measure_odo).catch((error) => this.error(error));
+        if (typeof homeOdo === 'number' && stsMapped.measure_odo > homeOdo) {
+          this.log(`${this.getName()} parked at home, forcing one refresh in ${this.settings.pollAfterHomePark} minutes`);
+          this.homey.clearTimeout(this.homeParkTimeout);
+          this.homeParkTimeout = this.homey.setTimeout(() => {
+            if (this.destroyed) return;
+            this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+          }, this.settings.pollAfterHomePark * 60 * 1000);
         }
       }
 
