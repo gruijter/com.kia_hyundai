@@ -16,6 +16,7 @@ having to understand the rest of this codebase.
 | `ApiImpl.py` (`ApiImplSession`) | `native/http.js`                             |
 | `ApiImpl.py` (interface)        | `native/ApiImpl.js`                          |
 | `ApiImplType1.py`               | `native/ApiImplType1.js`                     |
+| `cci_fingerprint.py`            | `native/cciFingerprint.js`                   |
 | `KiaUvoApiEU.py`                | `native/regions/KiaUvoApiEU.js`              |
 | `KiaUvoApiAU.py`                | `native/regions/KiaUvoApiAU.js`              |
 | `KiaUvoApiCN.py`                | `native/regions/KiaUvoApiCN.js`              |
