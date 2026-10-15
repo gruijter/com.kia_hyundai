@@ -1,2 +1,2 @@
-KIA is driven by its vision to create sustainable mobility solutions that inspire movement and connection. With the KIA App for Homey, you can seamlessly integrate your KIA vehicle into your smart home, enabling features such as status monitoring, remote commands, and automations tailored to your daily routine
+Hyundai is committed to progress for humanity by delivering smart mobility solutions that enrich lives. With the Hyundai App for Homey, you can seamlessly integrate your Hyundai vehicle into your smart home, allowing you to monitor its status, execute remote actions, and create automations that fit your lifestyle.
 
