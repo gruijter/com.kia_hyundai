@@ -180,7 +180,7 @@ than being prevented up front.
 
 ## Upstream sync point
 
-Last compared against upstream **v4.34.0** (commit `f74b2ed`). Deliberately not
+Last compared against upstream **v4.35.3** (commit `16ff6b3`). Deliberately not
 ported, with the reason, so the next diff doesn't re-open them:
 
 | Upstream | Why not |
@@ -191,6 +191,10 @@ ported, with the reason, so the next diff doesn't re-open them:
 | #1293 (CCS2 `BatteryPreCondition.Status`) | No battery-precondition capability exists in the app; nothing reads that field. |
 | #1303 "None = leave unchanged" schedule options | Only its `[9]` "no days selected" default is ported. The fill-from-vehicle logic needs a `Vehicle` object (see the structural deviation above), so the EV5 per-scope endpoint skip never applies: both scopes are always sent, and #1328's sequencing always runs. Its temperature guard isn't needed: the CCS2 status carries `Green.Reservation.Departure.Climate.Temperature`, which `buildScheduleOptions()` reads. |
 | b1fdd79 (retry login when a refresh-token `token.password` fails) | Only fires for a token persisted across a credentials change; this port never persists tokens. |
+| #1329 / #1330 GSPA OTA and CCI stored-status fields | Only touch `GspaApiEU` / `KiaCciApiEU`, which aren't ported (see #1284 above). |
+| #1335 Type1 consolidation of AU/CN/IN into `ApiImplType1` | Pure refactor, no behaviour change. The JS region files keep their own copies; port it only if a later upstream diff no longer lines up. |
+| #1325 CA typed errors for unexpected shapes | Already covered: `KiaUvoApiCA._checkResponseForErrors` rejects a missing `responseHeader`/`error` with `InvalidAPIResponseError`/`APIError`. |
+| #1350 Genesis Australia auth | Neither app supports Genesis. |
 
 ## Validation status per region
 
