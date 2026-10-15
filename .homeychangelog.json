@@ -73,5 +73,8 @@
   },
   "2.6.4": {
     "en": "Fix location refresh. Force refresh after data change with stale data. Fix departure schedule EV6/EV9. Hide SoH when reported as 0."
+  },
+  "2.6.5": {
+    "en": "Fix EU login. Added optional refresh after parking at home. EU max. temperature 31.5."
   }
 }
