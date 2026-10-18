@@ -1,6 +1,6 @@
 {
   "name": "com.kia",
-  "version": "2.6.6",
+  "version": "2.6.7",
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
