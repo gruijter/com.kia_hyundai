@@ -1060,8 +1060,13 @@ class CarDevice extends Homey.Device {
       map.departure_time = this.formatDeparture(departureSlots);
       map['departure_schedule.1'] = !!departureSlots[0]?.enabled;
       map['departure_schedule.2'] = !!departureSlots[1]?.enabled;
-      map['alarm_bat'] = (typeof bat12V === 'number' && bat12V < this.settings.batteryAlarmLevel)
-        || (sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel);
+      // alarm_bat covers both batteries; which one tripped it is stashed for
+      // the widget, which would otherwise have to guess.
+      this.batteryAlarmParts = [
+        ...((typeof bat12V === 'number' && bat12V < this.settings.batteryAlarmLevel) ? ['12v'] : []),
+        ...((sts?.evStatus?.batteryStatus < this.settings.EVbatteryAlarmLevel) ? ['ev'] : []),
+      ];
+      map['alarm_bat'] = this.batteryAlarmParts.length > 0;
       map.Date = sts.time;
     }
     // is new type status
@@ -1192,8 +1197,11 @@ class CarDevice extends Homey.Device {
       map.departure_time = this.formatDeparture(ccs2DepartureSlots);
       map['departure_schedule.1'] = !!ccs2DepartureSlots[0]?.enabled;
       map['departure_schedule.2'] = !!ccs2DepartureSlots[1]?.enabled;
-      map['alarm_bat'] = (typeof ccs2Bat12V === 'number' && ccs2Bat12V < this.settings.batteryAlarmLevel)
-        || (map.measure_battery < this.settings.EVbatteryAlarmLevel);
+      this.batteryAlarmParts = [
+        ...((typeof ccs2Bat12V === 'number' && ccs2Bat12V < this.settings.batteryAlarmLevel) ? ['12v'] : []),
+        ...((map.measure_battery < this.settings.EVbatteryAlarmLevel) ? ['ev'] : []),
+      ];
+      map['alarm_bat'] = this.batteryAlarmParts.length > 0;
       map.Date = sts.Date;
     }
     return map;
