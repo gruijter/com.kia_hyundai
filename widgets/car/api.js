@@ -154,6 +154,8 @@ module.exports = {
       // row can tell "no alarm" from "this car never reports it".
       alarm_tire_pressure: device.hasCapability('alarm_tire_pressure') ? device.getCapabilityValue('alarm_tire_pressure') : null,
       alarm_bat: device.hasCapability('alarm_bat') ? device.getCapabilityValue('alarm_bat') : null,
+      // Which battery keeps alarm_bat true ('12v' | 'ev'), stashed by mapStatus().
+      battery_alarm_parts: Array.isArray(device.batteryAlarmParts) ? device.batteryAlarmParts : [],
       'alarm_generic.washer_fluid': device.hasCapability('alarm_generic.washer_fluid') ? device.getCapabilityValue('alarm_generic.washer_fluid') : null,
       'alarm_generic.brake_fluid': device.hasCapability('alarm_generic.brake_fluid') ? device.getCapabilityValue('alarm_generic.brake_fluid') : null,
       'alarm_generic.key_fob_battery': device.hasCapability('alarm_generic.key_fob_battery') ? device.getCapabilityValue('alarm_generic.key_fob_battery') : null,

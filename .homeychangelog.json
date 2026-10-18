@@ -79,5 +79,8 @@
   },
   "2.6.6": {
     "en": "Added verification code (OTP) login for Canada and USA."
+  },
+  "2.6.7": {
+    "en": "Fixed OTP login for Canada. Minor API fixes for EU and CN. Fix battery alarm in widget."
   }
 }
