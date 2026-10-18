@@ -180,7 +180,7 @@ than being prevented up front.
 
 ## Upstream sync point
 
-Last compared against upstream **v4.35.3** (commit `16ff6b3`). Deliberately not
+Last compared against upstream **master** (commit `e7cc04a`, after v4.36.1). Deliberately not
 ported, with the reason, so the next diff doesn't re-open them:
 
 | Upstream | Why not |
@@ -195,6 +195,9 @@ ported, with the reason, so the next diff doesn't re-open them:
 | #1335 Type1 consolidation of AU/CN/IN into `ApiImplType1` | Pure refactor, no behaviour change. The JS region files keep their own copies; port it only if a later upstream diff no longer lines up. |
 | #1325 CA typed errors for unexpected shapes | Already covered: `KiaUvoApiCA._checkResponseForErrors` rejects a missing `responseHeader`/`error` with `InvalidAPIResponseError`/`APIError`. |
 | #1350 Genesis Australia auth | Neither app supports Genesis. |
+| #1373 Kia USA `check_action_status` returns `ORDER_STATUS` | The USA port has no `checkActionStatus`, and nothing calls it for USA. |
+| #1378 Hyundai USA per-tire pressures | New feature; the app only exposes `alarm_tire_pressure`. |
+| #1359–#1376 signature/annotation/`otp_handler` refactors | No behaviour change in the port (USA `login` already takes `username, password, pin`). |
 
 ## Validation status per region
 
