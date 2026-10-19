@@ -82,5 +82,8 @@
   },
   "2.6.7": {
     "en": "Fixed OTP login for Canada. Minor API fixes for EU and CN. Fix battery alarm in widget."
+  },
+  "2.6.8": {
+    "en": "Fixed pairing for USA and other regions. Improved privacy of diagnostic reports. Minor API fixes for EU. Prepare GSPA-port."
   }
 }
