@@ -304,8 +304,9 @@ module.exports = class MyDriver extends Homey.Driver {
       nameOrg: vehicleConfig.name,
       idOrg: vehicleConfig.id,
       vin: vehicleConfig.vin,
-      // Only the EU-type vehicle list has regDate/nickname; USA, CA and BR
-      // don't, and their nickName is mapped to `name` in getVehicles().
+      // regDate/nickname only come with the EU-type and BR vehicle lists;
+      // USA and CA have neither (their nickName is mapped to `name` in
+      // getVehicles()).
       regDate: (vehicleConfig.regDate || '').split(' ')[0],
       brandIndicator: vehicleConfig.brandIndicator,
       generation: vehicleConfig.generation,
