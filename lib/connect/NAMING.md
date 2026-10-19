@@ -83,6 +83,17 @@ for `scheduleChargingAndClimate`).
 (`period: 'month'|'day'`). `drivingInfo` only feeds the debug dump (see
 `zzz_responses/README.md`); `tripInfo` has no caller.
 
+## Token handling (`check_and_refresh_token`)
+
+`VehicleManager#_ensureValidToken` is the port of `check_and_refresh_token`:
+refresh when `validUntil` is near, or when `impl.testToken()` returns `false`,
+then `impl.refreshVehicles()` (only Kia USA does something there: its vehicle
+key is session specific). One deviation: upstream runs it once per update
+cycle, but here it runs before every command and a poll makes several, so
+`testToken` is called at most once per 5 minutes. Only CA (`vhcllst`, catches
+7403/7602/7606) and GSPA have a real `testToken`; the `ApiImpl` default
+returns `true` without a request.
+
 ## The status shape every region must return
 
 `device.js#mapStatus()` reads one shape, whatever the region:
@@ -220,7 +231,7 @@ nothing past login: **status and control are untested outside EU.**
 | BR (Hyundai only) | Mock-tested: authorize page loads, `/user/signin` answers `401 4010` as a readable `AuthenticationError`. | Cached status is CCS2-shaped although BR vehicles report `ccuCCS2ProtocolSupport: 0`; `/status/latest` is the command-result feed there (always 503) and is never used. Force refresh is asynchronous (wake, wait 25s, re-read `/latest`) and refuses data whose `lastUpdateTime` didn't advance. Every command needs the PIN control token, so a PIN-less pairing can't control the car. No valet mode; windows move all together. Deviations: Type1's `USER_API_URL`/`SPA_API_URL*` are set (upstream leaves them undefined, so inherited methods raise), and `_getControlToken` is aliased to BR's `_ensureControlToken` so inherited commands use BR's PIN flow instead of EU's. |
 | CN (Kia + Hyundai) | Mock-tested: reaches `loginInit.do` and `oauth2/authorize` (200) and gets `401 4010` from `/user/signin`. | Upstream's port (#1295) was verified end-to-end only by its author, on Hyundai; the Kia constants come from the same app binary. Login runs through the UARS service (`uars-{k|h}.hmgmobility.com.cn`), which returns the token bundle embedded in an HTML page — `extractUarsLoginBundle()` is the only HTML scraping in this port and the first suspect if login breaks. Device registration happens *after* signin, so the mock test doesn't exercise it. Tokens live 6h and refresh via `/user/silentsignin`. Everything marked `CN-UNVERIFIED` is marked the same upstream: PIN/control token, legacy force refresh, CCS2, `setChargeLimits`. |
 | CA (Kia + Hyundai) | Mock-tested: correct "incorrect login" error on fake credentials. | OTP (untested live): `login()` throws `AuthenticationOTPRequired` with upstream's `OTPRequest` on `.otpRequest` instead of returning it; pair/repair views then run `sendOtp`/`verifyOtpAndCompleteLogin`. The device id is persisted in the device store (`deviceAuth`) and restored via `restoreDeviceAuth()` — upstream persists it inside the Token. Device id uses a hand-written UUID5. The location gate (#1294/#1296) keeps the last position in memory per vehicle (`_locationState`), standing in for upstream's `vehicle.location` / `vehicle._location_fetch_attempted` — without it every poll would spend a `vrfypin` + `fndmcr` pair. |
-| US — Kia | Mock-tested: correct "Invalid Email or Password" error on fake credentials. | Different backend (`api.owners.kia.com`, session-header auth) with a very different raw status shape, translated to `vehicleStatus.*` **only for the fields `mapStatus()` uses**, not 1:1 with upstream. OTP as CA; `deviceAuth` also holds the `rmtoken`, sent on every login so OTP is only asked again when Kia expires it (`rmTokenExpired`). |
+| US — Kia | Mock-tested: correct "Invalid Email or Password" error on fake credentials. | Different backend (`api.owners.kia.com`, session-header auth) with a very different raw status shape, translated to `vehicleStatus.*` **only for the fields `mapStatus()` uses**, not 1:1 with upstream. OTP as CA; `deviceAuth` also holds the `rmtoken`, sent on every login so OTP is only asked again when Kia expires it (`rmTokenExpired`). Live user report (2026 Sorento Hybrid, v2.6.8): pairing, unlock and climate work; the session can die after ~15 min (`1003` in a 200 body). Session repair is upstream's `request_with_logging` / `request_with_active_session` / `_retry_on_auth_error`, checked against upstream's `tests/test_usa_session_expiry.py` (`zzz_test/test-usa-session.js`). Deviations: `_requestWithLogging` returns the parsed body and type-guards a missing `status`; the shared `gvl` status check is `_checkGvlResponse`, and `getVehicles` wraps `_getVehicles` (Python's decorator). Odometer (`mileage`, a string) is coerced to a number and tagged miles (unit 3), as upstream does — also on Hyundai USA. |
 | US — Hyundai | Mock-tested: correct "Incorrect username or password" error on fake credentials. | Different backend than Kia USA (`api.telematics.hyundaiusa.com`); its raw status is already close to the EU shape. |
 
 The two US regions go through `native/http.js`'s `https.Agent` branch (for a
