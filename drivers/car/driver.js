@@ -304,7 +304,9 @@ module.exports = class MyDriver extends Homey.Driver {
       nameOrg: vehicleConfig.name,
       idOrg: vehicleConfig.id,
       vin: vehicleConfig.vin,
-      regDate: vehicleConfig.regDate.split(' ')[0],
+      // Only the EU-type vehicle list has regDate/nickname; USA, CA and BR
+      // don't, and their nickName is mapped to `name` in getVehicles().
+      regDate: (vehicleConfig.regDate || '').split(' ')[0],
       brandIndicator: vehicleConfig.brandIndicator,
       generation: vehicleConfig.generation,
       ccuCCS2ProtocolSupport: vehicleConfig.ccuCCS2ProtocolSupport,
@@ -347,7 +349,7 @@ module.exports = class MyDriver extends Homey.Driver {
           const engine = this.deriveEngine(status, vehicleConfig);
           const checkable = this.extractCheckableStatus(status);
           return {
-            name: vehicleConfig.nickname,
+            name: vehicleConfig.nickname || vehicleConfig.name || vehicleConfig.vin,
             data: {
               id: vehicleConfig.vin,
             },
