@@ -85,5 +85,8 @@
   },
   "2.6.8": {
     "en": "Fixed pairing for USA and other regions. Improved privacy of diagnostic reports. Minor API fixes for EU. Prepare GSPA-port."
+  },
+  "2.6.9": {
+    "en": "Fixed USA session expiry and commands. Fixed USA distance units. Improved session recovery for Canada."
   }
 }
