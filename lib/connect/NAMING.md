@@ -17,6 +17,10 @@ having to understand the rest of this codebase.
 | `ApiImpl.py` (interface)        | `native/ApiImpl.js`                          |
 | `ApiImplType1.py`               | `native/ApiImplType1.js`                     |
 | `cci_fingerprint.py`            | `native/cciFingerprint.js`                   |
+| `gspa/cipher_keys.py` (+ JSON tables) | `native/gspa/cipherKeys.js` (+ same JSON, compacted) |
+| `GspaApiEU.py`                  | `native/GspaApiEU.js`                        |
+| `KiaCciApiEU.py`                | `native/regions/KiaCciApiEU.js`              |
+| `HyundaiCciApiEU.py`            | `native/regions/HyundaiCciApiEU.js`          |
 | `KiaUvoApiEU.py`                | `native/regions/KiaUvoApiEU.js`              |
 | `KiaUvoApiAU.py`                | `native/regions/KiaUvoApiAU.js`              |
 | `KiaUvoApiCN.py`                | `native/regions/KiaUvoApiCN.js`              |
@@ -180,18 +184,20 @@ than being prevented up front.
 
 ## Upstream sync point
 
-Last compared against upstream **master** (commit `e7cc04a`, after v4.36.1). Deliberately not
+Last compared against upstream **master** (commit `bb8879a`, after v4.37.0). Deliberately not
 ported, with the reason, so the next diff doesn't re-open them:
 
 | Upstream | Why not |
 |---|---|
 | #1203 / #1310 / #1314 SVM / Find My Car camera images | New feature, not a fix. Only Hyundai BlueLink USA and the unported EU CCI region implement it. Would need a new Homey image/flow surface and a live Hyundai USA car with SVM to validate. |
-| #1284 / #1305 `GspaApiEU` / `HyundaiCciApiEU` / `KiaCciApiEU`, `REGION_EUROPE_CCI` | A *parallel* EU region, not a replacement — `REGION_EUROPE` still dispatches to `KiaUvoApiEU` for every brand upstream. Needs the ~250 KB per-brand `gspa/*_cipher_params.json` blobs. Revisit once upstream has live fixtures. |
+| #1284 / #1305 `GspaApiEU` / `HyundaiCciApiEU` / `KiaCciApiEU`, `REGION_EUROPE_CCI` | Ported, not used by the Homey app (no Homey region maps to `REGION_EUROPE_CCI`). Everything except upstream's CCS2 `Vehicle` parser (the usual deviation: `updateVehicleWithCachedState` / Hyundai `forceRefreshVehicleState` return the bare CCS2 `Vehicle`; Hyundai driving info/history/breakdowns and OTA/software version are separate raw calls) and SVM (needs `svm.py`). Kia keeps upstream's gate: only `GSPA_VERIFIED_ENDPOINTS` commands, no force refresh, no action polling. Brand constants sit on the prototype (`Object.assign`), not in class fields, because the base constructor reads them. Commands not used by the app (e.g. `openFrunk`, `startEngine`, `turnOffLamp`, the reservation variants) have no `VehicleManager` wrapper. Validation: X-Stamp bit-exact vs upstream vectors (`zzz_test/test-gspa-cipher.js`); read path live-verified 2026-10-19 on Kia e-Niro, Niro, EV3, EV6 and Hyundai Kona Electric, IONIQ 5 (`zzz_test/test-gspa-connect.js`); every command, schedule, PIN/401-retry and error path checked against upstream's Python with HTTP mocked on both sides (`zzz_test/gspa-diff/`, 100 scenarios identical). Commands are not live-tested. |
 | #1292 (EU `/location` time is UTC) | No location timestamp is exposed here; the finding itself is relied on — see the status shape section. |
 | #1293 (CCS2 `BatteryPreCondition.Status`) | No battery-precondition capability exists in the app; nothing reads that field. |
 | #1303 "None = leave unchanged" schedule options | Only its `[9]` "no days selected" default is ported. The fill-from-vehicle logic needs a `Vehicle` object (see the structural deviation above), so the EV5 per-scope endpoint skip never applies: both scopes are always sent, and #1328's sequencing always runs. Its temperature guard isn't needed: the CCS2 status carries `Green.Reservation.Departure.Climate.Temperature`, which `buildScheduleOptions()` reads. |
 | b1fdd79 (retry login when a refresh-token `token.password` fails) | Only fires for a token persisted across a credentials change; this port never persists tokens. |
 | #1329 / #1330 GSPA OTA and CCI stored-status fields | Only touch `GspaApiEU` / `KiaCciApiEU`, which aren't ported (see #1284 above). |
+| #1380 / #1381 Kia GSPA commands, granular door endpoints, CCI window control | Same: `GspaApiEU` / `KiaCciApiEU` only. |
+| #1357 removal of deprecated `VehicleManager.initialize()` | Never existed in the port. |
 | #1335 Type1 consolidation of AU/CN/IN into `ApiImplType1` | Pure refactor, no behaviour change. The JS region files keep their own copies; port it only if a later upstream diff no longer lines up. |
 | #1325 CA typed errors for unexpected shapes | Already covered: `KiaUvoApiCA._checkResponseForErrors` rejects a missing `responseHeader`/`error` with `InvalidAPIResponseError`/`APIError`. |
 | #1350 Genesis Australia auth | Neither app supports Genesis. |
