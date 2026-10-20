@@ -88,5 +88,8 @@
   },
   "2.6.9": {
     "en": "Fixed USA session expiry and commands. Fixed USA distance units. Improved session recovery for Canada."
+  },
+  "2.7.0": {
+    "en": "Improved command status checking. Improved cached polling strategy. Fixed status reverting after commands."
   }
 }
