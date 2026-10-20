@@ -111,6 +111,8 @@ const ITEM_WAIT_SECONDS = {
 const ACTION_STATUS_DELAY_SECONDS = 5;
 const ACTION_STATUS_TIMEOUT_SECONDS = 60;
 const FORCED_FOLLOW_UP_COMMANDS = ['setChargeTargets'];
+// Cached re-poll after doPoll() ignored a pre-command status.
+const STALE_STATUS_REPOLL_MS = 2 * 60 * 1000;
 
 // enQueue()'s returned promise races the item's real result against this
 // timeout, falling back to an optimistic `true` if it fires first — Homey's
@@ -644,6 +646,7 @@ class CarDevice extends Homey.Device {
     this.destroyed = true;
     this.cancelRestart();
     this.homey.clearTimeout(this.homeParkTimeout);
+    this.homey.clearTimeout(this.staleRepollTimeout);
     this.stopPolling();
     this.flushQueue();
   }
@@ -713,7 +716,7 @@ class CarDevice extends Homey.Device {
   // }
 
   // poll server and/or car for status
-  async doPoll({ forceOnce = false, logPoll = false }) {
+  async doPoll({ forceOnce = false, logPoll = false, homeParkDate }) {
     // console.log(forceOnce);
     try {
       this.setCapability('refresh_status', true).catch((error) => this.error(error));
@@ -805,6 +808,11 @@ class CarDevice extends Homey.Device {
       if (preCommandStatusDate && stsMapped.Date && stsMapped.Date === preCommandStatusDate) {
         this.log(`${this.getName()} Ignoring status from before the last command (${stsMapped.Date})`);
         this.setCapability('refresh_status', false).catch((error) => this.error(error));
+        this.homey.clearTimeout(this.staleRepollTimeout);
+        this.staleRepollTimeout = this.homey.setTimeout(() => {
+          if (this.destroyed) return;
+          this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: false, homeParkDate } }).catch(() => {});
+        }, STALE_STATUS_REPOLL_MS);
         return;
       }
       await DeviceMigrator.syncDistanceUnits(this, this.imperialDistance).catch((error) => this.error(error));
@@ -889,20 +897,27 @@ class CarDevice extends Homey.Device {
 
       // The car pushes its status when switched off, usually before the cable
       // is plugged in, and doesn't always push again on plug-in. One delayed
-      // forced refresh per arrival home picks up the plug state. An arrival is
-      // a higher odometer than at the previous one, so a round trip back to the
-      // same spot counts too.
+      // refresh per arrival home picks up the plug state: cached first, forced
+      // only if that still shows unplugged or no status since parking. An
+      // arrival is a higher odometer than at the previous one, so a round trip
+      // back to the same spot counts too.
+      if (homeParkDate !== undefined && !refresh
+        && (stsMapped.Date === homeParkDate || stsMapped.ev_charging_state === 'plugged_out')) {
+        this.log(`${this.getName()} no plug-in seen since parking at home, forcing one refresh`);
+        this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+      }
       const homeOdo = this.getStoreValue('homeParkOdo');
       if (this.settings.pollAfterHomePark && this.isEV && !stsMapped.engine
         && (this.settings.lat || this.settings.lon) && this.distance(stsMapped) < HOME_RADIUS_KM
         && typeof stsMapped.measure_odo === 'number' && stsMapped.measure_odo !== homeOdo) {
         await this.setStoreValue('homeParkOdo', stsMapped.measure_odo).catch((error) => this.error(error));
         if (typeof homeOdo === 'number' && stsMapped.measure_odo > homeOdo) {
-          this.log(`${this.getName()} parked at home, forcing one refresh in ${this.settings.pollAfterHomePark} minutes`);
+          this.log(`${this.getName()} parked at home, refreshing in ${this.settings.pollAfterHomePark} minutes`);
+          const parkDate = stsMapped.Date ?? null;
           this.homey.clearTimeout(this.homeParkTimeout);
           this.homeParkTimeout = this.homey.setTimeout(() => {
             if (this.destroyed) return;
-            this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false } }).catch(() => {});
+            this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: false, homeParkDate: parkDate } }).catch(() => {});
           }, this.settings.pollAfterHomePark * 60 * 1000);
         }
       }
