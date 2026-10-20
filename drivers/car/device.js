@@ -111,7 +111,12 @@ const ITEM_WAIT_SECONDS = {
 const ACTION_STATUS_DELAY_SECONDS = 5;
 const ACTION_STATUS_TIMEOUT_SECONDS = 60;
 const FORCED_FOLLOW_UP_COMMANDS = ['setChargeTargets'];
-// Cached re-poll after doPoll() ignored a pre-command status.
+// Commands that change nothing in the status, so a follow-up poll with the
+// pre-command status Date is not stale and the stale-status guard skips them.
+const STATUS_NEUTRAL_COMMANDS = ['flashLights', 'flashLightsAndHonk', 'setNavigation'];
+// Forced re-poll after doPoll() ignored a pre-command status: the cached
+// status had not caught up, so a second cached read would likely apply the
+// same pre-command state.
 const STALE_STATUS_REPOLL_MS = 2 * 60 * 1000;
 
 // enQueue()'s returned promise races the item's real result against this
@@ -269,7 +274,7 @@ class CarDevice extends Homey.Device {
     // those values (especially for commands added in 2026) are an unverified
     // guess, not something tested against the live API or documented anywhere.
     this.lastCommandDispatched = null;
-    this.lastCommandDispatchedAt = null;
+    this.lastCommandSettledAt = null;
   }
 
   // Defined on the class rather than assigned inside setupQueue() below: a
@@ -359,14 +364,16 @@ class CarDevice extends Homey.Device {
           // captured into locals before being overwritten below, so the
           // .catch() handler further down still refers to the *previous*
           // command, not the one that just got rejected.
+          // Measured from when the previous command's ITEM_WAIT_SECONDS sleep
+          // started, i.e. after its action status check, so the gap stays
+          // comparable to the configured wait.
           const previousCommand = this.lastCommandDispatched;
-          const sinceLastMs = this.lastCommandDispatchedAt ? Date.now() - this.lastCommandDispatchedAt : null;
+          const sinceLastMs = this.lastCommandSettledAt ? Date.now() - this.lastCommandSettledAt : null;
           if (item.command !== 'doPoll') {
-            this.log(`[queue-timing] ${item.command} dispatched ${sinceLastMs}ms after previous command `
+            this.log(`[queue-timing] ${item.command} dispatched ${sinceLastMs}ms after previous command settled `
               + `(${previousCommand || 'none'}, configured wait ${ITEM_WAIT_SECONDS[previousCommand] ?? 'n/a'}s)`);
           }
           this.lastCommandDispatched = item.command;
-          this.lastCommandDispatchedAt = Date.now();
           let succeeded = false;
           let actionId;
           // eslint-disable-next-line no-await-in-loop
@@ -422,9 +429,12 @@ class CarDevice extends Homey.Device {
                 item.reject(error);
               }
             });
-          if (item.command !== 'doPoll' && succeeded) {
-            // Baseline for the stale-status guard in doPoll(); the first command since the last poll sets it.
-            if (this.preCommandStatusDate === undefined) this.preCommandStatusDate = this.lastStatus?.Date ?? null;
+          if (item.command === 'doPoll') {
+            // A forced poll already refreshed after the commands before it.
+            if (item.args?.forceOnce) forceFollowUpPoll = false;
+          } else if (!succeeded) {
+            forceFollowUpPoll = true;
+          } else {
             let actionStatus;
             if (typeof actionId === 'string') {
               // eslint-disable-next-line no-await-in-loop
@@ -437,11 +447,18 @@ class CarDevice extends Homey.Device {
               this.log(`${item.command} action status: ${actionStatus}`);
               if (this.destroyed || this.queueGeneration !== generation) return;
             }
+            // Baseline for the stale-status guard in doPoll(); the first command since the last poll sets it.
+            // Not after a rejected command: the pre-command status is the truth then, and the cached
+            // follow-up poll must apply it to undo the optimistic capability value.
+            if (actionStatus === ORDER_STATUS.FAILED) {
+              this.error(`${item.command} was rejected by the car`);
+            } else if (this.preCommandStatusDate === undefined && !STATUS_NEUTRAL_COMMANDS.includes(item.command)) {
+              this.preCommandStatusDate = this.lastStatus?.Date ?? null;
+            }
             const finalStatus = actionStatus === ORDER_STATUS.SUCCESS || actionStatus === ORDER_STATUS.FAILED;
             if (!finalStatus || FORCED_FOLLOW_UP_COMMANDS.includes(item.command)) forceFollowUpPoll = true;
-          } else if (item.command !== 'doPoll') {
-            forceFollowUpPoll = true;
           }
+          this.lastCommandSettledAt = Date.now();
           // eslint-disable-next-line no-await-in-loop
           await setTimeoutPromise((ITEM_WAIT_SECONDS[item.command] || 5) * 1000, 'waiting is done');
           if (this.destroyed || this.queueGeneration !== generation) return;
@@ -799,19 +816,24 @@ class CarDevice extends Homey.Device {
         this.log('===VEHICLE-DEBUG-DUMP-END===');
       }
       // console.dir(fullStatus, { depth: null, colors: true, showHidden: true });
+      // mapStatus() replaces rawReservation, which enableDepartureSchedule()
+      // patched optimistically; an ignored status below must not undo that.
+      const { rawReservation } = this;
       const stsMapped = await this.mapStatus(fullStatus);
       // The first poll after a command can still return the car's pre-command
       // state (Kia USA: lock reverted to unlocked by the follow-up poll). Don't
-      // let that overwrite what the command just set; the next poll applies it.
+      // let that overwrite what the command just set; a forced re-poll applies
+      // the real state.
       const { preCommandStatusDate } = this;
       this.preCommandStatusDate = undefined;
-      if (preCommandStatusDate && stsMapped.Date && stsMapped.Date === preCommandStatusDate) {
+      if (preCommandStatusDate && stsMapped.Date === preCommandStatusDate) {
         this.log(`${this.getName()} Ignoring status from before the last command (${stsMapped.Date})`);
+        this.rawReservation = rawReservation;
         this.setCapability('refresh_status', false).catch((error) => this.error(error));
         this.homey.clearTimeout(this.staleRepollTimeout);
         this.staleRepollTimeout = this.homey.setTimeout(() => {
           if (this.destroyed) return;
-          this.enQueue({ command: 'doPoll', args: { forceOnce: false, logPoll: false, homeParkDate } }).catch(() => {});
+          this.enQueue({ command: 'doPoll', args: { forceOnce: true, logPoll: false, homeParkDate } }).catch(() => {});
         }, STALE_STATUS_REPOLL_MS);
         return;
       }
@@ -1415,8 +1437,9 @@ class CarDevice extends Homey.Device {
     this.log(`Departure schedule ${index} ${enabled ? 'enabled' : 'disabled'} via ${source}`);
     // Reflect it right away in the toggle + departure_time (a flow card sets
     // no capability itself, and even the tile toggle would otherwise sit
-    // ahead of departure_time). The forced poll after the command re-derives
-    // both from real status once the server catches up.
+    // ahead of departure_time). The follow-up poll re-derives both from real
+    // status once the server catches up; until then doPoll()'s stale-status
+    // guard keeps this patch.
     const raw = this.rawReservation;
     if (raw?.kind === 'legacy') {
       const detail = (index === 2 ? raw.data.reserveChargeInfo2 : raw.data.reservChargeInfo)?.reservChargeInfoDetail;
