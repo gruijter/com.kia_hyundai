@@ -91,5 +91,8 @@
   },
   "2.7.0": {
     "en": "Improved command status checking. Improved cached polling strategy. Fixed status reverting after commands."
+  },
+  "2.7.1": {
+    "en": "Fixed EU login failure."
   }
 }
